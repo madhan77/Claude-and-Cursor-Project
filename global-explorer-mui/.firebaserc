@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "claude-project-10b09"
+  },
+  "targets": {
+    "claude-project-10b09": {
+      "hosting": {
+        "global-explorer": [
+          "global-explorer-app"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

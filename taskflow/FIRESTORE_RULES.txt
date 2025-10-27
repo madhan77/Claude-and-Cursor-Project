@@ -1,0 +1,29 @@
+COPY THESE EXACT RULES TO FIREBASE CONSOLE
+===========================================
+
+1. Go to: https://console.firebase.google.com/u/0/project/claude-project-10b09/firestore/rules
+
+2. Delete EVERYTHING in the editor
+
+3. Copy and paste EXACTLY this (including the line numbers shown below):
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+
+4. Click "Publish"
+
+5. Wait 30 seconds
+
+6. Refresh your browser with Ctrl+Shift+R (hard refresh)
+
+7. Try again
+
+===========================================
+
+If you see ANY error when publishing, tell me what it says.

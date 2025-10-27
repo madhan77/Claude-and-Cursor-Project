@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <link rel="stylesheet" href="expense-tracker.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Personal Expense Tracker</h1>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Total Balance</h3>
+                <span id="totalBalance" class="amount">$0.00</span>
+            </div>
+            <div class="summary-card">
+                <h3>This Month</h3>
+                <span id="monthlyExpense" class="amount expense">$0.00</span>
+            </div>
+            <div class="summary-card">
+                <h3>Categories</h3>
+                <span id="categoryCount" class="amount">0</span>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="form-group">
+                <label for="expenseDescription">Description</label>
+                <input type="text" id="expenseDescription" placeholder="What did you spend on?" />
+            </div>
+            <div class="form-group">
+                <label for="expenseAmount">Amount</label>
+                <input type="number" id="expenseAmount" placeholder="0.00" step="0.01" min="0" />
+            </div>
+            <div class="form-group">
+                <label for="expenseCategory">Category</label>
+                <select id="expenseCategory">
+                    <option value="food">🍔 Food & Dining</option>
+                    <option value="transport">🚗 Transportation</option>
+                    <option value="shopping">🛍️ Shopping</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                    <option value="bills">💡 Bills & Utilities</option>
+                    <option value="healthcare">🏥 Healthcare</option>
+                    <option value="education">📚 Education</option>
+                    <option value="other">📦 Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="expenseDate">Date</label>
+                <input type="date" id="expenseDate" />
+            </div>
+            <button id="addExpenseBtn">Add Expense</button>
+        </div>
+
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="food">Food</button>
+            <button class="filter-btn" data-filter="transport">Transport</button>
+            <button class="filter-btn" data-filter="shopping">Shopping</button>
+            <button class="filter-btn" data-filter="entertainment">Entertainment</button>
+            <button class="filter-btn" data-filter="other">Other</button>
+        </div>
+
+        <div class="expense-list-container">
+            <h3>Recent Expenses</h3>
+            <ul id="expenseList" class="expense-list"></ul>
+        </div>
+
+        <div class="chart-section">
+            <h3>Spending by Category</h3>
+            <div id="categoryChart" class="category-chart"></div>
+        </div>
+
+        <div class="actions">
+            <button id="exportData">📊 Export Data</button>
+            <button id="clearAllData">🗑️ Clear All</button>
+        </div>
+    </div>
+
+    <script src="expense-tracker.js"></script>
+</body>
+</html>

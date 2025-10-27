@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(npm cache verify:*)",
+      "Bash(npx firebase login:*)",
+      "Bash(chmod:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm create:*)",
+      "Bash(npx firebase init hosting)",
+      "Bash(npx firebase deploy:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
