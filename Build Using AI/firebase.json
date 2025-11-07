@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "source": "functions"
+  },
   "hosting": {
     "public": ".",
     "ignore": [
@@ -9,7 +12,8 @@
       "package-lock.json",
       "README.md",
       "DEPLOY.md",
-      "QUICKSTART.md"
+      "QUICKSTART.md",
+      "functions/**"
     ],
     "headers": [
       {
