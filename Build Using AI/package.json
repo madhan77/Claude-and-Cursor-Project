@@ -1,0 +1,25 @@
+{
+  "name": "prototype-template-builder",
+  "version": "1.0.0",
+  "description": "A powerful, 100% free template builder that generates professional HTML templates instantly",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o",
+    "dev": "npx http-server . -p 8080 -o"
+  },
+  "keywords": [
+    "template",
+    "builder",
+    "html",
+    "generator",
+    "prototype",
+    "dashboard",
+    "landing-page"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
+

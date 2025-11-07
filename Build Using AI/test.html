@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gemini API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 { font-size: 28px; margin-bottom: 10px; color: #1a202c; }
+        p { color: #718096; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        input[type="password"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow: auto;
+        }
+        .result.success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+        }
+        .result.error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading.show { display: block; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .test-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .test-btn {
+            flex: 1;
+            padding: 10px;
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .test-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Gemini API</h1>
+        <p>Test different Gemini models to find which one works</p>
+
+        <div class="input-group">
+            <label>🔑 Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="AIzaSy...">
+        </div>
+
+        <div class="input-group">
+            <label>📸 Upload Test Image (optional)</label>
+            <input type="file" id="imageFile" accept="image/*">
+            <img id="imagePreview" class="image-preview" style="display: none;">
+        </div>
+
+        <div class="test-options">
+            <button class="test-btn active" data-model="gemini-1.5-pro">Gemini 1.5 Pro</button>
+            <button class="test-btn" data-model="gemini-1.5-flash">Gemini 1.5 Flash</button>
+            <button class="test-btn" data-model="gemini-pro">Gemini Pro</button>
+        </div>
+
+        <button id="testBtn" onclick="testAPI()">🚀 Test API</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Testing API...</div>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let selectedModel = 'gemini-1.5-pro';
+        let imageData = null;
+
+        // Model selection
+        document.querySelectorAll('.test-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selectedModel = this.dataset.model;
+                document.querySelectorAll('.test-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Image upload
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData = e.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = imageData;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function testAPI() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                showResult('error', '⚠️ Please enter your API key');
+                return;
+            }
+
+            document.getElementById('testBtn').disabled = true;
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').innerHTML = '';
+
+            try {
+                // Test 1: Simple text-only request
+                console.log(`Testing model: ${selectedModel}`);
+                
+                const hasImage = imageData && selectedModel !== 'gemini-pro';
+                
+                const requestBody = {
+                    contents: [{
+                        parts: hasImage ? [
+                            { text: "Describe this image briefly." },
+                            {
+                                inline_data: {
+                                    mime_type: 'image/jpeg',
+                                    data: imageData.split(',')[1]
+                                }
+                            }
+                        ] : [
+                            { text: "Say 'API is working!' in one sentence." }
+                        ]
+                    }]
+                };
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+                
+                console.log('Request URL:', url);
+                console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                
+                console.log('Response:', data);
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${JSON.stringify(data, null, 2)}`);
+                }
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    const result = data.candidates[0].content.parts[0].text;
+                    showResult('success', `✅ SUCCESS!\n\nModel: ${selectedModel}\n\nResponse:\n${result}\n\n✅ This model works for your API key!`);
+                } else {
+                    showResult('error', `⚠️ Unexpected response structure:\n\n${JSON.stringify(data, null, 2)}`);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', `❌ ERROR:\n\n${error.message}\n\nTry:\n1. Check API key is valid\n2. Enable API at console.cloud.google.com\n3. Try different model above`);
+            }
+
+            document.getElementById('testBtn').disabled = false;
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<pre>${message}</pre>`;
+        }
+
+        // Load saved key
+        const savedKey = localStorage.getItem('gemini_api_key');
+        if (savedKey) {
+            document.getElementById('apiKey').value = savedKey;
+        }
+
+        // Save key on change
+        document.getElementById('apiKey').addEventListener('change', function() {
+            localStorage.setItem('gemini_api_key', this.value.trim());
+        });
+    </script>
+</body>
+</html>

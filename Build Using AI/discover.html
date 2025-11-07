@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Available Models</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 { font-size: 28px; margin-bottom: 10px; color: #1a202c; }
+        p { color: #718096; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            max-height: 500px;
+            overflow: auto;
+        }
+        .result.success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+        }
+        .result.error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+        }
+        .model-card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+        .model-card.vision {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .model-name {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+        .model-methods {
+            font-size: 12px;
+            color: #718096;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading.show { display: block; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        pre {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Discover Available Models</h1>
+        <p>This will list all Gemini models available to your API key</p>
+
+        <div class="input-group">
+            <label>🔑 Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="AIzaSy...">
+        </div>
+
+        <button onclick="discoverModels()">🚀 Discover Models</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Fetching available models...</div>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function discoverModels() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                showResult('error', '⚠️ Please enter your API key');
+                return;
+            }
+
+            document.querySelector('button').disabled = true;
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').innerHTML = '';
+
+            try {
+                // Call the ListModels API
+                const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+                
+                console.log('Fetching models from:', url);
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                console.log('Response:', data);
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${JSON.stringify(data, null, 2)}`);
+                }
+
+                if (data.models && data.models.length > 0) {
+                    displayModels(data.models);
+                } else {
+                    showResult('error', '⚠️ No models found for your API key');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', `❌ ERROR:\n\n${error.message}\n\nMake sure:\n1. API key is valid\n2. API is enabled at console.cloud.google.com`);
+            }
+
+            document.querySelector('button').disabled = false;
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function displayModels(models) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result success';
+
+            // Filter models that support generateContent and vision
+            const visionModels = models.filter(m => 
+                m.supportedGenerationMethods && 
+                m.supportedGenerationMethods.includes('generateContent') &&
+                (m.name.includes('vision') || m.name.includes('1.5') || m.name.includes('gemini-pro'))
+            );
+
+            let html = '<h3 style="margin-bottom: 15px;">✅ Available Models with Vision Support:</h3>';
+
+            if (visionModels.length > 0) {
+                visionModels.forEach(model => {
+                    const modelName = model.name.split('/').pop();
+                    html += `
+                        <div class="model-card vision">
+                            <div class="model-name">✨ ${modelName}</div>
+                            <div class="model-methods">
+                                <strong>Supports:</strong> ${model.supportedGenerationMethods.join(', ')}<br>
+                                <strong>Full name:</strong> ${model.name}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '<h3 style="margin: 20px 0 10px 0;">📝 Use This Model:</h3>';
+                html += `<pre>Model: ${visionModels[0].name.split('/').pop()}</pre>`;
+                html += '<p style="margin-top: 15px; color: #10b981; font-weight: 600;">✅ Copy the model name above and tell me which one to use!</p>';
+            } else {
+                html += '<p style="color: #ef4444;">❌ No vision-capable models found. You may need to enable the Gemini API in your Google Cloud Console.</p>';
+            }
+
+            // Show all models
+            html += '<h3 style="margin: 20px 0 10px 0;">📋 All Available Models:</h3>';
+            models.forEach(model => {
+                const modelName = model.name.split('/').pop();
+                const supportsGenerate = model.supportedGenerationMethods && 
+                                       model.supportedGenerationMethods.includes('generateContent');
+                html += `
+                    <div class="model-card ${supportsGenerate ? 'vision' : ''}">
+                        <div class="model-name">${supportsGenerate ? '✅' : '⚪'} ${modelName}</div>
+                        <div class="model-methods">
+                            ${model.supportedGenerationMethods ? 
+                              model.supportedGenerationMethods.join(', ') : 'No methods listed'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultDiv.innerHTML = html;
+        }
+
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<pre>${message}</pre>`;
+        }
+
+        // Load saved key
+        const savedKey = localStorage.getItem('gemini_api_key');
+        if (savedKey) {
+            document.getElementById('apiKey').value = savedKey;
+        }
+
+        // Save key on change
+        document.getElementById('apiKey').addEventListener('change', function() {
+            localStorage.setItem('gemini_api_key', this.value.trim());
+        });
+    </script>
+</body>
+</html>
