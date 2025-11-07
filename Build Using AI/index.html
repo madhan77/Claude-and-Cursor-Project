@@ -725,6 +725,13 @@
         let geminiCode = '';
         let claudeCode = '';
 
+        // API Configuration - Auto-detect Vercel deployment
+        const API_BASE_URL = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('vercel.live')
+            ? '' // Use relative URLs on Vercel (same domain)
+            : window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000' // Local development
+            : ''; // Production - update with your Vercel URL after deployment
+
         // Mode toggle
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -1324,7 +1331,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
                                 }
                             };
 
-                            const response = await fetch('https://us-central1-claude-project-10b09.cloudfunctions.net/geminiProxy', {
+                            const response = await fetch(`${API_BASE_URL}/api/gemini-proxy`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
@@ -1413,7 +1420,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
 
             for (const model of fallbackModels) {
                 try {
-                    const response = await fetch('https://us-central1-claude-project-10b09.cloudfunctions.net/geminiProxy', {
+                    const response = await fetch(`${API_BASE_URL}/api/gemini-proxy`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1448,7 +1455,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
                 // Convert to base64 URL for Claude API
                 const imageUrl = `data:${mimeType};base64,${base64Data}`;
 
-                const response = await fetch('https://us-central1-claude-project-10b09.cloudfunctions.net/claudeProxy', {
+                const response = await fetch(`${API_BASE_URL}/api/claude-proxy`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1512,7 +1519,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
             const base64Data = uploadedImageData.split(',')[1];
             const mimeType = uploadedImageData.split(';')[0].split(':')[1];
 
-            const response = await fetch('https://us-central1-claude-project-10b09.cloudfunctions.net/claudeProxy', {
+            const response = await fetch(`${API_BASE_URL}/api/claude-proxy`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
