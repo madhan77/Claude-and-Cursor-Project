@@ -1,0 +1,16 @@
+# TaskFlow Android Signing Configuration
+# Copy this file to 'key.properties' and fill in your actual values
+# NEVER commit key.properties to version control!
+
+# Keystore password (the password you set when generating the keystore)
+storePassword=YOUR_KEYSTORE_PASSWORD
+
+# Key password (usually same as storePassword, or different if you set it separately)
+keyPassword=YOUR_KEY_PASSWORD
+
+# Key alias (the alias you used when generating the keystore)
+keyAlias=taskflow-key
+
+# Full path to your keystore file (use absolute path)
+storeFile=/absolute/path/to/android/app/taskflow-release-key.jks
+

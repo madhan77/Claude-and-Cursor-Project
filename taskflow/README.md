@@ -247,9 +247,44 @@ firebase deploy
 - **Netlify**: Drag and drop the `dist` folder
 - **AWS Amplify**: Follow AWS Amplify deployment guide
 
+## Android App Publishing
+
+TaskFlow is now configured for Android deployment via Google Play Store!
+
+### Quick Start for Publishing
+
+**Developer Account**: madhanitm@gmail.com
+
+1. **Account Setup** → See [ACCOUNT_SETUP.md](./ACCOUNT_SETUP.md)
+2. **Deployment Checklist** → See [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)
+3. **Quick Summary** → See [DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md)
+4. **Full Guide** → See [GOOGLE_PLAY_PUBLISHING.md](./GOOGLE_PLAY_PUBLISHING.md)
+
+### Quick Commands
+
+```bash
+# Generate keystore (first time only)
+cd android && ./generate-keystore.sh
+
+# Build release bundle
+npm run build && npx cap sync android && npm run android:build
+
+# Output: android/app/build/outputs/bundle/release/app-release.aab
+```
+
+### Required for Publishing
+
+- [ ] Google Play Developer Account (madhanitm@gmail.com) - $25 one-time fee
+- [ ] Android Studio installed
+- [ ] Keystore generated and configured
+- [ ] Privacy Policy URL (required by Google Play)
+- [ ] App icons and screenshots prepared
+- [ ] Store listing completed
+
 ## Future Enhancements (As per PDR)
 
-- [ ] Mobile App (React Native)
+- [x] Mobile App (Android via Capacitor) ✅
+- [ ] Mobile App (iOS)
 - [ ] AI-based task suggestions
 - [ ] Integration with Slack / Microsoft Teams
 - [ ] Voice command support
