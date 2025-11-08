@@ -943,6 +943,7 @@
                 // Generate based on selected provider
                 if (currentProvider === 'both') {
                     generateWithBothProviders(geminiApiKey, claudeApiKey);
+                    console.log("DEBUG: Passing to generateWithBothProviders - Gemini:", geminiApiKey ? `${geminiApiKey.substring(0, 10)}...` : "EMPTY", "Claude:", claudeApiKey ? `${claudeApiKey.substring(0, 10)}...` : "EMPTY");
                 } else if (currentProvider === 'claude') {
                     generateWithClaude(claudeApiKey);
                 } else {
@@ -1516,6 +1517,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
 
         // Generate Claude code for comparison (returns code string)
         async function generateClaudeCodeForComparison(apiKey) {
+            console.log("DEBUG: Claude API key received in comparison:", apiKey ? `${apiKey.substring(0, 10)}...` : "EMPTY");
             const base64Data = uploadedImageData.split(',')[1];
             const mimeType = uploadedImageData.split(';')[0].split(':')[1];
 
