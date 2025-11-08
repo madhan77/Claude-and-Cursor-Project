@@ -20,10 +20,6 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'API key is required' });
     }
 
-    if (!messages) {
-      return res.status(400).json({ error: 'Messages are required' });
-    }
-
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -41,16 +37,12 @@ module.exports = async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Claude API Error:', { status: response.status, data });
       return res.status(response.status).json(data);
     }
 
-    return res.status(200).json(data);
+    res.status(200).json(data);
   } catch (error) {
-    console.error('Claude Proxy Error:', error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      message: error.message
-    });
+    console.error('Claude API Error:', error);
+    res.status(500).json({ error: error.message });
   }
-};
+}
