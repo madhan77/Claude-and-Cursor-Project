@@ -1058,26 +1058,10 @@
             try {
                 // Update status badges
                 document.getElementById('geminiStatus').textContent = 'Generating...';
-                document.getElementById('claudeStatus').textContent = 'Waiting...';
+                document.getElementById('geminiStatus').textContent = 'Waiting...';
 
-                // Generate sequentially (one after another) to avoid parallel API call issues
-                // First: Generate with Gemini
-                try {
-                    geminiCode = await generateGeminiCodeForComparison(geminiApiKey);
-                    displayComparisonResult('gemini', geminiCode);
-                    document.getElementById('geminiStatus').textContent = 'Generated';
-                    document.getElementById('geminiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
-                    document.getElementById('geminiStatus').style.borderColor = '#10b981';
-                    document.getElementById('geminiStatus').style.color = '#10b981';
-                } catch (error) {
-                    console.error('Gemini generation failed:', error);
-                    document.getElementById('geminiStatus').textContent = 'Failed';
-                    document.getElementById('geminiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
-                    document.getElementById('geminiStatus').style.borderColor = '#ef4444';
-                    document.getElementById('geminiStatus').style.color = '#ef4444';
-                }
-
-                // Second: Generate with Claude (after Gemini completes)
+                // Generate sequentially - Claude FIRST, then Gemini (to test if order matters)
+                // First: Generate with Claude
                 document.getElementById('claudeStatus').textContent = 'Generating...';
                 try {
                     claudeCode = await generateClaudeCodeForComparison(claudeApiKey);
@@ -1092,6 +1076,23 @@
                     document.getElementById('claudeStatus').style.background = 'rgba(239, 68, 68, 0.2)';
                     document.getElementById('claudeStatus').style.borderColor = '#ef4444';
                     document.getElementById('claudeStatus').style.color = '#ef4444';
+                }
+
+                // Second: Generate with Gemini (after Claude completes)
+                document.getElementById('geminiStatus').textContent = 'Generating...';
+                try {
+                    geminiCode = await generateGeminiCodeForComparison(geminiApiKey);
+                    displayComparisonResult('gemini', geminiCode);
+                    document.getElementById('geminiStatus').textContent = 'Generated';
+                    document.getElementById('geminiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#10b981';
+                    document.getElementById('geminiStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('Gemini generation failed:', error);
+                    document.getElementById('geminiStatus').textContent = 'Failed';
+                    document.getElementById('geminiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#ef4444';
+                    document.getElementById('geminiStatus').style.color = '#ef4444';
                 }
 
                 // Switch to compare tab
