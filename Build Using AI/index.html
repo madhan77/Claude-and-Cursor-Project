@@ -597,20 +597,6 @@
                 <!-- Upload Mode -->
                 <div class="upload-mode" id="uploadMode">
                     <div class="api-provider-section" style="margin-bottom: 20px;">
-                        <label class="api-key-label" style="margin-bottom: 10px; display: block;">🤖 AI Provider</label>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="provider-btn active" data-provider="gemini" id="geminiProviderBtn">
-                                🔵 Gemini
-                            </button>
-                            <button class="provider-btn" data-provider="openai" id="openaiProviderBtn">
-                                🟢 GPT-4 Vision
-                            </button>
-                            <button class="provider-btn" data-provider="compare" id="compareProviderBtn">
-                                ⚖️ Compare Both
-                            </button>
-                        </div>
-                    </div>
-
                     <div class="api-key-section" id="geminiKeySection">
                         <label class="api-key-label">🔑 Gemini API Key</label>
                         <input type="password" class="api-key-input" id="geminiApiKeyInput" placeholder="AIzaSy...">
@@ -619,24 +605,6 @@
                             <br>
                             <a href="discover.html" target="_blank" style="color: #667eea; font-size: 11px;">🔍 Discover available models</a> |
                             <a href="test.html" target="_blank" style="color: #667eea; font-size: 11px;">🧪 Test your API key</a>
-                        </div>
-                    </div>
-
-                    <div class="api-key-section" id="openaiKeySection" style="display: none;">
-                        <label class="api-key-label">🔑 OpenAI API Key</label>
-                        <input type="password" class="api-key-input" id="openaiApiKeyInput" placeholder="sk-...">
-                        <div class="api-key-hint">
-                            Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #667eea;">OpenAI Platform</a>
-                        </div>
-                    </div>
-
-                    <div class="api-key-section" id="claudeKeySection" style="display: none !important;">
-                        <label class="api-key-label">🔑 Claude API Key</label>
-                        <input type="password" class="api-key-input" id="claudeApiKeyInput" placeholder="sk-ant-...">
-                        <div class="api-key-hint">
-                            Get your key from <a href="https://console.anthropic.com/" target="_blank" style="color: #667eea;">Anthropic Console</a>
-                            <br>
-                            <span style="font-size: 11px;">Claude supports vision models for image analysis</span>
                         </div>
                     </div>
 
@@ -666,7 +634,6 @@
                 <div class="tabs">
                     <div class="tab active" data-output="preview">👁️ Preview</div>
                     <div class="tab" data-output="code">📝 Code</div>
-                    <div class="tab" data-output="compare" id="compareTab" style="display: none;">⚖️ Compare</div>
                 </div>
 
                 <div class="output-section active" id="previewSection">
@@ -675,35 +642,6 @@
 
                 <div class="output-section" id="codeSection">
                     <div id="codeDisplay" class="code-area">Click a template and generate to see code here...</div>
-                </div>
-
-                <div class="output-section" id="compareSection" style="display: none;">
-                    <div class="comparison-view" id="comparisonView">
-                        <div class="comparison-panel">
-                            <div class="comparison-header">
-                                <span>🔵 Gemini</span>
-                                <span class="badge" style="font-size: 10px;" id="geminiStatus">Not generated</span>
-                            </div>
-                            <div class="tabs" style="margin-bottom: 10px;">
-                                <div class="tab active" data-comparison="preview" data-provider="gemini" style="flex: 1; font-size: 12px; padding: 8px;">Preview</div>
-                                <div class="tab" data-comparison="code" data-provider="gemini" style="flex: 1; font-size: 12px; padding: 8px;">Code</div>
-                            </div>
-                            <iframe id="geminiPreview" class="comparison-preview" style="display: block;"></iframe>
-                            <div id="geminiCode" class="comparison-code" style="display: none;"></div>
-                        </div>
-                        <div class="comparison-panel">
-                            <div class="comparison-header">
-                                <span>🟢 GPT-4 Vision</span>
-                                <span class="badge" style="font-size: 10px;" id="openaiStatus">Not generated</span>
-                            </div>
-                            <div class="tabs" style="margin-bottom: 10px;">
-                                <div class="tab active" data-comparison="preview" data-provider="openai" style="flex: 1; font-size: 12px; padding: 8px;">Preview</div>
-                                <div class="tab" data-comparison="code" data-provider="openai" style="flex: 1; font-size: 12px; padding: 8px;">Code</div>
-                            </div>
-                            <iframe id="openaiPreview" class="comparison-preview" style="display: block;"></iframe>
-                            <div id="openaiCode" class="comparison-code" style="display: none;"></div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="actions">
@@ -729,9 +667,6 @@
         let generatedCode = '';
         let currentMode = 'template';
         let uploadedImageData = null;
-        let currentProvider = 'gemini'; // 'gemini', 'openai', or 'compare'
-        let geminiCode = '';
-        let openaiCode = '';
 
         // API Configuration - Auto-detect Vercel deployment
         const API_BASE_URL = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('vercel.live')
@@ -756,38 +691,6 @@
         });
 
         // Provider toggle
-        document.querySelectorAll('.provider-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                currentProvider = this.dataset.provider;
-                document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Show/hide API key sections
-                if (currentProvider === 'gemini' || currentProvider === 'compare') {
-                    document.getElementById('geminiKeySection').style.display = 'block';
-                } else {
-                    document.getElementById('geminiKeySection').style.display = 'none';
-                }
-                
-                if (currentProvider === 'openai' || currentProvider === 'compare') {
-                    document.getElementById('openaiKeySection').style.display = 'block';
-                } else {
-                    document.getElementById('openaiKeySection').style.display = 'none';
-                }
-
-                // Show/hide compare tab
-                if (currentProvider === 'both') {
-                    document.getElementById('compareTab').style.display = 'block';
-                } else {
-                    document.getElementById('compareTab').style.display = 'none';
-                    // Switch to preview tab if compare was active
-                    if (document.querySelector('.tab[data-output="compare"]').classList.contains('active')) {
-                        document.querySelector('.tab[data-output="preview"]').click();
-                    }
-                }
-            });
-        });
-
         // File upload handling
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
@@ -929,33 +832,16 @@
                     return;
                 }
 
-                // Check API keys based on provider
+                // Check API key
                 const geminiApiKey = document.getElementById('geminiApiKeyInput').value.trim();
-                const openaiApiKey = document.getElementById('openaiApiKeyInput').value.trim();
 
-                if (currentProvider === 'gemini' && !geminiApiKey) {
+                if (!geminiApiKey) {
                     alert('Please enter your Gemini API key.\n\nGet your key from: https://makersuite.google.com/app/apikey');
                     return;
                 }
-                
-                if (currentProvider === 'openai' && !openaiApiKey) {
-                    alert('Please enter your OpenAI API key.\n\nGet your key from: https://platform.openai.com/api-keys');
-                    return;
-                }
-                
-                if (currentProvider === 'compare' && (!geminiApiKey || !openaiApiKey)) {
-                    alert('Please enter both API keys to compare.\n\nGemini: https://makersuite.google.com/app/apikey\nOpenAI: https://platform.openai.com/api-keys');
-                    return;
-                }
 
-                // Generate based on selected provider
-                if (currentProvider === 'compare') {
-                    generateCompare(geminiApiKey, openaiApiKey);
-                } else if (currentProvider === 'openai') {
-                    generateWithOpenAI(openaiApiKey);
-                } else {
-                    generateWithGemini(geminiApiKey);
-                }
+                // Generate with Gemini
+                generateWithGemini(geminiApiKey);
             }
         });
 
