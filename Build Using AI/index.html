@@ -1757,38 +1757,37 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
 
         // Shared prompt function
         function getGenerationPrompt() {
-            return `You are an expert web developer. Your task is to create an EXACT pixel-perfect replica of the image provided.
+            return `You are an expert web developer creating a prototype HTML page based on a design mockup for learning and development purposes.
 
-CRITICAL: The output HTML must be VISUALLY IDENTICAL to the input image. Every element, color, spacing, and text must match exactly.
+GOAL: Recreate the visual design shown in the image as a functional HTML page with inline CSS.
 
 STEP 1: CAREFULLY ANALYZE THE IMAGE
-- Identify EVERY visual element: headers, sidebars, tables, cards, buttons, icons, text
-- Note EXACT colors (use color picker values if possible)
-- Note EXACT spacing and layout structure
-- Note EXACT typography (font sizes, weights, families)
-- Note EXACT positioning of all elements
+- Identify all visual elements: headers, sidebars, tables, cards, buttons, icons, text
+- Note the colors, spacing, and layout structure
+- Note the typography (font sizes, weights, families)
+- Note the positioning of all elements
 
-STEP 2: RECREATE THE EXACT STRUCTURE
-- If image has a left sidebar → create <aside class="sidebar"> with EXACT width, background color, and ALL menu items
-- If image has a top header → create <header> with EXACT height, background, and ALL elements
-- If image has a table → create <table> with EXACT columns, ALL rows, and ALL cell data
-- If image has cards → create <div class="card"> for EACH card with EXACT styling
-- Copy EVERY piece of text EXACTLY as shown in the image
+STEP 2: RECREATE THE STRUCTURE
+- If image has a left sidebar → create <aside class="sidebar"> with appropriate width, background color, and menu items
+- If image has a top header → create <header> with appropriate height, background, and elements
+- If image has a table → create <table> with matching columns, rows, and cell data
+- If image has cards → create <div class="card"> for each card with similar styling
+- Recreate all text content as shown in the image
 
-STEP 3: MATCH EXACT STYLING
-- Extract EXACT background colors (use hex codes)
-- Match EXACT border colors, widths, and radius
-- Match EXACT padding and margins (measure from image)
-- Match EXACT font sizes, weights, and line heights
-- Match EXACT layout (flexbox/grid with exact values)
+STEP 3: MATCH THE STYLING
+- Use similar background colors (hex codes)
+- Match border colors, widths, and radius
+- Match padding and margins
+- Match font sizes, weights, and line heights
+- Use appropriate layout (flexbox/grid)
 
 STEP 4: INCLUDE ALL CONTENT
-- Copy ALL text labels, titles, and content EXACTLY
-- Include ALL table data with exact values
-- Include ALL button text and labels
-- Include ALL icons (use emoji or Unicode equivalents)
+- Include all text labels, titles, and content from the image
+- Include table data with values shown
+- Include button text and labels
+- Use emoji or Unicode for icons where appropriate
 
-CRITICAL: You MUST include the complete HTML structure:
+IMPORTANT: You MUST include the complete HTML structure:
 - Start with <!DOCTYPE html>
 - Include <html> tag
 - Include <head> with <title> and <style> tags
@@ -1797,7 +1796,7 @@ CRITICAL: You MUST include the complete HTML structure:
 
 DO NOT stop after the <style> tag. You MUST continue and include the <body> tag with all HTML content.
 
-Return ONLY the complete HTML code including the <body> tag with all content. Make it visually IDENTICAL to the input image.`;
+Return ONLY the complete HTML code including the <body> tag with all content.`;
         }
 
         // Process generated code (clean up and validate)
