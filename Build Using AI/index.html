@@ -1556,7 +1556,7 @@
                     name: 'Tailwind CSS',
                     instructions: `
 - Use Tailwind CSS utility classes for ALL styling
-- Include the Tailwind CDN: <script src="https://cdn.tailwindcss.com"></script>
+- Include the Tailwind CDN: <scr` + `ipt src="https://cdn.tailwindcss.com"></scr` + `ipt>
 - Apply Tailwind classes directly to HTML elements (e.g., class="bg-blue-500 text-white p-4")
 - Use Tailwind's responsive classes (sm:, md:, lg:) for responsive design
 - NO custom CSS - use ONLY Tailwind utility classes`
@@ -1567,7 +1567,7 @@
 - Use Bootstrap 5 classes for layout and components
 - Include Bootstrap CDN in <head>:
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <scr` + `ipt src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></scr` + `ipt>
 - Use Bootstrap grid system (container, row, col)
 - Use Bootstrap components (btn, card, navbar, etc.)
 - Minimal custom CSS - rely on Bootstrap classes`
@@ -1582,11 +1582,11 @@
 - Include Babel standalone for JSX transformation
 - Use the NEW React 18 API (createRoot, not ReactDOM.render)
 - Example structure:
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <scr` + `ipt crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></scr` + `ipt>
+  <scr` + `ipt crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></scr` + `ipt>
+  <scr` + `ipt src="https://unpkg.com/@babel/standalone/babel.min.js"></scr` + `ipt>
   <div id="root"></div>
-  <script type="text/babel">
+  <scr` + `ipt type="text/babel">
     const { useState } = React;
     function App() {
       return (
@@ -1597,13 +1597,13 @@
     }
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
-  </script>`
+  </scr` + `ipt>`
                 },
                 'vue': {
                     name: 'Vue.js',
                     instructions: `
 - Create a single-file Vue app using CDN
-- Include Vue 3 from CDN: <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+- Include Vue 3 from CDN: <scr` + `ipt src="https://unpkg.com/vue@3/dist/vue.global.js"></scr` + `ipt>
 - Use Vue's template syntax and data binding
 - Create the app with Vue.createApp()
 - Mount to a div with id="app"
@@ -1630,7 +1630,7 @@
                 'jquery': {
                     name: 'jQuery',
                     instructions: `
-- Include jQuery CDN: <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+- Include jQuery CDN: <scr` + `ipt src="https://code.jquery.com/jquery-3.7.1.min.js"></scr` + `ipt>
 - Use jQuery for DOM manipulation and event handling
 - Use $ syntax for selectors
 - Wrap code in $(document).ready()
