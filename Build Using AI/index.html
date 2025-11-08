@@ -693,15 +693,15 @@
                         </div>
                         <div class="comparison-panel">
                             <div class="comparison-header">
-                                <span>🟣 Claude</span>
-                                <span class="badge" style="font-size: 10px;" id="claudeStatus">Not generated</span>
+                                <span>🟢 GPT-4 Vision</span>
+                                <span class="badge" style="font-size: 10px;" id="openaiStatus">Not generated</span>
                             </div>
                             <div class="tabs" style="margin-bottom: 10px;">
-                                <div class="tab active" data-comparison="preview" data-provider="claude" style="flex: 1; font-size: 12px; padding: 8px;">Preview</div>
-                                <div class="tab" data-comparison="code" data-provider="claude" style="flex: 1; font-size: 12px; padding: 8px;">Code</div>
+                                <div class="tab active" data-comparison="preview" data-provider="openai" style="flex: 1; font-size: 12px; padding: 8px;">Preview</div>
+                                <div class="tab" data-comparison="code" data-provider="openai" style="flex: 1; font-size: 12px; padding: 8px;">Code</div>
                             </div>
-                            <iframe id="claudePreview" class="comparison-preview" style="display: block;"></iframe>
-                            <div id="claudeCode" class="comparison-code" style="display: none;"></div>
+                            <iframe id="openaiPreview" class="comparison-preview" style="display: block;"></iframe>
+                            <div id="openaiCode" class="comparison-code" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -1118,7 +1118,7 @@
             }
         }
 
-        // Generate comparison: Gemini vs GPT-4 (placeholder)
+        // Generate comparison: Gemini vs GPT-4
         async function generateCompare(geminiApiKey, openaiApiKey) {
             const generateBtn = document.getElementById('generateBtn');
             generateBtn.disabled = true;
@@ -1127,11 +1127,66 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.add('show');
 
-            alert('Comparison feature coming soon! For now, please use individual Gemini or GPT-4 providers.');
-            
-            loadingOverlay.classList.remove('show');
-            generateBtn.disabled = false;
-            generateBtn.textContent = '⚡ Generate Code from Image';
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.textContent = 'Comparing Gemini vs GPT-4 Vision...';
+
+            try {
+                let geminiCode = '';
+                let openaiCode = '';
+
+                // Reset status badges
+                document.getElementById('geminiStatus').textContent = 'Waiting...';
+                document.getElementById('openaiStatus').textContent = 'Waiting...';
+
+                // Generate sequentially - Gemini first, then OpenAI
+                // First: Generate with Gemini
+                document.getElementById('geminiStatus').textContent = 'Generating...';
+                try {
+                    geminiCode = await generateGeminiCodeForComparison(geminiApiKey);
+                    displayComparisonResult('gemini', geminiCode);
+                    document.getElementById('geminiStatus').textContent = 'Generated';
+                    document.getElementById('geminiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#10b981';
+                    document.getElementById('geminiStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('Gemini generation failed:', error);
+                    document.getElementById('geminiStatus').textContent = 'Failed';
+                    document.getElementById('geminiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#ef4444';
+                    document.getElementById('geminiStatus').style.color = '#ef4444';
+                }
+
+                // Second: Generate with OpenAI (after Gemini completes)
+                document.getElementById('openaiStatus').textContent = 'Generating...';
+                try {
+                    openaiCode = await generateOpenAICodeForComparison(openaiApiKey);
+                    displayComparisonResult('openai', openaiCode);
+                    document.getElementById('openaiStatus').textContent = 'Generated';
+                    document.getElementById('openaiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('openaiStatus').style.borderColor = '#10b981';
+                    document.getElementById('openaiStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('OpenAI generation failed:', error);
+                    document.getElementById('openaiStatus').textContent = 'Failed';
+                    document.getElementById('openaiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('openaiStatus').style.borderColor = '#ef4444';
+                    document.getElementById('openaiStatus').style.color = '#ef4444';
+                }
+
+                // Switch to compare tab
+                document.querySelector('.tab[data-output="compare"]').click();
+
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+
+            } catch (error) {
+                console.error('Error in comparison:', error);
+                alert('Error during comparison: ' + error.message);
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+            }
         }
 
 
@@ -1536,6 +1591,51 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
                 }
             }
             throw new Error('All Gemini models failed');
+        }
+
+        // Generate OpenAI code for comparison (returns code string)
+        async function generateOpenAICodeForComparison(apiKey) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            const response = await fetch(`${API_BASE_URL}/api/openai-proxy`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    apiKey: apiKey,
+                    model: 'gpt-4o',
+                    max_tokens: 4096,
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mimeType};base64,${base64Data}`
+                                }
+                            },
+                            {
+                                type: 'text',
+                                text: getGenerationPrompt()
+                            }
+                        ]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'OpenAI API request failed');
+            }
+
+            if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                return processGeneratedCode(data.choices[0].message.content);
+            } else {
+                throw new Error('Unexpected OpenAI API response format');
+            }
         }
 
         // Generate Claude code
