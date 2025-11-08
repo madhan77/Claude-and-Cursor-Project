@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { apiKey, contents, model } = req.body;
+    const { apiKey, contents, model, generationConfig } = req.body;
 
     if (!apiKey) {
       return res.status(400).json({ error: 'API key is required' });
@@ -23,14 +23,22 @@ module.exports = async (req, res) => {
     const modelName = model || 'gemini-1.5-flash';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
+    // Build request body
+    const requestBody = {
+      contents: contents
+    };
+
+    // Add generationConfig if provided
+    if (generationConfig) {
+      requestBody.generationConfig = generationConfig;
+    }
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        contents: contents
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const data = await response.json();

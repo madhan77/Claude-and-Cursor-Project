@@ -1262,7 +1262,8 @@
                                 body: JSON.stringify({
                                     apiKey: apiKey,
                                     model: model,
-                                    contents: requestBody.contents
+                                    contents: requestBody.contents,
+                                    generationConfig: requestBody.generationConfig
                                 })
                             });
 
@@ -1356,7 +1357,13 @@
                                     { text: getGenerationPrompt('html-css-js') },
                                     { inline_data: { mime_type: mimeType, data: base64Data } }
                                 ]
-                            }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.1,
+                                topK: 40,
+                                topP: 0.95,
+                                maxOutputTokens: 16384
+                            }
                         })
                     });
 
