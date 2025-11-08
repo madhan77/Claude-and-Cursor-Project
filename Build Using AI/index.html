@@ -1568,17 +1568,27 @@
                     name: 'React.js',
                     instructions: `
 - Create a single-file React app using CDN
-- Include React and ReactDOM from CDN
+- Include React 18 and ReactDOM from CDN
 - Use functional components with hooks
 - Write JSX syntax
 - Include Babel standalone for JSX transformation
+- Use the NEW React 18 API (createRoot, not ReactDOM.render)
 - Example structure:
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <div id="root"></div>
   <script type="text/babel">
-    function App() { return (<div>...</div>); }
-    ReactDOM.render(<App />, document.getElementById('root'));
+    const { useState } = React;
+    function App() {
+      return (
+        <div>
+          {/* Your component code here */}
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>`
                 },
                 'vue': {
