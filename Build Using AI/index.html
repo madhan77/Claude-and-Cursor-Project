@@ -599,14 +599,8 @@
                     <div class="api-provider-section" style="margin-bottom: 20px;">
                         <label class="api-key-label" style="margin-bottom: 10px; display: block;">🤖 AI Provider</label>
                         <div style="display: flex; gap: 10px;">
-                            <button class="provider-btn active" data-provider="gemini" id="geminiProviderBtn">
-                                🔵 Gemini
-                            </button>
-                            <button class="provider-btn" data-provider="claude" id="claudeProviderBtn">
-                                🟣 Claude
-                            </button>
-                            <button class="provider-btn" data-provider="both" id="bothProviderBtn">
-                                ⚖️ Compare Both
+                            <button class="provider-btn active" data-provider="gemini" id="geminiProviderBtn" style="cursor: default; opacity: 1;">
+                                🔵 Gemini (AI Image-to-Code)
                             </button>
                         </div>
                     </div>
@@ -622,7 +616,7 @@
                         </div>
                     </div>
 
-                    <div class="api-key-section" id="claudeKeySection" style="display: none;">
+                    <div class="api-key-section" id="claudeKeySection" style="display: none !important;">
                         <label class="api-key-label">🔑 Claude API Key</label>
                         <input type="password" class="api-key-input" id="claudeApiKeyInput" placeholder="sk-ant-...">
                         <div class="api-key-hint">
