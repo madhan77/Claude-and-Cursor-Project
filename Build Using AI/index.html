@@ -608,6 +608,24 @@
                         </div>
                     </div>
 
+                    <!-- Technology Selector -->
+                    <div class="api-key-section" style="margin-top: 20px;">
+                        <label class="api-key-label">⚙️ Front-End Technology</label>
+                        <select class="api-key-input" id="techSelector" style="cursor: pointer; padding: 12px;">
+                            <option value="html-css-js">Plain HTML + CSS + JavaScript</option>
+                            <option value="tailwind">Tailwind CSS</option>
+                            <option value="bootstrap">Bootstrap 5</option>
+                            <option value="react">React.js</option>
+                            <option value="vue">Vue.js</option>
+                            <option value="angular">Angular</option>
+                            <option value="svelte">Svelte</option>
+                            <option value="jquery">jQuery</option>
+                        </select>
+                        <div class="api-key-hint">
+                            Choose the framework/library for code generation
+                        </div>
+                    </div>
+
                     <div class="upload-container">
                         <div class="upload-area" id="uploadArea">
                             <input type="file" id="fileInput" class="file-input" accept="image/*">
@@ -851,15 +869,18 @@
             generateBtn.disabled = true;
             generateBtn.textContent = '⏳ Analyzing Image...';
 
+            // Get selected technology
+            const selectedTech = document.getElementById('techSelector').value;
+
             // Show loading
             const loadingOverlay = document.getElementById('loadingOverlay');
             const loadingContent = loadingOverlay.querySelector('.loading-content');
             loadingOverlay.classList.add('show');
-            
+
             const loadingDetail = document.getElementById('loadingDetail');
             const loadingTitle = document.getElementById('loadingTitle');
-            if (loadingTitle) loadingTitle.textContent = 'Generating with Gemini...';
-            
+            if (loadingTitle) loadingTitle.textContent = `Generating with Gemini (${selectedTech})...`;
+
             let loadingStep = 0;
             const loadingSteps = [
                 'Analyzing image structure...',
@@ -868,7 +889,7 @@
                 'Generating HTML code...',
                 'Finalizing...'
             ];
-            
+
             const loadingInterval = setInterval(() => {
                 if (loadingStep < loadingSteps.length - 1) {
                     loadingStep++;
@@ -879,7 +900,7 @@
             }, 2000);
 
             try {
-                await generateGeminiCode(apiKey, loadingInterval, loadingTitle, loadingDetail);
+                await generateGeminiCode(apiKey, selectedTech, loadingInterval, loadingTitle, loadingDetail);
             } catch (error) {
                 clearInterval(loadingInterval);
                 console.error('Error generating code:', error);
@@ -971,7 +992,7 @@
                                 },
                                 {
                                     type: 'text',
-                                    text: getGenerationPrompt()
+                                    text: getGenerationPrompt('html-css-js')
                                 }
                             ]
                         }]
@@ -1146,7 +1167,7 @@
         }
 
         // Helper function to generate Gemini code (for single use)
-        async function generateGeminiCode(apiKey, loadingInterval, loadingTitle, loadingDetail) {
+        async function generateGeminiCode(apiKey, technology, loadingInterval, loadingTitle, loadingDetail) {
             try {
                 // Extract base64 data
                 const base64Data = uploadedImageData.split(',')[1];
@@ -1216,137 +1237,8 @@
                             const requestBody = {
                                 contents: [{
                                     parts: [
-                                        { 
-                                            text: `You are an expert web developer. Your task is to create an EXACT pixel-perfect replica of the image provided.
-
-CRITICAL: The output HTML must be VISUALLY IDENTICAL to the input image. Every element, color, spacing, and text must match exactly.
-
-STEP 1: CAREFULLY ANALYZE THE IMAGE
-- Identify EVERY visual element: headers, sidebars, tables, cards, buttons, icons, text
-- Note EXACT colors (use color picker values if possible)
-- Note EXACT spacing and layout structure
-- Note EXACT typography (font sizes, weights, families)
-- Note EXACT positioning of all elements
-
-STEP 2: RECREATE THE EXACT STRUCTURE
-- If image has a left sidebar → create <aside class="sidebar"> with EXACT width, background color, and ALL menu items
-- If image has a top header → create <header> with EXACT height, background, and ALL elements
-- If image has a table → create <table> with EXACT columns, ALL rows, and ALL cell data
-- If image has cards → create <div class="card"> for EACH card with EXACT styling
-- Copy EVERY piece of text EXACTLY as shown in the image
-
-STEP 3: MATCH EXACT STYLING
-- Extract EXACT background colors (use hex codes)
-- Match EXACT border colors, widths, and radius
-- Match EXACT padding and margins (measure from image)
-- Match EXACT font sizes, weights, and line heights
-- Match EXACT layout (flexbox/grid with exact values)
-
-STEP 4: INCLUDE ALL CONTENT
-- Copy ALL text labels, titles, and content EXACTLY
-- Include ALL table data with exact values
-- Include ALL button text and labels
-- Include ALL icons (use emoji or Unicode equivalents)
-
-EXAMPLE - If image shows a Client Projects dashboard with table:
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Projects</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5; /* EXACT color from image */
-        }
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-        .sidebar {
-            width: 250px; /* EXACT width from image */
-            background: #1a202c; /* EXACT color from image */
-            padding: 20px;
-        }
-        .main-content {
-            flex: 1;
-            padding: 30px;
-        }
-        table {
-            width: 100%;
-            background: white;
-            border-collapse: collapse;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th {
-            background: #f8f9fa;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #e9ecef;
-        }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        /* Include ALL styles to match image exactly */
-    </style>
-</head>
-<body>
-    <div class="container">
-        <aside class="sidebar">
-            <!-- Include ALL sidebar content from image -->
-        </aside>
-        <main class="main-content">
-            <h1>Client Projects</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Client email</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <!-- Include ALL column headers from image -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Task name from image</td>
-                        <td>email@example.com</td>
-                        <td>High</td>
-                        <td>In Progress</td>
-                        <!-- Include ALL table rows with EXACT data from image -->
-                    </tr>
-                    <!-- Include ALL rows from image -->
-                </tbody>
-            </table>
-        </main>
-    </div>
-</body>
-</html>
-
-CRITICAL: You MUST include the complete HTML structure:
-- Start with <!DOCTYPE html>
-- Include <html> tag
-- Include <head> with <title> and <style> tags
-- Include <body> tag with ALL content
-- End with </body> and </html>
-
-DO NOT stop after the <style> tag. You MUST continue and include the <body> tag with all HTML content.
-
-FINAL CHECKLIST before returning:
-✓ Does the code start with <!DOCTYPE html>?
-✓ Does it include <html>, <head>, and <body> tags?
-✓ Is the <body> tag populated with ALL visible content from the image?
-✓ Are ALL colors matching the image (backgrounds, text, borders)?
-✓ Is ALL text content copied EXACTLY from the image?
-✓ Are ALL tables, cards, and components included?
-✓ Does the code end with </body></html>?
-
-Return ONLY the complete HTML code including the <body> tag with all content. Make it visually IDENTICAL to the input image.`
+                                        {
+                                            text: getGenerationPrompt(technology)
                                         },
                                         {
                                             inline_data: {
@@ -1461,7 +1353,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
                             model: model,
                             contents: [{
                                 parts: [
-                                    { text: getGenerationPrompt() },
+                                    { text: getGenerationPrompt('html-css-js') },
                                     { inline_data: { mime_type: mimeType, data: base64Data } }
                                 ]
                             }]
@@ -1555,7 +1447,7 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
                                 },
                                 {
                                     type: 'text',
-                                    text: getGenerationPrompt()
+                                    text: getGenerationPrompt('html-css-js')
                                 }
                             ]
                         }]
@@ -1642,10 +1534,100 @@ Return ONLY the complete HTML code including the <body> tag with all content. Ma
         }
 
         // Shared prompt function
-        function getGenerationPrompt() {
+        function getGenerationPrompt(technology = 'html-css-js') {
+            const techInstructions = {
+                'html-css-js': {
+                    name: 'Plain HTML, CSS, and JavaScript',
+                    instructions: `
+- Use vanilla HTML5 for structure
+- Write all CSS in a <style> tag in the <head>
+- Use plain JavaScript (no libraries) for any interactivity
+- Include all styles inline within the HTML file`
+                },
+                'tailwind': {
+                    name: 'Tailwind CSS',
+                    instructions: `
+- Use Tailwind CSS utility classes for ALL styling
+- Include the Tailwind CDN: <script src="https://cdn.tailwindcss.com"></script>
+- Apply Tailwind classes directly to HTML elements (e.g., class="bg-blue-500 text-white p-4")
+- Use Tailwind's responsive classes (sm:, md:, lg:) for responsive design
+- NO custom CSS - use ONLY Tailwind utility classes`
+                },
+                'bootstrap': {
+                    name: 'Bootstrap 5',
+                    instructions: `
+- Use Bootstrap 5 classes for layout and components
+- Include Bootstrap CDN in <head>:
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+- Use Bootstrap grid system (container, row, col)
+- Use Bootstrap components (btn, card, navbar, etc.)
+- Minimal custom CSS - rely on Bootstrap classes`
+                },
+                'react': {
+                    name: 'React.js',
+                    instructions: `
+- Create a single-file React app using CDN
+- Include React and ReactDOM from CDN
+- Use functional components with hooks
+- Write JSX syntax
+- Include Babel standalone for JSX transformation
+- Example structure:
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    function App() { return (<div>...</div>); }
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>`
+                },
+                'vue': {
+                    name: 'Vue.js',
+                    instructions: `
+- Create a single-file Vue app using CDN
+- Include Vue 3 from CDN: <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+- Use Vue's template syntax and data binding
+- Create the app with Vue.createApp()
+- Mount to a div with id="app"
+- Use Vue directives (v-if, v-for, v-bind, v-on)
+- Example: const { createApp } = Vue; createApp({ data() { return {...} } }).mount('#app')`
+                },
+                'angular': {
+                    name: 'Angular',
+                    instructions: `
+- Create a simplified Angular-style component
+- Include Angular CDN
+- Use Angular template syntax
+- Create a basic component structure
+- Note: This will be a simplified version as full Angular requires build tools`
+                },
+                'svelte': {
+                    name: 'Svelte',
+                    instructions: `
+- Create HTML with Svelte-like reactive patterns
+- Use plain JavaScript with reactive variables
+- Include comments noting this is a Svelte-inspired pattern
+- Note: Full Svelte requires compilation, so create a vanilla JS version that mimics Svelte patterns`
+                },
+                'jquery': {
+                    name: 'jQuery',
+                    instructions: `
+- Include jQuery CDN: <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+- Use jQuery for DOM manipulation and event handling
+- Use $ syntax for selectors
+- Wrap code in $(document).ready()
+- Use jQuery methods like .click(), .hide(), .show(), .addClass(), etc.`
+                }
+            };
+
+            const selectedTech = techInstructions[technology] || techInstructions['html-css-js'];
+
             return `You are an expert web developer creating a prototype HTML page based on a design mockup for learning and development purposes.
 
-GOAL: Recreate the visual design shown in the image as a functional HTML page with inline CSS.
+TECHNOLOGY: ${selectedTech.name}
+${selectedTech.instructions}
+
+GOAL: Recreate the visual design shown in the image as a functional HTML page.
 
 STEP 1: CAREFULLY ANALYZE THE IMAGE
 - Identify all visual elements: headers, sidebars, tables, cards, buttons, icons, text
@@ -1654,10 +1636,10 @@ STEP 1: CAREFULLY ANALYZE THE IMAGE
 - Note the positioning of all elements
 
 STEP 2: RECREATE THE STRUCTURE
-- If image has a left sidebar → create <aside class="sidebar"> with appropriate width, background color, and menu items
-- If image has a top header → create <header> with appropriate height, background, and elements
-- If image has a table → create <table> with matching columns, rows, and cell data
-- If image has cards → create <div class="card"> for each card with similar styling
+- If image has a left sidebar → create appropriate sidebar with width, background color, and menu items
+- If image has a top header → create header with appropriate height, background, and elements
+- If image has a table → create table with matching columns, rows, and cell data
+- If image has cards → create card components with similar styling
 - Recreate all text content as shown in the image
 
 STEP 3: MATCH THE STYLING
@@ -1676,7 +1658,7 @@ STEP 4: INCLUDE ALL CONTENT
 IMPORTANT: You MUST include the complete HTML structure:
 - Start with <!DOCTYPE html>
 - Include <html> tag
-- Include <head> with <title> and <style> tags
+- Include <head> with <title>, required CDN links for ${selectedTech.name}, and any <style> tags
 - Include <body> tag with ALL content
 - End with </body> and </html>
 
