@@ -599,8 +599,14 @@
                     <div class="api-provider-section" style="margin-bottom: 20px;">
                         <label class="api-key-label" style="margin-bottom: 10px; display: block;">🤖 AI Provider</label>
                         <div style="display: flex; gap: 10px;">
-                            <button class="provider-btn active" data-provider="gemini" id="geminiProviderBtn" style="cursor: default; opacity: 1;">
-                                🔵 Gemini (AI Image-to-Code)
+                            <button class="provider-btn active" data-provider="gemini" id="geminiProviderBtn">
+                                🔵 Gemini
+                            </button>
+                            <button class="provider-btn" data-provider="openai" id="openaiProviderBtn">
+                                🟢 GPT-4 Vision
+                            </button>
+                            <button class="provider-btn" data-provider="compare" id="compareProviderBtn">
+                                ⚖️ Compare Both
                             </button>
                         </div>
                     </div>
@@ -613,6 +619,14 @@
                             <br>
                             <a href="discover.html" target="_blank" style="color: #667eea; font-size: 11px;">🔍 Discover available models</a> |
                             <a href="test.html" target="_blank" style="color: #667eea; font-size: 11px;">🧪 Test your API key</a>
+                        </div>
+                    </div>
+
+                    <div class="api-key-section" id="openaiKeySection" style="display: none;">
+                        <label class="api-key-label">🔑 OpenAI API Key</label>
+                        <input type="password" class="api-key-input" id="openaiApiKeyInput" placeholder="sk-...">
+                        <div class="api-key-hint">
+                            Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #667eea;">OpenAI Platform</a>
                         </div>
                     </div>
 
@@ -715,9 +729,9 @@
         let generatedCode = '';
         let currentMode = 'template';
         let uploadedImageData = null;
-        let currentProvider = 'gemini'; // 'gemini', 'claude', or 'both'
+        let currentProvider = 'gemini'; // 'gemini', 'openai', or 'compare'
         let geminiCode = '';
-        let claudeCode = '';
+        let openaiCode = '';
 
         // API Configuration - Auto-detect Vercel deployment
         const API_BASE_URL = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('vercel.live')
@@ -749,16 +763,16 @@
                 this.classList.add('active');
                 
                 // Show/hide API key sections
-                if (currentProvider === 'gemini' || currentProvider === 'both') {
+                if (currentProvider === 'gemini' || currentProvider === 'compare') {
                     document.getElementById('geminiKeySection').style.display = 'block';
                 } else {
                     document.getElementById('geminiKeySection').style.display = 'none';
                 }
                 
-                if (currentProvider === 'claude' || currentProvider === 'both') {
-                    document.getElementById('claudeKeySection').style.display = 'block';
+                if (currentProvider === 'openai' || currentProvider === 'compare') {
+                    document.getElementById('openaiKeySection').style.display = 'block';
                 } else {
-                    document.getElementById('claudeKeySection').style.display = 'none';
+                    document.getElementById('openaiKeySection').style.display = 'none';
                 }
 
                 // Show/hide compare tab
