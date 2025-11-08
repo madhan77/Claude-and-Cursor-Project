@@ -931,29 +931,28 @@
 
                 // Check API keys based on provider
                 const geminiApiKey = document.getElementById('geminiApiKeyInput').value.trim();
-                const claudeApiKey = document.getElementById('claudeApiKeyInput').value.trim();
+                const openaiApiKey = document.getElementById('openaiApiKeyInput').value.trim();
 
                 if (currentProvider === 'gemini' && !geminiApiKey) {
                     alert('Please enter your Gemini API key.\n\nGet your key from: https://makersuite.google.com/app/apikey');
                     return;
                 }
                 
-                if (currentProvider === 'claude' && !claudeApiKey) {
-                    alert('Please enter your Claude API key.\n\nGet your key from: https://console.anthropic.com/');
+                if (currentProvider === 'openai' && !openaiApiKey) {
+                    alert('Please enter your OpenAI API key.\n\nGet your key from: https://platform.openai.com/api-keys');
                     return;
                 }
                 
-                if (currentProvider === 'both' && (!geminiApiKey || !claudeApiKey)) {
-                    alert('Please enter both API keys to compare.\n\nGemini: https://makersuite.google.com/app/apikey\nClaude: https://console.anthropic.com/');
+                if (currentProvider === 'compare' && (!geminiApiKey || !openaiApiKey)) {
+                    alert('Please enter both API keys to compare.\n\nGemini: https://makersuite.google.com/app/apikey\nOpenAI: https://platform.openai.com/api-keys');
                     return;
                 }
 
                 // Generate based on selected provider
-                if (currentProvider === 'both') {
-                    generateWithBothProviders(geminiApiKey, claudeApiKey);
-                    console.log("DEBUG: Passing to generateWithBothProviders - Gemini:", geminiApiKey ? `${geminiApiKey.substring(0, 10)}...` : "EMPTY", "Claude:", claudeApiKey ? `${claudeApiKey.substring(0, 10)}...` : "EMPTY");
-                } else if (currentProvider === 'claude') {
-                    generateWithClaude(claudeApiKey);
+                if (currentProvider === 'compare') {
+                    generateCompare(geminiApiKey, openaiApiKey);
+                } else if (currentProvider === 'openai') {
+                    generateWithOpenAI(openaiApiKey);
                 } else {
                     generateWithGemini(geminiApiKey);
                 }
@@ -1048,6 +1047,93 @@
                 generateBtn.textContent = '⚡ Generate Code from Image';
             }
         }
+
+        // Generate with OpenAI
+        async function generateWithOpenAI(apiKey) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Analyzing Image with GPT-4...';
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('show');
+            
+            const loadingDetail = document.getElementById('loadingDetail');
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.textContent = 'Generating with GPT-4 Vision...';
+
+            try {
+                const base64Data = uploadedImageData.split(',')[1];
+                const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+                const response = await fetch(`${API_BASE_URL}/api/openai-proxy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        model: 'gpt-4o',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: `data:${mimeType};base64,${base64Data}`
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: getGenerationPrompt()
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'OpenAI API request failed');
+                }
+
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    const generatedCode = processGeneratedCode(data.choices[0].message.content);
+                    displayResult(generatedCode);
+                } else {
+                    throw new Error('Unexpected OpenAI API response format');
+                }
+
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+
+            } catch (error) {
+                console.error('OpenAI generation error:', error);
+                alert('Error generating code with GPT-4: ' + error.message);
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+            }
+        }
+
+        // Generate comparison: Gemini vs GPT-4 (placeholder)
+        async function generateCompare(geminiApiKey, openaiApiKey) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Comparing...';
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('show');
+
+            alert('Comparison feature coming soon! For now, please use individual Gemini or GPT-4 providers.');
+            
+            loadingOverlay.classList.remove('show');
+            generateBtn.disabled = false;
+            generateBtn.textContent = '⚡ Generate Code from Image';
+        }
+
 
         // Generate with both providers for comparison
         async function generateWithBothProviders(geminiApiKey, claudeApiKey) {
