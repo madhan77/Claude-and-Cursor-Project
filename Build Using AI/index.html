@@ -610,19 +610,43 @@
 
                     <!-- Technology Selector -->
                     <div class="api-key-section" style="margin-top: 20px;">
-                        <label class="api-key-label">⚙️ Front-End Technology</label>
-                        <select class="api-key-input" id="techSelector" style="cursor: pointer; padding: 12px;">
-                            <option value="html-css-js">Plain HTML + CSS + JavaScript</option>
-                            <option value="tailwind">Tailwind CSS</option>
-                            <option value="bootstrap">Bootstrap 5</option>
-                            <option value="react">React.js</option>
-                            <option value="vue">Vue.js</option>
-                            <option value="angular">Angular</option>
-                            <option value="svelte">Svelte</option>
-                            <option value="jquery">jQuery</option>
-                        </select>
+                        <label class="api-key-label">⚙️ Front-End Technologies (Select Multiple)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="html-css-js" checked style="cursor: pointer;">
+                                <span style="font-size: 13px;">Plain HTML/CSS/JS</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="tailwind" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Tailwind CSS</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="bootstrap" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Bootstrap 5</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="react" style="cursor: pointer;">
+                                <span style="font-size: 13px;">React.js</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="vue" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Vue.js</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="angular" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Angular</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="svelte" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Svelte</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="jquery" style="cursor: pointer;">
+                                <span style="font-size: 13px;">jQuery</span>
+                            </label>
+                        </div>
                         <div class="api-key-hint">
-                            Choose the framework/library for code generation
+                            Select one or more frameworks to generate code
                         </div>
                     </div>
                     </div>
@@ -646,27 +670,16 @@
 
             <div class="panel">
                 <div class="panel-header">
-                    <span>💻 Preview</span>
+                    <span>💻 Generated Code</span>
                     <span class="badge" id="statusBadge" style="font-size: 11px;">Ready</span>
                 </div>
-                
-                <div class="tabs">
-                    <div class="tab active" data-output="preview">👁️ Preview</div>
-                    <div class="tab" data-output="code">📝 Code</div>
-                </div>
 
-                <div class="output-section active" id="previewSection">
-                    <iframe id="previewFrame" class="preview-frame"></iframe>
-                </div>
-
-                <div class="output-section" id="codeSection">
-                    <div id="codeDisplay" class="code-area">Click a template and generate to see code here...</div>
-                </div>
-
-                <div class="actions">
-                    <button class="btn" id="downloadBtn">📥 Download</button>
-                    <button class="btn" id="copyBtn">📋 Copy Code</button>
-                    <button class="btn btn-primary" id="openBtn">🔍 Open in New Tab</button>
+                <div id="multiTechResults" style="display: grid; gap: 15px; overflow-y: auto; max-height: calc(100vh - 200px);">
+                    <!-- Results will be dynamically inserted here -->
+                    <div style="text-align: center; padding: 40px; color: #718096;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🎨</div>
+                        <div style="font-size: 16px;">Select technologies and generate code to see results</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -864,52 +877,227 @@
             }
         });
 
-        // Generate with Gemini
+        // Generate with Gemini (supports multiple technologies)
         async function generateWithGemini(apiKey) {
             const generateBtn = document.getElementById('generateBtn');
             generateBtn.disabled = true;
-            generateBtn.textContent = '⏳ Analyzing Image...';
+            generateBtn.textContent = '⏳ Generating...';
 
-            // Get selected technology
-            const selectedTech = document.getElementById('techSelector').value;
+            // Get selected technologies
+            const selectedTechs = Array.from(document.querySelectorAll('.tech-checkbox:checked')).map(cb => cb.value);
+
+            if (selectedTechs.length === 0) {
+                alert('Please select at least one technology!');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+                return;
+            }
 
             // Show loading
             const loadingOverlay = document.getElementById('loadingOverlay');
-            const loadingContent = loadingOverlay.querySelector('.loading-content');
             loadingOverlay.classList.add('show');
 
-            const loadingDetail = document.getElementById('loadingDetail');
             const loadingTitle = document.getElementById('loadingTitle');
-            if (loadingTitle) loadingTitle.textContent = `Generating with Gemini (${selectedTech})...`;
+            const loadingDetail = document.getElementById('loadingDetail');
+            if (loadingTitle) loadingTitle.textContent = `Generating ${selectedTechs.length} version(s)...`;
 
-            let loadingStep = 0;
-            const loadingSteps = [
-                'Analyzing image structure...',
-                'Identifying layout components...',
-                'Extracting colors and styles...',
-                'Generating HTML code...',
-                'Finalizing...'
+            // Clear previous results
+            const resultsContainer = document.getElementById('multiTechResults');
+            resultsContainer.innerHTML = '';
+
+            // Generate for each selected technology sequentially
+            for (let i = 0; i < selectedTechs.length; i++) {
+                const tech = selectedTechs[i];
+                const techName = getTechName(tech);
+
+                if (loadingDetail) loadingDetail.textContent = `Generating ${techName} (${i + 1}/${selectedTechs.length})...`;
+
+                // Create result card
+                const resultCard = createResultCard(tech, techName);
+                resultsContainer.appendChild(resultCard);
+
+                try {
+                    const code = await generateCodeForTech(apiKey, tech);
+                    updateResultCard(tech, code, 'success');
+                } catch (error) {
+                    console.error(`Error generating ${techName}:`, error);
+                    updateResultCard(tech, error.message, 'error');
+                }
+            }
+
+            loadingOverlay.classList.remove('show');
+            generateBtn.disabled = false;
+            generateBtn.textContent = '⚡ Generate Code from Image';
+            document.getElementById('statusBadge').textContent = 'Generated!';
+        }
+
+        // Get technology display name
+        function getTechName(techValue) {
+            const names = {
+                'html-css-js': 'Plain HTML/CSS/JS',
+                'tailwind': 'Tailwind CSS',
+                'bootstrap': 'Bootstrap 5',
+                'react': 'React.js',
+                'vue': 'Vue.js',
+                'angular': 'Angular',
+                'svelte': 'Svelte',
+                'jquery': 'jQuery'
+            };
+            return names[techValue] || techValue;
+        }
+
+        // Create result card for a technology
+        function createResultCard(tech, techName) {
+            const card = document.createElement('div');
+            card.id = `result-${tech}`;
+            card.style.cssText = 'background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; border: 1px solid rgba(120,119,198,0.3);';
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 600; font-size: 14px;">${techName}</div>
+                    <div id="status-${tech}" class="badge" style="font-size: 11px;">Generating...</div>
+                </div>
+                <div class="tabs" style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <div class="tab active" data-tech="${tech}" data-view="preview" style="flex: 1; padding: 8px; text-align: center; font-size: 12px;">Preview</div>
+                    <div class="tab" data-tech="${tech}" data-view="code" style="flex: 1; padding: 8px; text-align: center; font-size: 12px;">Code</div>
+                </div>
+                <div id="preview-${tech}" style="display: block;">
+                    <iframe style="width: 100%; height: 400px; border: 1px solid rgba(120,119,198,0.2); border-radius: 4px; background: white;"></iframe>
+                </div>
+                <div id="code-${tech}" style="display: none; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 4px; max-height: 400px; overflow-y: auto;">
+                    <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 12px; color: #e0e0e0;"></pre>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="downloadCode('${tech}')" class="btn" style="flex: 1; padding: 8px; font-size: 12px;">📥 Download</button>
+                    <button onclick="copyCode('${tech}')" class="btn" style="flex: 1; padding: 8px; font-size: 12px;">📋 Copy</button>
+                    <button onclick="openInNewTab('${tech}')" class="btn" style="flex: 1; padding: 8px; font-size: 12px;">🔍 Open</button>
+                </div>
+            `;
+
+            // Add tab switching
+            card.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tech = this.dataset.tech;
+                    const view = this.dataset.view;
+                    card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(`preview-${tech}`).style.display = view === 'preview' ? 'block' : 'none';
+                    document.getElementById(`code-${tech}`).style.display = view === 'code' ? 'block' : 'none';
+                });
+            });
+
+            return card;
+        }
+
+        // Update result card with generated code
+        function updateResultCard(tech, code, status) {
+            const statusBadge = document.getElementById(`status-${tech}`);
+            const previewFrame = document.querySelector(`#preview-${tech} iframe`);
+            const codeDisplay = document.querySelector(`#code-${tech} pre`);
+
+            if (status === 'success') {
+                statusBadge.textContent = 'Generated';
+                statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusBadge.style.borderColor = '#10b981';
+                statusBadge.style.color = '#10b981';
+
+                // Update preview
+                const blob = new Blob([code], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                previewFrame.src = blobUrl;
+
+                // Update code display
+                codeDisplay.textContent = code;
+
+                // Store code for download/copy/open
+                window[`generatedCode_${tech}`] = code;
+            } else {
+                statusBadge.textContent = 'Failed';
+                statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusBadge.style.borderColor = '#ef4444';
+                statusBadge.style.color = '#ef4444';
+                codeDisplay.textContent = `Error: ${code}`;
+            }
+        }
+
+        // Generate code for a specific technology
+        async function generateCodeForTech(apiKey, technology) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            const fallbackModels = [
+                'gemini-2.5-pro-preview-03-25',
+                'gemini-1.5-pro',
+                'gemini-2.0-flash-exp',
+                'gemini-2.5-flash',
+                'gemini-1.5-flash'
             ];
 
-            const loadingInterval = setInterval(() => {
-                if (loadingStep < loadingSteps.length - 1) {
-                    loadingStep++;
-                    if (loadingDetail) {
-                        loadingDetail.textContent = loadingSteps[loadingStep];
-                    }
-                }
-            }, 2000);
+            for (const model of fallbackModels) {
+                try {
+                    const requestBody = {
+                        contents: [{
+                            parts: [
+                                { text: getGenerationPrompt(technology) },
+                                { inline_data: { mime_type: mimeType, data: base64Data } }
+                            ]
+                        }],
+                        generationConfig: {
+                            temperature: 0.1,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 16384
+                        }
+                    };
 
-            try {
-                await generateGeminiCode(apiKey, selectedTech, loadingInterval, loadingTitle, loadingDetail);
-            } catch (error) {
-                clearInterval(loadingInterval);
-                console.error('Error generating code:', error);
-                alert('Error generating code: ' + error.message);
-                loadingOverlay.classList.remove('show');
-                generateBtn.disabled = false;
-                generateBtn.textContent = '⚡ Generate Code from Image';
+                    const response = await fetch(`${API_BASE_URL}/api/gemini-proxy`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            apiKey: apiKey,
+                            model: model,
+                            contents: requestBody.contents,
+                            generationConfig: requestBody.generationConfig
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        return processGeneratedCode(data.candidates[0].content.parts[0].text);
+                    }
+                } catch (err) {
+                    continue;
+                }
             }
+            throw new Error('All Gemini models failed');
+        }
+
+        // Helper functions for download, copy, open
+        function downloadCode(tech) {
+            const code = window[`generatedCode_${tech}`];
+            if (!code) return;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `generated-${tech}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyCode(tech) {
+            const code = window[`generatedCode_${tech}`];
+            if (!code) return;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+
+        function openInNewTab(tech) {
+            const code = window[`generatedCode_${tech}`];
+            if (!code) return;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
         }
 
         // Generate with Claude
