@@ -1,0 +1,85 @@
+{
+  "transcript": [
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:00:15",
+      "text": "We need to add a shopping cart feature to our e-commerce platform."
+    },
+    {
+      "speaker": "Tech Lead",
+      "timestamp": "00:00:22",
+      "text": "What specific functionality should the cart include?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:00:28",
+      "text": "Users should be able to add items to cart, update quantities, remove items, and see the total price including tax."
+    },
+    {
+      "speaker": "QA Engineer",
+      "timestamp": "00:00:45",
+      "text": "Should the cart persist if the user closes the browser?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:00:52",
+      "text": "Yes, the cart should be saved for logged-in users. For guest users, we can use local storage and keep it for 7 days."
+    },
+    {
+      "speaker": "Developer",
+      "timestamp": "00:01:05",
+      "text": "What about inventory checking? Should we reserve items when added to cart?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:01:15",
+      "text": "Good question. We should check inventory availability when adding to cart and again at checkout. Show a warning if inventory is low."
+    },
+    {
+      "speaker": "QA Engineer",
+      "timestamp": "00:01:30",
+      "text": "What's the maximum number of items allowed in the cart?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:01:38",
+      "text": "Let's set a limit of 50 items total. For individual products, maximum quantity should be 10 per item."
+    },
+    {
+      "speaker": "Designer",
+      "timestamp": "00:01:50",
+      "text": "Should we show a mini cart icon in the header with the item count?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:01:57",
+      "text": "Absolutely. The cart icon should show the number of items and update in real-time."
+    },
+    {
+      "speaker": "QA Engineer",
+      "timestamp": "00:02:10",
+      "text": "What about applying discount codes or coupons?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:02:18",
+      "text": "Yes, users should be able to apply one promo code per order. It should be validated before proceeding to checkout."
+    },
+    {
+      "speaker": "Developer",
+      "timestamp": "00:02:30",
+      "text": "Should we calculate shipping costs in the cart or only at checkout?"
+    },
+    {
+      "speaker": "Product Manager",
+      "timestamp": "00:02:38",
+      "text": "Show estimated shipping at cart level, but final shipping cost will be calculated at checkout based on the delivery address."
+    }
+  ],
+  "metadata": {
+    "meeting_id": "MEET-2024-001",
+    "date": "2024-01-15",
+    "duration": "02:45",
+    "participants": ["Product Manager", "Tech Lead", "Developer", "QA Engineer", "Designer"]
+  }
+}
