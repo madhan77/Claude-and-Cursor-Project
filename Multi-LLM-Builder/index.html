@@ -1191,7 +1191,19 @@
         // Generate code with Claude for a specific technology
         async function generateCodeWithClaude(apiKey, technology) {
             const base64Data = uploadedImageData.split(',')[1];
-            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+            let mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            // Claude only supports specific image formats
+            // Normalize mime types
+            if (mimeType === 'image/jpg') {
+                mimeType = 'image/jpeg';
+            }
+
+            // Validate supported formats
+            const supportedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!supportedFormats.includes(mimeType)) {
+                throw new Error(`Unsupported image format: ${mimeType}. Claude supports: JPEG, PNG, GIF, WebP`);
+            }
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/claude-proxy`, {
