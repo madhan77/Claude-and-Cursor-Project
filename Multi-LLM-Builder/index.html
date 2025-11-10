@@ -1018,10 +1018,11 @@
                 createComparisonView(tech, techName, resultsByTech[tech], selectedLLMs);
             });
 
-            // Add "Download All as PDF" button if multiple results
-            if (selectedLLMs.length > 1 || selectedTechs.length > 1) {
-                addDownloadAllButton(resultsByTech, selectedLLMs, selectedTechs);
-            }
+            // Store results globally for PDF generation (always, not just for multi-results)
+            window.multiLLMResults = { resultsByTech, selectedLLMs, selectedTechs, uploadedImage: uploadedImageData };
+
+            // Add "Download All as PDF" button
+            addDownloadAllButton(resultsByTech, selectedLLMs, selectedTechs);
 
             loadingOverlay.classList.remove('show');
             generateBtn.disabled = false;
@@ -1121,9 +1122,6 @@
             `;
 
             resultsContainer.appendChild(downloadAllBtn);
-
-            // Store results globally for PDF generation
-            window.multiLLMResults = { resultsByTech, selectedLLMs, selectedTechs, uploadedImage: uploadedImageData };
         }
 
         // Get LLM display name
@@ -1537,7 +1535,12 @@
         // Download all results as PDF
         async function downloadAllAsPDF() {
             const results = window.multiLLMResults;
-            if (!results) return alert('No results to download!');
+            if (!results) {
+                console.error('No multiLLMResults found');
+                return alert('No results to download! Please generate code first.');
+            }
+
+            console.log('PDF generation started with results:', results);
 
             // Show loading
             const loadingOverlay = document.getElementById('loadingOverlay');
