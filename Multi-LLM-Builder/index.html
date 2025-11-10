@@ -2278,29 +2278,6 @@ Return ONLY the complete HTML code including the <body> tag with all content.`;
             });
         });
 
-        // Actions
-        document.getElementById('downloadBtn').addEventListener('click', function() {
-            if (!generatedCode) return alert('Generate a template first!');
-            const blob = new Blob([generatedCode], { type: 'text/html' });
-            const link = document.createElement('a');
-            link.download = `${selectedTemplate || 'template'}.html`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            alert('✅ Downloaded!');
-        });
-
-        document.getElementById('copyBtn').addEventListener('click', function() {
-            if (!generatedCode) return alert('Generate a template first!');
-            navigator.clipboard.writeText(generatedCode);
-            alert('✅ Code copied to clipboard!');
-        });
-
-        document.getElementById('openBtn').addEventListener('click', function() {
-            if (!generatedCode) return alert('Generate a template first!');
-            const blob = new Blob([generatedCode], { type: 'text/html' });
-            window.open(URL.createObjectURL(blob), '_blank');
-        });
-
         // Template code function (will be populated with actual templates)
         function getTemplateCode(templateName) {
             const templates = {
