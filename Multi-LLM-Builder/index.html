@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-LLM Builder - Compare AI Models - 100% Free</title>
+    <!-- html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -971,6 +973,12 @@
             const resultsContainer = document.getElementById('multiTechResults');
             resultsContainer.innerHTML = '';
 
+            // Store results by technology for comparison view
+            const resultsByTech = {};
+            selectedTechs.forEach(tech => {
+                resultsByTech[tech] = {};
+            });
+
             let currentGeneration = 0;
 
             // Generate for each LLM × Technology combination
@@ -979,19 +987,6 @@
                 const apiKey = apiKeys[llm];
                 const llmName = getLLMName(llm);
 
-                // Create section header for this LLM
-                const llmSection = document.createElement('div');
-                llmSection.style.cssText = 'margin-bottom: 25px;';
-                llmSection.innerHTML = `
-                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #667eea; display: flex; align-items: center; gap: 8px;">
-                        ${getLLMIcon(llm)} ${llmName}
-                    </h3>
-                    <div id="llm-${llm}-results" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 15px;"></div>
-                `;
-                resultsContainer.appendChild(llmSection);
-
-                const llmResultsContainer = document.getElementById(`llm-${llm}-results`);
-
                 // Generate for each technology sequentially
                 for (let i = 0; i < selectedTechs.length; i++) {
                     const tech = selectedTechs[i];
@@ -999,11 +994,6 @@
                     currentGeneration++;
 
                     if (loadingDetail) loadingDetail.textContent = `${llmName} → ${techName} (${currentGeneration}/${totalGenerations})...`;
-
-                    // Create result card with unique ID for LLM + Tech combination
-                    const cardId = `${llm}-${tech}`;
-                    const resultCard = createResultCard(cardId, techName);
-                    llmResultsContainer.appendChild(resultCard);
 
                     try {
                         let code;
@@ -1014,18 +1004,126 @@
                         } else if (llm === 'openai') {
                             code = await generateCodeWithOpenAI(apiKey, tech);
                         }
-                        updateResultCard(cardId, code, 'success');
+                        resultsByTech[tech][llm] = { code, status: 'success', llmName };
                     } catch (error) {
                         console.error(`Error generating ${llmName} → ${techName}:`, error);
-                        updateResultCard(cardId, error.message, 'error');
+                        resultsByTech[tech][llm] = { code: error.message, status: 'error', llmName };
                     }
                 }
+            }
+
+            // Display results grouped by technology with LLMs side-by-side
+            selectedTechs.forEach(tech => {
+                const techName = getTechName(tech);
+                createComparisonView(tech, techName, resultsByTech[tech], selectedLLMs);
+            });
+
+            // Add "Download All as PDF" button if multiple results
+            if (selectedLLMs.length > 1 || selectedTechs.length > 1) {
+                addDownloadAllButton(resultsByTech, selectedLLMs, selectedTechs);
             }
 
             loadingOverlay.classList.remove('show');
             generateBtn.disabled = false;
             generateBtn.textContent = '⚡ Generate Code from Image';
             document.getElementById('statusBadge').textContent = 'Generated!';
+        }
+
+        // Create comparison view for a technology showing LLMs side-by-side
+        function createComparisonView(tech, techName, llmResults, selectedLLMs) {
+            const resultsContainer = document.getElementById('multiTechResults');
+
+            const techSection = document.createElement('div');
+            techSection.style.cssText = 'margin-bottom: 40px; border: 2px solid rgba(120,119,198,0.3); border-radius: 12px; padding: 20px; background: rgba(0,0,0,0.2);';
+
+            techSection.innerHTML = `
+                <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #667eea; text-align: center;">
+                    ${techName}
+                </h3>
+                <div id="comparison-${tech}" style="display: grid; grid-template-columns: repeat(${selectedLLMs.length}, 1fr); gap: 15px; align-items: start;">
+                </div>
+            `;
+
+            resultsContainer.appendChild(techSection);
+
+            const comparisonContainer = document.getElementById(`comparison-${tech}`);
+
+            // Add each LLM's result side-by-side
+            selectedLLMs.forEach(llm => {
+                const result = llmResults[llm];
+                if (result) {
+                    const cardId = `${llm}-${tech}`;
+                    const card = createComparisonCard(cardId, result.llmName, llm);
+                    comparisonContainer.appendChild(card);
+                    updateResultCard(cardId, result.code, result.status);
+                }
+            });
+        }
+
+        // Create a comparison card for side-by-side view
+        function createComparisonCard(cardId, llmName, llm) {
+            const card = document.createElement('div');
+            card.id = `result-${cardId}`;
+            card.style.cssText = 'background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; border: 2px solid rgba(120,119,198,0.3); min-height: 500px; display: flex; flex-direction: column;';
+
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(120,119,198,0.3);">
+                    <div style="font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                        ${getLLMIcon(llm)} ${llmName}
+                    </div>
+                    <div id="status-${cardId}" class="badge" style="font-size: 11px;">Generating...</div>
+                </div>
+                <div class="tabs" style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <div class="tab active" data-card="${cardId}" data-view="preview" style="flex: 1; padding: 8px; text-align: center; font-size: 12px; cursor: pointer;">Preview</div>
+                    <div class="tab" data-card="${cardId}" data-view="code" style="flex: 1; padding: 8px; text-align: center; font-size: 12px; cursor: pointer;">Code</div>
+                </div>
+                <div id="preview-${cardId}" style="display: block; flex: 1;">
+                    <iframe style="width: 100%; height: 400px; border: 1px solid rgba(120,119,198,0.2); border-radius: 4px; background: white;"></iframe>
+                </div>
+                <div id="code-${cardId}" style="display: none; flex: 1; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 4px; max-height: 400px; overflow-y: auto;">
+                    <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 11px; color: #e0e0e0; line-height: 1.4;"></pre>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button onclick="downloadCodeWithImages('${cardId}')" class="btn" style="flex: 1; padding: 8px; font-size: 11px;">📥 Download</button>
+                    <button onclick="copyCode('${cardId}')" class="btn" style="flex: 1; padding: 8px; font-size: 11px;">📋 Copy</button>
+                    <button onclick="openInNewTab('${cardId}')" class="btn" style="flex: 1; padding: 8px; font-size: 11px;">🔍 Open</button>
+                </div>
+            `;
+
+            // Add tab switching
+            card.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const cardId = this.dataset.card;
+                    const view = this.dataset.view;
+                    card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(`preview-${cardId}`).style.display = view === 'preview' ? 'block' : 'none';
+                    document.getElementById(`code-${cardId}`).style.display = view === 'code' ? 'block' : 'none';
+                });
+            });
+
+            return card;
+        }
+
+        // Add Download All as PDF button
+        function addDownloadAllButton(resultsByTech, selectedLLMs, selectedTechs) {
+            const resultsContainer = document.getElementById('multiTechResults');
+
+            const downloadAllBtn = document.createElement('div');
+            downloadAllBtn.style.cssText = 'text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(120,119,198,0.3);';
+            downloadAllBtn.innerHTML = `
+                <button onclick="downloadAllAsPDF()" class="btn" style="padding: 15px 40px; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    📄 Download All Results as PDF
+                </button>
+                <p style="margin-top: 10px; font-size: 12px; color: #a0aec0;">
+                    Includes: Input image, all generated outputs, and code for ${selectedLLMs.length} model(s) × ${selectedTechs.length} technology(ies)
+                </p>
+            `;
+
+            resultsContainer.appendChild(downloadAllBtn);
+
+            // Store results globally for PDF generation
+            window.multiLLMResults = { resultsByTech, selectedLLMs, selectedTechs, uploadedImage: uploadedImageData };
         }
 
         // Get LLM display name
@@ -1321,6 +1419,202 @@
             const blob = new Blob([code], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
+        }
+
+        // Enhanced download with input image, output preview, and code
+        async function downloadCodeWithImages(cardId) {
+            const code = window[`generatedCode_${cardId}`];
+            if (!code) return alert('No code generated yet!');
+
+            // Create HTML document with input image, preview, and code
+            const downloadHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-LLM Builder - Generated Code</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .input-image {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .meta-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Multi-LLM Builder - Generated Code</h1>
+
+        <div class="meta-info">
+            <strong>Generated with:</strong> ${cardId.split('-')[0].toUpperCase()}<br>
+            <strong>Technology:</strong> ${cardId.split('-').slice(1).join('-')}<br>
+            <strong>Date:</strong> ${new Date().toLocaleString()}
+        </div>
+
+        <div class="section">
+            <div class="section-title">📤 Input Image</div>
+            <img src="${uploadedImageData}" class="input-image" alt="Input Design">
+        </div>
+
+        <div class="section">
+            <div class="section-title">🖼️ Generated Output Preview</div>
+            <iframe class="preview-frame" srcdoc="${code.replace(/"/g, '&quot;')}"></iframe>
+        </div>
+
+        <div class="section">
+            <div class="section-title">💻 Generated Code</div>
+            <pre class="code-block">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+        </div>
+    </div>
+</body>
+</html>`;
+
+            // Download the HTML file
+            const blob = new Blob([downloadHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `multi-llm-${cardId}-${new Date().getTime()}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('✅ Downloaded! File includes input image, output preview, and code.');
+        }
+
+        // Download all results as PDF
+        async function downloadAllAsPDF() {
+            const results = window.multiLLMResults;
+            if (!results) return alert('No results to download!');
+
+            // Show loading
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('show');
+            document.getElementById('loadingTitle').textContent = 'Generating PDF...';
+            document.getElementById('loadingDetail').textContent = 'Please wait, this may take a moment...';
+
+            try {
+                // Create PDF content
+                const pdfContent = document.createElement('div');
+                pdfContent.style.cssText = 'background: white; padding: 40px; font-family: Arial, sans-serif; color: #333;';
+
+                let htmlContent = `
+                    <h1 style="color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 15px; margin-bottom: 30px;">
+                        Multi-LLM Builder - Comparison Report
+                    </h1>
+                    <div style="background: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin-bottom: 30px;">
+                        <strong>Generated:</strong> ${new Date().toLocaleString()}<br>
+                        <strong>AI Models:</strong> ${results.selectedLLMs.map(llm => getLLMName(llm)).join(', ')}<br>
+                        <strong>Technologies:</strong> ${results.selectedTechs.map(tech => getTechName(tech)).join(', ')}<br>
+                        <strong>Total Comparisons:</strong> ${results.selectedLLMs.length × results.selectedTechs.length}
+                    </div>
+
+                    <h2 style="color: #667eea; margin-top: 40px; margin-bottom: 20px;">Input Image</h2>
+                    <img src="${results.uploadedImage}" style="max-width: 100%; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 40px;">
+                `;
+
+                // Add results for each technology
+                results.selectedTechs.forEach(tech => {
+                    const techName = getTechName(tech);
+                    htmlContent += `
+                        <div style="page-break-before: always; margin-top: 40px;">
+                            <h2 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 10px; margin-bottom: 20px;">
+                                ${techName}
+                            </h2>
+                    `;
+
+                    results.selectedLLMs.forEach(llm => {
+                        const llmName = getLLMName(llm);
+                        const result = results.resultsByTech[tech][llm];
+
+                        if (result && result.status === 'success') {
+                            htmlContent += `
+                                <div style="margin-bottom: 30px; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+                                    <h3 style="color: #764ba2; margin-bottom: 15px;">
+                                        ${getLLMIcon(llm)} ${llmName}
+                                    </h3>
+                                    <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 11px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word;">${result.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    htmlContent += `</div>`;
+                });
+
+                pdfContent.innerHTML = htmlContent;
+
+                // Generate PDF
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `multi-llm-comparison-${new Date().getTime()}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                await html2pdf().set(opt).from(pdfContent).save();
+
+                loadingOverlay.classList.remove('show');
+                alert('✅ PDF downloaded successfully!');
+
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                loadingOverlay.classList.remove('show');
+                alert('❌ Error generating PDF: ' + error.message);
+            }
         }
 
         // Generate with Claude
