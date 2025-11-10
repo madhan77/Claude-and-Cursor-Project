@@ -1,0 +1,3004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-LLM Builder - Compare AI Models - 100% Free</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        header {
+            padding: 20px 40px;
+            background: rgba(26, 31, 58, 0.9);
+            border-bottom: 1px solid rgba(120, 119, 198, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .badge {
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            border-radius: 20px;
+            color: #10b981;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 20px;
+            color: #a0aec0;
+            margin-bottom: 30px;
+        }
+        .hero .stats {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #10b981;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+        }
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(120, 119, 198, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .mode-btn.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #fff;
+        }
+        .upload-area {
+            border: 2px dashed rgba(120, 119, 198, 0.5);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+        .upload-container {
+            position: relative;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 16px;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+        .upload-hint {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        .file-input {
+            display: none;
+        }
+        #imagePreview {
+            text-align: center;
+        }
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid rgba(120, 119, 198, 0.3);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .api-key-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        .api-key-label {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .api-key-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(120, 119, 198, 0.5);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+        }
+        .api-key-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .api-key-hint {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 5px;
+        }
+        .template-mode, .upload-mode {
+            display: none;
+        }
+        .template-mode.active, .upload-mode.active {
+            display: block;
+        }
+        .provider-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(120, 119, 198, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .provider-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .provider-btn.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #fff;
+        }
+        .comparison-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .comparison-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid rgba(120, 119, 198, 0.3);
+        }
+        .comparison-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(120, 119, 198, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comparison-preview {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 8px;
+            border: none;
+        }
+        .comparison-code {
+            width: 100%;
+            height: 400px;
+            background: #1e1e1e;
+            border: 2px solid rgba(120, 119, 198, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #d4d4d4;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+        .panel {
+            background: rgba(26, 31, 58, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            padding: 25px;
+        }
+        .panel-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(120, 119, 198, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(120, 119, 198, 0.5);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .template-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(120, 119, 198, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .template-card:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+        .template-card.selected {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        .template-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .template-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+        .template-desc {
+            font-size: 11px;
+            color: #a0aec0;
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(120, 119, 198, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #fff;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 550px;
+            background: white;
+            border-radius: 8px;
+            border: none;
+        }
+        .code-area {
+            width: 100%;
+            height: 550px;
+            background: #1e1e1e;
+            border: 2px solid rgba(120, 119, 198, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #d4d4d4;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+        .output-section {
+            display: none;
+        }
+        .output-section.active {
+            display: block;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        .loading-overlay.show {
+            display: flex;
+        }
+        .loading-content {
+            text-align: center;
+            background: rgba(26, 31, 58, 0.9);
+            padding: 40px;
+            border-radius: 16px;
+        }
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 48px;
+            animation: scaleIn 0.3s ease;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(120, 119, 198, 0.5);
+            border-radius: 4px;
+        }
+        @media (max-width: 1200px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🎨 Prototype Template Builder</div>
+        <div class="badge">⚡ 100% Free • No API</div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Multi-LLM Builder - Compare AI Models</h1>
+            <p>Generate code with Gemini, Claude, and GPT-4. Compare outputs across multiple technologies.</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">AI Models</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Technologies</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Combinations</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="panel">
+                <div class="panel-header">
+                    <span>📚 Input</span>
+                    <span class="badge" id="inputBadge" style="font-size: 11px;">Templates</span>
+                </div>
+
+                <div class="mode-toggle">
+                    <div class="mode-btn active" data-mode="template">📋 Templates</div>
+                    <div class="mode-btn" data-mode="upload">📤 Upload File</div>
+                </div>
+
+                <!-- Template Mode -->
+                <div class="template-mode active" id="templateMode">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search templates...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+
+                    <div class="template-grid" id="templateGrid">
+                    <div class="template-card" data-template="dashboard" data-keywords="dashboard kanban project management tasks">
+                        <div class="template-icon">📊</div>
+                        <div class="template-name">Dashboard</div>
+                        <div class="template-desc">Project Management</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="login" data-keywords="login auth authentication signin">
+                        <div class="template-icon">🔐</div>
+                        <div class="template-name">Login Page</div>
+                        <div class="template-desc">Modern Auth UI</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="landing" data-keywords="landing hero homepage saas">
+                        <div class="template-icon">🚀</div>
+                        <div class="template-name">Landing Page</div>
+                        <div class="template-desc">Hero + CTA</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="pricing" data-keywords="pricing plans subscription tiers">
+                        <div class="template-icon">💰</div>
+                        <div class="template-name">Pricing</div>
+                        <div class="template-desc">3-Tier Pricing</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="contact" data-keywords="contact form email message">
+                        <div class="template-icon">📧</div>
+                        <div class="template-name">Contact Form</div>
+                        <div class="template-desc">Get in Touch</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="portfolio" data-keywords="portfolio projects showcase gallery">
+                        <div class="template-icon">🎨</div>
+                        <div class="template-name">Portfolio</div>
+                        <div class="template-desc">Project Showcase</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="blog" data-keywords="blog articles posts content">
+                        <div class="template-icon">📝</div>
+                        <div class="template-name">Blog</div>
+                        <div class="template-desc">Article Layout</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="ecommerce" data-keywords="ecommerce shop product store">
+                        <div class="template-icon">🛒</div>
+                        <div class="template-name">E-commerce</div>
+                        <div class="template-desc">Product Page</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="about" data-keywords="about team company profile">
+                        <div class="template-icon">👥</div>
+                        <div class="template-name">About/Team</div>
+                        <div class="template-desc">Company Info</div>
+                    </div>
+                    
+                    <div class="template-card" data-template="app" data-keywords="app mobile ios android showcase">
+                        <div class="template-icon">📱</div>
+                        <div class="template-name">App Landing</div>
+                        <div class="template-desc">Mobile App</div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Upload Mode -->
+                <div class="upload-mode" id="uploadMode">
+                    <div class="api-provider-section" style="margin-bottom: 20px;">
+                    <!-- LLM Selector -->
+                    <div class="api-key-section" style="margin-bottom: 20px;">
+                        <label class="api-key-label">🤖 AI Models (Select Multiple)</label>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 2px solid rgba(120,119,198,0.3);">
+                                <input type="checkbox" class="llm-checkbox" value="gemini" checked style="cursor: pointer;">
+                                <span style="font-size: 14px; font-weight: 500;">🔵 Google Gemini</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 2px solid rgba(120,119,198,0.3);">
+                                <input type="checkbox" class="llm-checkbox" value="claude" style="cursor: pointer;">
+                                <span style="font-size: 14px; font-weight: 500;">🟣 Anthropic Claude</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 2px solid rgba(120,119,198,0.3);">
+                                <input type="checkbox" class="llm-checkbox" value="openai" style="cursor: pointer;">
+                                <span style="font-size: 14px; font-weight: 500;">🟢 OpenAI GPT-4</span>
+                            </label>
+                        </div>
+                        <div class="api-key-hint">
+                            Select one or more AI models to compare their outputs
+                        </div>
+                    </div>
+
+                    <!-- API Keys -->
+                    <div class="api-key-section" id="geminiKeySection">
+                        <label class="api-key-label">🔑 Gemini API Key</label>
+                        <input type="password" class="api-key-input" id="geminiApiKeyInput" placeholder="AIzaSy...">
+                        <div class="api-key-hint">
+                            Get your key from <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #667eea;">Google AI Studio</a>
+                        </div>
+                    </div>
+
+                    <div class="api-key-section" id="claudeKeySection" style="display: none; margin-top: 15px;">
+                        <label class="api-key-label">🔑 Claude API Key</label>
+                        <input type="password" class="api-key-input" id="claudeApiKeyInput" placeholder="sk-ant-...">
+                        <div class="api-key-hint">
+                            Get your key from <a href="https://console.anthropic.com/" target="_blank" style="color: #667eea;">Anthropic Console</a>
+                        </div>
+                    </div>
+
+                    <div class="api-key-section" id="openaiKeySection" style="display: none; margin-top: 15px;">
+                        <label class="api-key-label">🔑 OpenAI API Key</label>
+                        <input type="password" class="api-key-input" id="openaiApiKeyInput" placeholder="sk-...">
+                        <div class="api-key-hint">
+                            Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #667eea;">OpenAI Platform</a>
+                        </div>
+                    </div>
+
+                    <!-- Technology Selector -->
+                    <div class="api-key-section" style="margin-top: 20px;">
+                        <label class="api-key-label">⚙️ Front-End Technologies (Select Multiple)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="html-css-js" checked style="cursor: pointer;">
+                                <span style="font-size: 13px;">Plain HTML/CSS/JS</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="tailwind" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Tailwind CSS</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="bootstrap" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Bootstrap 5</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="react" style="cursor: pointer;">
+                                <span style="font-size: 13px;">React.js</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="vue" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Vue.js</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="angular" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Angular</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="svelte" style="cursor: pointer;">
+                                <span style="font-size: 13px;">Svelte</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <input type="checkbox" class="tech-checkbox" value="jquery" style="cursor: pointer;">
+                                <span style="font-size: 13px;">jQuery</span>
+                            </label>
+                        </div>
+                        <div class="api-key-hint">
+                            Select one or more frameworks to generate code
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="upload-container">
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="fileInput" class="file-input" accept="image/*">
+                            <div class="upload-icon">📤</div>
+                            <div class="upload-text">Click to upload or drag & drop</div>
+                            <div class="upload-hint">Upload a design/image to generate code</div>
+                        </div>
+                        <div id="imagePreview" style="display: none;">
+                            <img id="uploadedImage" class="uploaded-image" alt="Uploaded image">
+                            <button class="btn" id="removeImageBtn" style="margin-top: 10px; width: 100%;">Remove Image</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="generate-btn" id="generateBtn">⚡ Generate Code</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span>💻 Generated Code</span>
+                    <span class="badge" id="statusBadge" style="font-size: 11px;">Ready</span>
+                </div>
+
+                <div id="multiTechResults" style="display: grid; gap: 15px; overflow-y: auto; max-height: calc(100vh - 200px);">
+                    <!-- Results will be dynamically inserted here -->
+                    <div style="text-align: center; padding: 40px; color: #718096;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🎨</div>
+                        <div style="font-size: 16px;">Select technologies and generate code to see results</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="checkmark">✓</div>
+            <div id="loadingTitle" style="font-size: 24px; color: #fff; font-weight: 600;">Generating Code...</div>
+            <div id="loadingDetail" class="status-detail" style="font-size: 14px; color: #a0aec0; margin-top: 10px;">Analyzing image structure...</div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let selectedTemplate = null;
+        let generatedCode = '';
+        let currentMode = 'template';
+        let uploadedImageData = null;
+
+        // API Configuration - Auto-detect Vercel deployment
+        const API_BASE_URL = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('vercel.live')
+            ? '' // Use relative URLs on Vercel (same domain)
+            : window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000' // Local development
+            : ''; // Production - update with your Vercel URL after deployment
+
+        // Mode toggle
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentMode = this.dataset.mode;
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.template-mode, .upload-mode').forEach(m => m.classList.remove('active'));
+                document.getElementById(currentMode + 'Mode').classList.add('active');
+                
+                document.getElementById('inputBadge').textContent = currentMode === 'template' ? 'Templates' : 'Upload';
+                document.getElementById('generateBtn').textContent = currentMode === 'template' ? '⚡ Generate Template' : '⚡ Generate Code from Image';
+            });
+        });
+
+        // Provider toggle
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadedImage = document.getElementById('uploadedImage');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImageData = e.target.result;
+                uploadedImage.src = uploadedImageData;
+                // Show image preview and hide upload area
+                imagePreview.style.display = 'block';
+                uploadArea.style.display = 'none';
+                // Update status
+                document.getElementById('statusBadge').textContent = 'Image Ready';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove image button
+        document.getElementById('removeImageBtn').addEventListener('click', function() {
+            fileInput.value = '';
+            uploadedImageData = null;
+            // Show upload area and hide image preview
+            imagePreview.style.display = 'none';
+            uploadArea.style.display = 'block';
+            // Reset status
+            document.getElementById('statusBadge').textContent = 'Ready';
+        });
+
+        // LLM checkbox event listeners - show/hide API key sections
+        document.querySelectorAll('.llm-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const llm = this.value;
+                const keySection = document.getElementById(`${llm}KeySection`);
+                if (this.checked) {
+                    keySection.style.display = 'block';
+                } else {
+                    keySection.style.display = 'none';
+                }
+            });
+        });
+
+        // Template selection
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', function() {
+                selectedTemplate = this.dataset.template;
+                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('statusBadge').textContent = `${this.querySelector('.template-name').textContent} Selected`;
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const search = e.target.value.toLowerCase();
+            document.querySelectorAll('.template-card').forEach(card => {
+                const keywords = card.dataset.keywords.toLowerCase();
+                const name = card.querySelector('.template-name').textContent.toLowerCase();
+                if (keywords.includes(search) || name.includes(search)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = search ? 'none' : 'block';
+                }
+            });
+        });
+
+        // Generate
+        document.getElementById('generateBtn').addEventListener('click', async function() {
+            if (currentMode === 'template') {
+                // Template mode
+                if (!selectedTemplate) {
+                    alert('Please select a template first!');
+                    return;
+                }
+
+                this.disabled = true;
+                this.textContent = '⏳ Generating...';
+
+                // Show loading
+                document.getElementById('loadingOverlay').classList.add('show');
+
+                // Simulate brief delay for UX
+                setTimeout(() => {
+                    if (selectedTemplate === 'dashboard') {
+                        // Load from dashboard.html file
+                        fetch('dashboard.html')
+                            .then(response => response.text())
+                            .then(code => {
+                                generatedCode = code;
+                                displayResult(code);
+                                finishGeneration();
+                            })
+                            .catch(error => {
+                                console.error('Error loading dashboard:', error);
+                                generatedCode = getTemplateCode(selectedTemplate);
+                                displayResult(generatedCode);
+                                finishGeneration();
+                            });
+                    } else {
+                        generatedCode = getTemplateCode(selectedTemplate);
+                        displayResult(generatedCode);
+                        finishGeneration();
+                    }
+                }, 500);
+
+                function finishGeneration() {
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').classList.remove('show');
+                    }, 1000);
+                    
+                    document.getElementById('generateBtn').disabled = false;
+                    document.getElementById('generateBtn').textContent = '⚡ Generate Template';
+                    document.getElementById('statusBadge').textContent = 'Generated!';
+                }
+            } else {
+                // Upload mode - Generate from image
+                if (!uploadedImageData) {
+                    alert('Please upload an image first!');
+                    return;
+                }
+
+                // Get selected LLMs and validate API keys
+                const selectedLLMs = Array.from(document.querySelectorAll('.llm-checkbox:checked')).map(cb => cb.value);
+
+                if (selectedLLMs.length === 0) {
+                    alert('Please select at least one AI model!');
+                    return;
+                }
+
+                // Validate API keys for selected LLMs
+                const apiKeys = {};
+                for (const llm of selectedLLMs) {
+                    const apiKey = document.getElementById(`${llm}ApiKeyInput`).value.trim();
+                    if (!apiKey) {
+                        const keyUrls = {
+                            gemini: 'https://makersuite.google.com/app/apikey',
+                            claude: 'https://console.anthropic.com/',
+                            openai: 'https://platform.openai.com/api-keys'
+                        };
+                        alert(`Please enter your ${llm.charAt(0).toUpperCase() + llm.slice(1)} API key.\n\nGet your key from: ${keyUrls[llm]}`);
+                        return;
+                    }
+                    apiKeys[llm] = apiKey;
+                }
+
+                // Generate with multiple LLMs
+                generateWithMultipleLLMs(selectedLLMs, apiKeys);
+            }
+        });
+
+        // Generate with multiple LLMs and technologies (Matrix view)
+        async function generateWithMultipleLLMs(selectedLLMs, apiKeys) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Generating...';
+
+            // Get selected technologies
+            const selectedTechs = Array.from(document.querySelectorAll('.tech-checkbox:checked')).map(cb => cb.value);
+
+            if (selectedTechs.length === 0) {
+                alert('Please select at least one technology!');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+                return;
+            }
+
+            // Show loading
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('show');
+
+            const loadingTitle = document.getElementById('loadingTitle');
+            const loadingDetail = document.getElementById('loadingDetail');
+            const totalGenerations = selectedLLMs.length * selectedTechs.length;
+            if (loadingTitle) loadingTitle.textContent = `Generating ${totalGenerations} version(s)...`;
+
+            // Clear previous results
+            const resultsContainer = document.getElementById('multiTechResults');
+            resultsContainer.innerHTML = '';
+
+            let currentGeneration = 0;
+
+            // Generate for each LLM × Technology combination
+            for (let llmIdx = 0; llmIdx < selectedLLMs.length; llmIdx++) {
+                const llm = selectedLLMs[llmIdx];
+                const apiKey = apiKeys[llm];
+                const llmName = getLLMName(llm);
+
+                // Create section header for this LLM
+                const llmSection = document.createElement('div');
+                llmSection.style.cssText = 'margin-bottom: 25px;';
+                llmSection.innerHTML = `
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #667eea; display: flex; align-items: center; gap: 8px;">
+                        ${getLLMIcon(llm)} ${llmName}
+                    </h3>
+                    <div id="llm-${llm}-results" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 15px;"></div>
+                `;
+                resultsContainer.appendChild(llmSection);
+
+                const llmResultsContainer = document.getElementById(`llm-${llm}-results`);
+
+                // Generate for each technology sequentially
+                for (let i = 0; i < selectedTechs.length; i++) {
+                    const tech = selectedTechs[i];
+                    const techName = getTechName(tech);
+                    currentGeneration++;
+
+                    if (loadingDetail) loadingDetail.textContent = `${llmName} → ${techName} (${currentGeneration}/${totalGenerations})...`;
+
+                    // Create result card with unique ID for LLM + Tech combination
+                    const cardId = `${llm}-${tech}`;
+                    const resultCard = createResultCard(cardId, techName);
+                    llmResultsContainer.appendChild(resultCard);
+
+                    try {
+                        let code;
+                        if (llm === 'gemini') {
+                            code = await generateCodeWithGemini(apiKey, tech);
+                        } else if (llm === 'claude') {
+                            code = await generateCodeWithClaude(apiKey, tech);
+                        } else if (llm === 'openai') {
+                            code = await generateCodeWithOpenAI(apiKey, tech);
+                        }
+                        updateResultCard(cardId, code, 'success');
+                    } catch (error) {
+                        console.error(`Error generating ${llmName} → ${techName}:`, error);
+                        updateResultCard(cardId, error.message, 'error');
+                    }
+                }
+            }
+
+            loadingOverlay.classList.remove('show');
+            generateBtn.disabled = false;
+            generateBtn.textContent = '⚡ Generate Code from Image';
+            document.getElementById('statusBadge').textContent = 'Generated!';
+        }
+
+        // Get LLM display name
+        function getLLMName(llm) {
+            const names = {
+                'gemini': 'Google Gemini',
+                'claude': 'Anthropic Claude',
+                'openai': 'OpenAI GPT-4'
+            };
+            return names[llm] || llm;
+        }
+
+        // Get LLM icon
+        function getLLMIcon(llm) {
+            const icons = {
+                'gemini': '🔵',
+                'claude': '🟣',
+                'openai': '🟢'
+            };
+            return icons[llm] || '🤖';
+        }
+
+        // Get technology display name
+        function getTechName(techValue) {
+            const names = {
+                'html-css-js': 'Plain HTML/CSS/JS',
+                'tailwind': 'Tailwind CSS',
+                'bootstrap': 'Bootstrap 5',
+                'react': 'React.js',
+                'vue': 'Vue.js',
+                'angular': 'Angular',
+                'svelte': 'Svelte',
+                'jquery': 'jQuery'
+            };
+            return names[techValue] || techValue;
+        }
+
+        // Create result card for a technology
+        function createResultCard(tech, techName) {
+            const card = document.createElement('div');
+            card.id = `result-${tech}`;
+            card.style.cssText = 'background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; border: 1px solid rgba(120,119,198,0.3);';
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 600; font-size: 14px;">${techName}</div>
+                    <div id="status-${tech}" class="badge" style="font-size: 11px;">Generating...</div>
+                </div>
+                <div class="tabs" style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <div class="tab active" data-tech="${tech}" data-view="preview" style="flex: 1; padding: 8px; text-align: center; font-size: 12px;">Preview</div>
+                    <div class="tab" data-tech="${tech}" data-view="code" style="flex: 1; padding: 8px; text-align: center; font-size: 12px;">Code</div>
+                </div>
+                <div id="preview-${tech}" style="display: block;">
+                    <iframe style="width: 100%; height: 400px; border: 1px solid rgba(120,119,198,0.2); border-radius: 4px; background: white;"></iframe>
+                </div>
+                <div id="code-${tech}" style="display: none; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 4px; max-height: 400px; overflow-y: auto;">
+                    <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 12px; color: #e0e0e0;"></pre>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="downloadCode('${tech}')" class="btn" style="flex: 1; padding: 8px; font-size: 12px;">📥 Download</button>
+                    <button onclick="copyCode('${tech}')" class="btn" style="flex: 1; padding: 8px; font-size: 12px;">📋 Copy</button>
+                    <button onclick="openInNewTab('${tech}')" class="btn" style="flex: 1; padding: 8px; font-size: 12px;">🔍 Open</button>
+                </div>
+            `;
+
+            // Add tab switching
+            card.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tech = this.dataset.tech;
+                    const view = this.dataset.view;
+                    card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(`preview-${tech}`).style.display = view === 'preview' ? 'block' : 'none';
+                    document.getElementById(`code-${tech}`).style.display = view === 'code' ? 'block' : 'none';
+                });
+            });
+
+            return card;
+        }
+
+        // Update result card with generated code
+        function updateResultCard(tech, code, status) {
+            const statusBadge = document.getElementById(`status-${tech}`);
+            const previewFrame = document.querySelector(`#preview-${tech} iframe`);
+            const codeDisplay = document.querySelector(`#code-${tech} pre`);
+
+            if (status === 'success') {
+                statusBadge.textContent = 'Generated';
+                statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusBadge.style.borderColor = '#10b981';
+                statusBadge.style.color = '#10b981';
+
+                // Update preview
+                const blob = new Blob([code], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                previewFrame.src = blobUrl;
+
+                // Update code display
+                codeDisplay.textContent = code;
+
+                // Store code for download/copy/open
+                window[`generatedCode_${tech}`] = code;
+            } else {
+                statusBadge.textContent = 'Failed';
+                statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusBadge.style.borderColor = '#ef4444';
+                statusBadge.style.color = '#ef4444';
+                codeDisplay.textContent = `Error: ${code}`;
+            }
+        }
+
+        // Generate code with Gemini for a specific technology
+        async function generateCodeWithGemini(apiKey, technology) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            const fallbackModels = [
+                'gemini-2.5-pro-preview-03-25',
+                'gemini-1.5-pro',
+                'gemini-2.0-flash-exp',
+                'gemini-2.5-flash',
+                'gemini-1.5-flash'
+            ];
+
+            for (const model of fallbackModels) {
+                try {
+                    const requestBody = {
+                        contents: [{
+                            parts: [
+                                { text: getGenerationPrompt(technology) },
+                                { inline_data: { mime_type: mimeType, data: base64Data } }
+                            ]
+                        }],
+                        generationConfig: {
+                            temperature: 0.1,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 16384
+                        }
+                    };
+
+                    const response = await fetch(`${API_BASE_URL}/api/gemini-proxy`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            apiKey: apiKey,
+                            model: model,
+                            contents: requestBody.contents,
+                            generationConfig: requestBody.generationConfig
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        return processGeneratedCode(data.candidates[0].content.parts[0].text);
+                    }
+                } catch (err) {
+                    continue;
+                }
+            }
+            throw new Error('All Gemini models failed');
+        }
+
+        // Generate code with Claude for a specific technology
+        async function generateCodeWithClaude(apiKey, technology) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/claude-proxy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        model: 'claude-3-5-sonnet-20241022',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: mimeType,
+                                        data: base64Data
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: getGenerationPrompt(technology)
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'Claude API error');
+                }
+
+                return processGeneratedCode(data.content[0].text);
+            } catch (error) {
+                throw new Error(`Claude generation failed: ${error.message}`);
+            }
+        }
+
+        // Generate code with OpenAI for a specific technology
+        async function generateCodeWithOpenAI(apiKey, technology) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/openai-proxy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        model: 'gpt-4o',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: `data:${mimeType};base64,${base64Data}`
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: getGenerationPrompt(technology)
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'OpenAI API error');
+                }
+
+                return processGeneratedCode(data.choices[0].message.content);
+            } catch (error) {
+                throw new Error(`OpenAI generation failed: ${error.message}`);
+            }
+        }
+
+        // Helper functions for download, copy, open
+        function downloadCode(tech) {
+            const code = window[`generatedCode_${tech}`];
+            if (!code) return;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `generated-${tech}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyCode(tech) {
+            const code = window[`generatedCode_${tech}`];
+            if (!code) return;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+
+        function openInNewTab(tech) {
+            const code = window[`generatedCode_${tech}`];
+            if (!code) return;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+
+        // Generate with Claude
+        async function generateWithClaude(apiKey) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Analyzing Image...';
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingContent = loadingOverlay.querySelector('.loading-content');
+            loadingOverlay.classList.add('show');
+            
+            const loadingDetail = document.getElementById('loadingDetail');
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.textContent = 'Generating with Claude...';
+            
+            let loadingStep = 0;
+            const loadingSteps = [
+                'Analyzing image structure...',
+                'Identifying layout components...',
+                'Extracting colors and styles...',
+                'Generating HTML code...',
+                'Finalizing...'
+            ];
+            
+            const loadingInterval = setInterval(() => {
+                if (loadingStep < loadingSteps.length - 1) {
+                    loadingStep++;
+                    if (loadingDetail) {
+                        loadingDetail.textContent = loadingSteps[loadingStep];
+                    }
+                }
+            }, 2000);
+
+            try {
+                await generateClaudeCode(apiKey, loadingInterval, loadingTitle, loadingDetail);
+            } catch (error) {
+                clearInterval(loadingInterval);
+                console.error('Error generating code:', error);
+                alert('Error generating code: ' + error.message);
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+            }
+        }
+
+        // Generate with OpenAI
+        async function generateWithOpenAI(apiKey) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Analyzing Image with GPT-4...';
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('show');
+            
+            const loadingDetail = document.getElementById('loadingDetail');
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.textContent = 'Generating with GPT-4 Vision...';
+
+            try {
+                const base64Data = uploadedImageData.split(',')[1];
+                const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+                const response = await fetch(`${API_BASE_URL}/api/openai-proxy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        model: 'gpt-4o',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: `data:${mimeType};base64,${base64Data}`
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: getGenerationPrompt('html-css-js')
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'OpenAI API request failed');
+                }
+
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    const generatedCode = processGeneratedCode(data.choices[0].message.content);
+                    displayResult(generatedCode);
+                } else {
+                    throw new Error('Unexpected OpenAI API response format');
+                }
+
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+
+            } catch (error) {
+                console.error('OpenAI generation error:', error);
+                alert('Error generating code with GPT-4: ' + error.message);
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+            }
+        }
+
+        // Generate comparison: Gemini vs GPT-4
+        async function generateCompare(geminiApiKey, openaiApiKey) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Comparing...';
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('show');
+
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.textContent = 'Comparing Gemini vs GPT-4 Vision...';
+
+            try {
+                let geminiCode = '';
+                let openaiCode = '';
+
+                // Reset status badges
+                document.getElementById('geminiStatus').textContent = 'Waiting...';
+                document.getElementById('openaiStatus').textContent = 'Waiting...';
+
+                // Generate sequentially - Gemini first, then OpenAI
+                // First: Generate with Gemini
+                document.getElementById('geminiStatus').textContent = 'Generating...';
+                try {
+                    geminiCode = await generateGeminiCodeForComparison(geminiApiKey);
+                    displayComparisonResult('gemini', geminiCode);
+                    document.getElementById('geminiStatus').textContent = 'Generated';
+                    document.getElementById('geminiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#10b981';
+                    document.getElementById('geminiStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('Gemini generation failed:', error);
+                    document.getElementById('geminiStatus').textContent = 'Failed';
+                    document.getElementById('geminiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#ef4444';
+                    document.getElementById('geminiStatus').style.color = '#ef4444';
+                }
+
+                // Second: Generate with OpenAI (after Gemini completes)
+                document.getElementById('openaiStatus').textContent = 'Generating...';
+                try {
+                    openaiCode = await generateOpenAICodeForComparison(openaiApiKey);
+                    displayComparisonResult('openai', openaiCode);
+                    document.getElementById('openaiStatus').textContent = 'Generated';
+                    document.getElementById('openaiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('openaiStatus').style.borderColor = '#10b981';
+                    document.getElementById('openaiStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('OpenAI generation failed:', error);
+                    document.getElementById('openaiStatus').textContent = 'Failed';
+                    document.getElementById('openaiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('openaiStatus').style.borderColor = '#ef4444';
+                    document.getElementById('openaiStatus').style.color = '#ef4444';
+                }
+
+                // Switch to compare tab
+                document.querySelector('.tab[data-output="compare"]').click();
+
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+
+            } catch (error) {
+                console.error('Error in comparison:', error);
+                alert('Error during comparison: ' + error.message);
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+            }
+        }
+
+
+        // Generate with both providers for comparison
+        async function generateWithBothProviders(geminiApiKey, claudeApiKey) {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Generating with Both...';
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingContent = loadingOverlay.querySelector('.loading-content');
+            loadingOverlay.classList.add('show');
+            
+            const loadingDetail = document.getElementById('loadingDetail');
+            const loadingTitle = document.getElementById('loadingTitle');
+            if (loadingTitle) loadingTitle.textContent = 'Generating with Both Providers...';
+
+            try {
+                // Update status badges
+                document.getElementById('geminiStatus').textContent = 'Generating...';
+                document.getElementById('geminiStatus').textContent = 'Waiting...';
+
+                // Generate sequentially - Claude FIRST, then Gemini (to test if order matters)
+                // First: Generate with Claude
+                document.getElementById('claudeStatus').textContent = 'Generating...';
+                try {
+                    claudeCode = await generateClaudeCodeForComparison(claudeApiKey);
+                    displayComparisonResult('claude', claudeCode);
+                    document.getElementById('claudeStatus').textContent = 'Generated';
+                    document.getElementById('claudeStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('claudeStatus').style.borderColor = '#10b981';
+                    document.getElementById('claudeStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('Claude generation failed:', error);
+                    document.getElementById('claudeStatus').textContent = 'Failed';
+                    document.getElementById('claudeStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('claudeStatus').style.borderColor = '#ef4444';
+                    document.getElementById('claudeStatus').style.color = '#ef4444';
+                }
+
+                // Second: Generate with Gemini (after Claude completes)
+                document.getElementById('geminiStatus').textContent = 'Generating...';
+                try {
+                    geminiCode = await generateGeminiCodeForComparison(geminiApiKey);
+                    displayComparisonResult('gemini', geminiCode);
+                    document.getElementById('geminiStatus').textContent = 'Generated';
+                    document.getElementById('geminiStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#10b981';
+                    document.getElementById('geminiStatus').style.color = '#10b981';
+                } catch (error) {
+                    console.error('Gemini generation failed:', error);
+                    document.getElementById('geminiStatus').textContent = 'Failed';
+                    document.getElementById('geminiStatus').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('geminiStatus').style.borderColor = '#ef4444';
+                    document.getElementById('geminiStatus').style.color = '#ef4444';
+                }
+
+                // Switch to compare tab
+                document.querySelector('.tab[data-output="compare"]').click();
+
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+
+            } catch (error) {
+                console.error('Error in comparison:', error);
+                loadingOverlay.classList.remove('show');
+                generateBtn.disabled = false;
+                generateBtn.textContent = '⚡ Generate Code from Image';
+            }
+        }
+
+        // Helper function to generate Gemini code (for single use)
+        async function generateGeminiCode(apiKey, technology, loadingInterval, loadingTitle, loadingDetail) {
+            try {
+                // Extract base64 data
+                const base64Data = uploadedImageData.split(',')[1];
+                const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+                    // First, try to discover available models
+                    let availableModels = [];
+                    try {
+                        // Note: Model listing still uses direct API as it's a simple GET request
+                        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+                        const listResponse = await fetch(listUrl);
+                        const listData = await listResponse.json();
+                        
+                        if (listData.models) {
+                            // Filter models that support generateContent and can handle images
+                            availableModels = listData.models
+                                .filter(m => 
+                                    m.supportedGenerationMethods && 
+                                    m.supportedGenerationMethods.includes('generateContent')
+                                )
+                                .map(m => ({
+                                    name: m.name.split('/').pop(),
+                                    fullName: m.name
+                                }));
+                        }
+                    } catch (err) {
+                        console.log('Could not list models, using fallback list');
+                    }
+
+                    // Fallback models to try if ListModels fails or returns no results
+                    // Prioritize most accurate models for better matching
+                    const fallbackModels = [
+                        'gemini-2.5-pro-preview-03-25',  // Most accurate - try first
+                        'gemini-1.5-pro',        // Very accurate
+                        'gemini-2.0-flash-exp',  // Fast and accurate
+                        'gemini-2.5-flash',      // Fast and accurate
+                        'gemini-1.5-flash',      // Fast
+                        'gemini-pro-vision',
+                        'gemini-pro'
+                    ];
+
+                    // Combine discovered models with fallbacks (discovered first)
+                    const modelsToTry = [
+                        ...availableModels.map(m => ({ model: m.name, version: 'v1beta', fullName: m.fullName })),
+                        ...fallbackModels.map(m => ({ model: m, version: 'v1beta', fullName: null }))
+                    ];
+
+                    // Remove duplicates
+                    const uniqueModels = [];
+                    const seen = new Set();
+                    for (const m of modelsToTry) {
+                        if (!seen.has(m.model)) {
+                            seen.add(m.model);
+                            uniqueModels.push(m);
+                        }
+                    }
+
+                    let lastError = null;
+                    let success = false;
+                    let successfulModel = null;
+
+                    for (const { model, version, fullName } of uniqueModels) {
+                        try {
+                            console.log(`Trying model: ${model} (${version})`);
+                            
+                            // Build request body with enhanced prompt and generation config
+                            const requestBody = {
+                                contents: [{
+                                    parts: [
+                                        {
+                                            text: getGenerationPrompt(technology)
+                                        },
+                                        {
+                                            inline_data: {
+                                                mime_type: mimeType,
+                                                data: base64Data
+                                            }
+                                        }
+                                    ]
+                                }],
+                                generationConfig: {
+                                    temperature: 0.1,  // Lower temperature for more consistent, accurate output
+                                    topK: 40,
+                                    topP: 0.95,
+                                    maxOutputTokens: 16384  // Increased to allow complete HTML documents
+                                }
+                            };
+
+                            const response = await fetch(`${API_BASE_URL}/api/gemini-proxy`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    apiKey: apiKey,
+                                    model: model,
+                                    contents: requestBody.contents,
+                                    generationConfig: requestBody.generationConfig
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                lastError = new Error(data.error?.message || `Model ${model} not available`);
+                                console.log(`Model ${model} failed:`, data.error?.message);
+                                continue; // Try next model
+                            }
+
+                            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                                clearInterval(loadingInterval);
+                                const loadingTitle = document.getElementById('loadingTitle');
+                                const loadingDetail = document.getElementById('loadingDetail');
+                                if (loadingTitle) loadingTitle.textContent = 'Code Generated!';
+                                if (loadingDetail) loadingDetail.textContent = `Using model: ${model}`;
+                                
+                                generatedCode = processGeneratedCode(data.candidates[0].content.parts[0].text);
+                                
+                                console.log(`✅ Success with model: ${model}`);
+                                console.log(`Generated code length: ${generatedCode.length} characters`);
+                                console.log(`Has DOCTYPE: ${generatedCode.includes('<!DOCTYPE')}`);
+                                console.log(`Has body tag: ${generatedCode.includes('<body')}`);
+                                
+                                displayResult(generatedCode);
+                                
+                                setTimeout(() => {
+                                    document.getElementById('loadingOverlay').classList.remove('show');
+                                }, 1500);
+                                
+                                success = true;
+                                successfulModel = model;
+                                break; // Success, exit loop
+                            }
+                        } catch (err) {
+                            lastError = err;
+                            console.log(`Model ${model} error:`, err.message);
+                            continue; // Try next model
+                        }
+                    }
+
+                    if (!success) {
+                        clearInterval(loadingInterval);
+                        throw lastError || new Error('All models failed. Please:\n1. Check your API key is valid\n2. Visit discover.html to see available models\n3. Enable Gemini API at console.cloud.google.com');
+                    }
+
+                    // Display result
+                    const generateBtn = document.getElementById('generateBtn');
+                    clearInterval(loadingInterval);
+                    if (loadingTitle) loadingTitle.textContent = 'Code Generated!';
+                    if (loadingDetail) loadingDetail.textContent = `Using model: ${successfulModel}`;
+                    displayResult(generatedCode);
+                    
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').classList.remove('show');
+                    }, 1500);
+                    
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = '⚡ Generate Code from Image';
+                    document.getElementById('statusBadge').textContent = `Code Generated! (${successfulModel})`;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Generate Gemini code for comparison (returns code string)
+        async function generateGeminiCodeForComparison(apiKey) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            // Try models in order
+            const fallbackModels = [
+                'gemini-2.5-pro-preview-03-25',
+                'gemini-1.5-pro',
+                'gemini-2.0-flash-exp',
+                'gemini-2.5-flash',
+                'gemini-1.5-flash'
+            ];
+
+            for (const model of fallbackModels) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/gemini-proxy`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            apiKey: apiKey,
+                            model: model,
+                            contents: [{
+                                parts: [
+                                    { text: getGenerationPrompt('html-css-js') },
+                                    { inline_data: { mime_type: mimeType, data: base64Data } }
+                                ]
+                            }],
+                            generationConfig: {
+                                temperature: 0.1,
+                                topK: 40,
+                                topP: 0.95,
+                                maxOutputTokens: 16384
+                            }
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        return processGeneratedCode(data.candidates[0].content.parts[0].text);
+                    }
+                } catch (err) {
+                    continue;
+                }
+            }
+            throw new Error('All Gemini models failed');
+        }
+
+        // Generate OpenAI code for comparison (returns code string)
+        async function generateOpenAICodeForComparison(apiKey) {
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            const response = await fetch(`${API_BASE_URL}/api/openai-proxy`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    apiKey: apiKey,
+                    model: 'gpt-4o',
+                    max_tokens: 4096,
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${mimeType};base64,${base64Data}`
+                                }
+                            },
+                            {
+                                type: 'text',
+                                text: getGenerationPrompt()
+                            }
+                        ]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'OpenAI API request failed');
+            }
+
+            if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                return processGeneratedCode(data.choices[0].message.content);
+            } else {
+                throw new Error('Unexpected OpenAI API response format');
+            }
+        }
+
+        // Generate Claude code
+        async function generateClaudeCode(apiKey, loadingInterval, loadingTitle, loadingDetail) {
+            try {
+                const base64Data = uploadedImageData.split(',')[1];
+                const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+                // Convert to base64 URL for Claude API
+                const imageUrl = `data:${mimeType};base64,${base64Data}`;
+
+                const response = await fetch(`${API_BASE_URL}/api/claude-proxy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        model: 'claude-3-haiku-20240307',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: mimeType,
+                                        data: base64Data
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: getGenerationPrompt('html-css-js')
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'Claude API request failed');
+                }
+
+                if (data.content && data.content[0] && data.content[0].text) {
+                    clearInterval(loadingInterval);
+                    if (loadingTitle) loadingTitle.textContent = 'Code Generated!';
+                    if (loadingDetail) loadingDetail.textContent = 'Using Claude 3.5 Sonnet';
+                    
+                    generatedCode = processGeneratedCode(data.content[0].text);
+                    displayResult(generatedCode);
+                    
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').classList.remove('show');
+                    }, 1500);
+                    
+                    document.getElementById('generateBtn').disabled = false;
+                    document.getElementById('generateBtn').textContent = '⚡ Generate Code from Image';
+                    document.getElementById('statusBadge').textContent = 'Code Generated! (Claude)';
+                } else {
+                    throw new Error('Unexpected Claude API response format');
+                }
+            } catch (error) {
+                clearInterval(loadingInterval);
+                throw error;
+            }
+        }
+
+        // Generate Claude code for comparison (returns code string)
+        async function generateClaudeCodeForComparison(apiKey) {
+            console.log("DEBUG: Claude API key received in comparison:", apiKey ? `${apiKey.substring(0, 10)}...` : "EMPTY");
+            console.log("DEBUG FULL KEY in comparison:", apiKey);
+            const base64Data = uploadedImageData.split(',')[1];
+            const mimeType = uploadedImageData.split(';')[0].split(':')[1];
+
+            const response = await fetch(`${API_BASE_URL}/api/claude-proxy`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    apiKey: apiKey,
+                    model: 'claude-3-haiku-20240307',
+                    max_tokens: 4096,
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image',
+                                source: {
+                                    type: 'base64',
+                                    media_type: mimeType,
+                                    data: base64Data
+                                }
+                            },
+                            {
+                                type: 'text',
+                                text: getGenerationPrompt()
+                            }
+                        ]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'Claude API request failed');
+            }
+
+            if (data.content && data.content[0] && data.content[0].text) {
+                return processGeneratedCode(data.content[0].text);
+            } else {
+                throw new Error('Unexpected Claude API response format');
+            }
+        }
+
+        // Shared prompt function
+        function getGenerationPrompt(technology = 'html-css-js') {
+            const techInstructions = {
+                'html-css-js': {
+                    name: 'Plain HTML, CSS, and JavaScript',
+                    instructions: `
+- Use vanilla HTML5 for structure
+- Write all CSS in a <style> tag in the <head>
+- Use plain JavaScript (no libraries) for any interactivity
+- Include all styles inline within the HTML file`
+                },
+                'tailwind': {
+                    name: 'Tailwind CSS',
+                    instructions: `
+- Use Tailwind CSS utility classes for ALL styling
+- Include the Tailwind CDN: <scr` + `ipt src="https://cdn.tailwindcss.com"></scr` + `ipt>
+- Apply Tailwind classes directly to HTML elements (e.g., class="bg-blue-500 text-white p-4")
+- Use Tailwind's responsive classes (sm:, md:, lg:) for responsive design
+- NO custom CSS - use ONLY Tailwind utility classes`
+                },
+                'bootstrap': {
+                    name: 'Bootstrap 5',
+                    instructions: `
+- Use Bootstrap 5 classes for layout and components
+- Include Bootstrap CDN in <head>:
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <scr` + `ipt src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></scr` + `ipt>
+- Use Bootstrap grid system (container, row, col)
+- Use Bootstrap components (btn, card, navbar, etc.)
+- Minimal custom CSS - rely on Bootstrap classes`
+                },
+                'react': {
+                    name: 'React.js',
+                    instructions: `
+- Create a single-file React app using CDN
+- Include React 18 and ReactDOM from CDN
+- Use functional components with hooks
+- Write JSX syntax
+- Include Babel standalone for JSX transformation
+- Use the NEW React 18 API (createRoot, not ReactDOM.render)
+- Example structure:
+  <scr` + `ipt crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></scr` + `ipt>
+  <scr` + `ipt crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></scr` + `ipt>
+  <scr` + `ipt src="https://unpkg.com/@babel/standalone/babel.min.js"></scr` + `ipt>
+  <div id="root"></div>
+  <scr` + `ipt type="text/babel">
+    const { useState } = React;
+    function App() {
+      return (
+        <div>
+          {/* Your component code here */}
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </scr` + `ipt>`
+                },
+                'vue': {
+                    name: 'Vue.js',
+                    instructions: `
+- Create a single-file Vue app using CDN
+- Include Vue 3 from CDN: <scr` + `ipt src="https://unpkg.com/vue@3/dist/vue.global.js"></scr` + `ipt>
+- Use Vue's template syntax and data binding
+- Create the app with Vue.createApp()
+- Mount to a div with id="app"
+- Use Vue directives (v-if, v-for, v-bind, v-on)
+- Example: const { createApp } = Vue; createApp({ data() { return {...} } }).mount('#app')`
+                },
+                'angular': {
+                    name: 'Angular',
+                    instructions: `
+- Create a simplified Angular-style component
+- Include Angular CDN
+- Use Angular template syntax
+- Create a basic component structure
+- Note: This will be a simplified version as full Angular requires build tools`
+                },
+                'svelte': {
+                    name: 'Svelte',
+                    instructions: `
+- Create HTML with Svelte-like reactive patterns
+- Use plain JavaScript with reactive variables
+- Include comments noting this is a Svelte-inspired pattern
+- Note: Full Svelte requires compilation, so create a vanilla JS version that mimics Svelte patterns`
+                },
+                'jquery': {
+                    name: 'jQuery',
+                    instructions: `
+- Include jQuery CDN: <scr` + `ipt src="https://code.jquery.com/jquery-3.7.1.min.js"></scr` + `ipt>
+- Use jQuery for DOM manipulation and event handling
+- Use $ syntax for selectors
+- Wrap code in $(document).ready()
+- Use jQuery methods like .click(), .hide(), .show(), .addClass(), etc.`
+                }
+            };
+
+            const selectedTech = techInstructions[technology] || techInstructions['html-css-js'];
+
+            return `You are an expert web developer creating a prototype HTML page based on a design mockup for learning and development purposes.
+
+TECHNOLOGY: ${selectedTech.name}
+${selectedTech.instructions}
+
+GOAL: Recreate the visual design shown in the image as a functional HTML page.
+
+STEP 1: CAREFULLY ANALYZE THE IMAGE
+- Identify all visual elements: headers, sidebars, tables, cards, buttons, icons, text
+- Note the colors, spacing, and layout structure
+- Note the typography (font sizes, weights, families)
+- Note the positioning of all elements
+
+STEP 2: RECREATE THE STRUCTURE
+- If image has a left sidebar → create appropriate sidebar with width, background color, and menu items
+- If image has a top header → create header with appropriate height, background, and elements
+- If image has a table → create table with matching columns, rows, and cell data
+- If image has cards → create card components with similar styling
+- Recreate all text content as shown in the image
+
+STEP 3: MATCH THE STYLING
+- Use similar background colors (hex codes)
+- Match border colors, widths, and radius
+- Match padding and margins
+- Match font sizes, weights, and line heights
+- Use appropriate layout (flexbox/grid)
+
+STEP 4: INCLUDE ALL CONTENT
+- Include all text labels, titles, and content from the image
+- Include table data with values shown
+- Include button text and labels
+- Use emoji or Unicode for icons where appropriate
+
+IMPORTANT: You MUST include the complete HTML structure:
+- Start with <!DOCTYPE html>
+- Include <html> tag
+- Include <head> with <title>, required CDN links for ${selectedTech.name}, and any <style> tags
+- Include <body> tag with ALL content
+- End with </body> and </html>
+
+DO NOT stop after the <style> tag. You MUST continue and include the <body> tag with all HTML content.
+
+Return ONLY the complete HTML code including the <body> tag with all content.`;
+        }
+
+        // Process generated code (clean up and validate)
+        function processGeneratedCode(code) {
+            // Clean up the code (remove markdown code blocks if any)
+            code = code.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+            
+            // Remove any leading text before <!DOCTYPE
+            const doctypeIndex = code.indexOf('<!DOCTYPE');
+            if (doctypeIndex > 0) {
+                code = code.substring(doctypeIndex);
+            }
+            
+            // Check if body tag exists
+            const hasBodyTag = code.includes('<body') || code.includes('</body>');
+            
+            // Try to extract complete HTML document
+            let htmlMatch = code.match(/<!DOCTYPE[\s\S]*<\/html>/i);
+            if (htmlMatch) {
+                code = htmlMatch[0];
+            }
+            
+            // If body tag is missing, add it
+            if (!hasBodyTag) {
+                const headEndIndex = code.indexOf('</head>');
+                if (headEndIndex !== -1) {
+                    const beforeBody = code.substring(0, headEndIndex + 7);
+                    const afterHead = code.substring(headEndIndex + 7).trim();
+                    if (afterHead && !afterHead.startsWith('</html>')) {
+                        code = beforeBody + '\n<body>\n' + afterHead + '\n</body>\n</html>';
+                    } else {
+                        code = beforeBody + '\n<body>\n</body>\n</html>';
+                    }
+                } else {
+                    const styleEndIndex = code.indexOf('</style>');
+                    if (styleEndIndex !== -1) {
+                        const beforeBody = code.substring(0, styleEndIndex + 8);
+                        const afterStyle = code.substring(styleEndIndex + 8).trim();
+                        if (afterStyle && !afterStyle.startsWith('</html>') && !afterStyle.startsWith('</head>')) {
+                            code = beforeBody + '\n</head>\n<body>\n' + afterStyle + '\n</body>\n</html>';
+                        } else {
+                            code = beforeBody + '\n</head>\n<body>\n</body>\n</html>';
+                        }
+                    }
+                }
+            }
+            
+            // Final check - ensure we have closing tags
+            if (!code.includes('</html>')) {
+                code = code + '\n</html>';
+            }
+            if (!code.includes('</body>') && code.includes('<body')) {
+                code = code.replace('</html>', '</body>\n</html>');
+            }
+            
+            return code;
+        }
+
+        // Display comparison result
+        function displayComparisonResult(provider, code) {
+            const previewFrame = document.getElementById(provider + 'Preview');
+            const codeDisplay = document.getElementById(provider + 'Code');
+            
+            // Update code display
+            codeDisplay.textContent = code;
+            
+            // Create blob and set preview iframe
+            const blob = new Blob([code], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+            previewFrame.src = blobUrl;
+        }
+
+        function displayResult(code) {
+            // Update code display
+            document.getElementById('codeDisplay').textContent = code;
+            
+            // Validate code before displaying
+            if (!code || code.trim().length === 0) {
+                console.error('Generated code is empty!');
+                alert('Error: Generated code is empty. Please try again.');
+                return;
+            }
+            
+            // Check if code has actual content (not just CSS) - use same flexible logic as generation
+            let bodyMatch = code.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            
+            // If no closing tag found, try to find body opening tag and everything after it
+            if (!bodyMatch) {
+                const bodyOpenIndex = code.search(/<body[^>]*>/i);
+                if (bodyOpenIndex !== -1) {
+                    const afterBody = code.substring(bodyOpenIndex);
+                    const bodyTagMatch = afterBody.match(/<body[^>]*>/i);
+                    if (bodyTagMatch) {
+                        const bodyStart = bodyTagMatch[0].length;
+                        const bodyContent = afterBody.substring(bodyStart);
+                        bodyMatch = { 1: bodyContent };
+                    }
+                }
+            }
+            
+            if (bodyMatch && bodyMatch[1]) {
+                const bodyContent = bodyMatch[1].trim();
+                const cleanContent = bodyContent.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim();
+                console.log(`📋 Display: Body content length: ${cleanContent.length} chars`);
+                if (cleanContent.length < 50) {
+                    console.warn('⚠️ Display: Body content seems too short:', cleanContent.length);
+                    console.warn('Body content preview:', cleanContent.substring(0, 200));
+                } else {
+                    console.log(`✅ Display: Body has substantial content`);
+                }
+            } else {
+                // Check if body tag exists at all
+                if (code.includes('<body')) {
+                    console.warn('⚠️ Display: Body tag found but content extraction failed - code may still be valid');
+                } else {
+                    console.warn('⚠️ Display: Could not find body tag in code');
+                }
+            }
+            
+            // Create blob and set preview iframe
+            try {
+                const blob = new Blob([code], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Clear previous blob URL to prevent memory leaks
+                const previewFrame = document.getElementById('previewFrame');
+                if (previewFrame.src && previewFrame.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(previewFrame.src);
+                }
+                
+                // Add load event listener to verify iframe loaded
+                previewFrame.onload = function() {
+                    try {
+                        const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                        const iframeBody = iframeDoc.body;
+                        if (iframeBody) {
+                            const visibleElements = iframeBody.querySelectorAll('*:not(script):not(style)');
+                            const textContent = iframeBody.textContent || iframeBody.innerText || '';
+                            console.log(`✅ Iframe loaded: ${visibleElements.length} elements, ${textContent.trim().length} chars of text`);
+                            if (textContent.trim().length < 50) {
+                                console.warn('⚠️ Iframe body has very little text content - layout might not be rendering');
+                            }
+                        } else {
+                            console.warn('⚠️ Iframe body not accessible');
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Cannot access iframe content (CORS):', e.message);
+                    }
+                };
+                
+                previewFrame.src = blobUrl;
+                
+                // Switch to preview tab automatically
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.querySelectorAll('.output-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('previewSection').classList.add('active');
+                
+                // Store generated code globally
+                generatedCode = code;
+                
+                console.log('✅ Preview iframe updated with generated code');
+            } catch (error) {
+                console.error('❌ Error displaying result:', error);
+                alert('Error displaying preview. Check the Code tab to see the generated HTML.');
+            }
+        }
+
+        // Output tabs
+        document.querySelectorAll('.tab[data-output]').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const outputType = this.dataset.output;
+                document.querySelectorAll('.tab[data-output]').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.output-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(outputType + 'Section').classList.add('active');
+            });
+        });
+
+        // Comparison tabs (within comparison panels)
+        document.querySelectorAll('.tab[data-comparison]').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const provider = this.dataset.provider;
+                const comparisonType = this.dataset.comparison;
+                
+                // Remove active from all tabs in this provider's panel
+                document.querySelectorAll(`.tab[data-provider="${provider}"]`).forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide preview and code for this provider
+                const preview = document.getElementById(provider + 'Preview');
+                const code = document.getElementById(provider + 'Code');
+                
+                if (comparisonType === 'preview') {
+                    preview.style.display = 'block';
+                    code.style.display = 'none';
+                } else {
+                    preview.style.display = 'none';
+                    code.style.display = 'block';
+                }
+            });
+        });
+
+        // Actions
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (!generatedCode) return alert('Generate a template first!');
+            const blob = new Blob([generatedCode], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.download = `${selectedTemplate || 'template'}.html`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            alert('✅ Downloaded!');
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            if (!generatedCode) return alert('Generate a template first!');
+            navigator.clipboard.writeText(generatedCode);
+            alert('✅ Code copied to clipboard!');
+        });
+
+        document.getElementById('openBtn').addEventListener('click', function() {
+            if (!generatedCode) return alert('Generate a template first!');
+            const blob = new Blob([generatedCode], { type: 'text/html' });
+            window.open(URL.createObjectURL(blob), '_blank');
+        });
+
+        // Template code function (will be populated with actual templates)
+        function getTemplateCode(templateName) {
+            const templates = {
+                login: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 { font-size: 32px; margin-bottom: 10px; color: #1a202c; }
+        p { color: #718096; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #4a5568; font-weight: 500; }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        input:focus { outline: none; border-color: #667eea; }
+        .forgot { text-align: right; margin-bottom: 20px; }
+        .forgot a { color: #667eea; text-decoration: none; font-size: 14px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .signup { text-align: center; margin-top: 20px; color: #718096; }
+        .signup a { color: #667eea; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Welcome Back</h1>
+        <p>Please login to your account</p>
+        <form onsubmit="event.preventDefault(); alert('Login functionality would go here!');">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" placeholder="your@email.com" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••" required>
+            </div>
+            <div class="forgot">
+                <a href="#" onclick="alert('Password reset would go here!'); return false;">Forgot password?</a>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+        <div class="signup">
+            Don't have an account? <a href="#" onclick="alert('Sign up page would go here!'); return false;">Sign up</a>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                landing: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 { font-size: 56px; margin-bottom: 20px; font-weight: 700; }
+        p { font-size: 20px; margin-bottom: 40px; opacity: 0.9; max-width: 600px; }
+        .cta-btn {
+            padding: 16px 40px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .cta-btn:hover { transform: translateY(-3px); }
+        .features {
+            display: flex;
+            gap: 40px;
+            margin-top: 60px;
+        }
+        .feature {
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 36px; }
+            .features { flex-direction: column; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Build Amazing Products</h1>
+        <p>The fastest way to create prototypes and ship features. Start building today.</p>
+        <button class="cta-btn" onclick="alert('Get started action would go here!')">Get Started Free</button>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div>Lightning Fast</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div>Beautiful Design</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <div>Easy to Use</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                pricing: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f7fafc;
+            padding: 50px 20px;
+        }
+        h1 { text-align: center; font-size: 48px; margin-bottom: 50px; }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .price-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .price-card:hover { transform: translateY(-5px); }
+        .price-card.featured {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+        .plan-name { font-size: 24px; font-weight: 600; margin-bottom: 10px; }
+        .price { font-size: 48px; font-weight: 700; margin: 20px 0; }
+        .price span { font-size: 20px; }
+        ul { list-style: none; margin: 30px 0; text-align: left; }
+        li { padding: 10px 0; }
+        li:before { content: "✓ "; color: #10b981; font-weight: bold; }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .featured button { background: white; color: #667eea; }
+    </style>
+</head>
+<body>
+    <h1>Simple Pricing</h1>
+    <div class="pricing-grid">
+        <div class="price-card">
+            <div class="plan-name">Starter</div>
+            <div class="price">$9<span>/mo</span></div>
+            <ul>
+                <li>10 Projects</li>
+                <li>Basic Support</li>
+                <li>1 User</li>
+            </ul>
+            <button onclick="alert('Subscription would start here!')">Get Started</button>
+        </div>
+        <div class="price-card featured">
+            <div class="plan-name">Pro</div>
+            <div class="price">$29<span>/mo</span></div>
+            <ul>
+                <li>Unlimited Projects</li>
+                <li>Priority Support</li>
+                <li>5 Users</li>
+                <li>Advanced Features</li>
+            </ul>
+            <button onclick="alert('Subscription would start here!')">Get Started</button>
+        </div>
+        <div class="price-card">
+            <div class="plan-name">Enterprise</div>
+            <div class="price">$99<span>/mo</span></div>
+            <ul>
+                <li>Everything in Pro</li>
+                <li>Dedicated Support</li>
+                <li>Unlimited Users</li>
+                <li>Custom Integration</li>
+            </ul>
+            <button onclick="alert('Contact sales would go here!')">Contact Sales</button>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                contact: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .contact-container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 { font-size: 36px; margin-bottom: 10px; }
+        p { color: #718096; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        textarea { min-height: 120px; resize: vertical; font-family: inherit; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="contact-container">
+        <h1>Get in Touch</h1>
+        <p>We'd love to hear from you</p>
+        <form onsubmit="event.preventDefault(); alert('Message sent! (Demo)');">
+            <div class="input-group">
+                <label>Name</label>
+                <input type="text" placeholder="Your name" required>
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" placeholder="your@email.com" required>
+            </div>
+            <div class="input-group">
+                <label>Message</label>
+                <textarea placeholder="Your message..." required></textarea>
+            </div>
+            <button type="submit">Send Message</button>
+        </form>
+    </div>
+</body>
+</html>`,
+
+                portfolio: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+        header {
+            background: #1a202c;
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        h1 { font-size: 48px; margin-bottom: 10px; }
+        .subtitle { font-size: 20px; opacity: 0.8; }
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .project-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .project-card:hover { transform: translateY(-5px); }
+        .project-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        .project-content { padding: 20px; }
+        .project-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+        .project-desc { color: #718096; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>John Doe</h1>
+        <p class="subtitle">Creative Designer & Developer</p>
+    </header>
+    <div class="projects">
+        <div class="project-card" onclick="alert('Project details would show here')">
+            <div class="project-image">🎨</div>
+            <div class="project-content">
+                <div class="project-title">Project One</div>
+                <p class="project-desc">A beautiful web application</p>
+            </div>
+        </div>
+        <div class="project-card" onclick="alert('Project details would show here')">
+            <div class="project-image">📱</div>
+            <div class="project-content">
+                <div class="project-title">Project Two</div>
+                <p class="project-desc">Mobile app design</p>
+            </div>
+        </div>
+        <div class="project-card" onclick="alert('Project details would show here')">
+            <div class="project-image">🚀</div>
+            <div class="project-content">
+                <div class="project-title">Project Three</div>
+                <p class="project-desc">Brand identity work</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                blog: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f7fafc;
+        }
+        header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        h1 { font-size: 36px; }
+        .container { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .post {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .post:hover { transform: translateY(-3px); }
+        .post-title { font-size: 28px; margin-bottom: 10px; }
+        .post-meta { color: #718096; margin-bottom: 20px; }
+        .post-content { line-height: 1.6; color: #4a5568; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Blog</h1>
+    </header>
+    <div class="container">
+        <div class="post" onclick="alert('Full article would open here')">
+            <h2 class="post-title">Getting Started with Web Development</h2>
+            <div class="post-meta">Posted on January 15, 2024 • 5 min read</div>
+            <p class="post-content">Learn the fundamentals of modern web development and start building amazing websites today...</p>
+        </div>
+        <div class="post" onclick="alert('Full article would open here')">
+            <h2 class="post-title">Design Best Practices</h2>
+            <div class="post-meta">Posted on January 10, 2024 • 7 min read</div>
+            <p class="post-content">Discover the principles of great design and how to apply them to your projects...</p>
+        </div>
+        <div class="post" onclick="alert('Full article would open here')">
+            <h2 class="post-title">Building Scalable Applications</h2>
+            <div class="post-meta">Posted on January 5, 2024 • 10 min read</div>
+            <p class="post-content">Tips and techniques for building applications that can handle growth and scale...</p>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                ecommerce: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .product-image {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+        }
+        .product-info h1 { font-size: 36px; margin-bottom: 10px; }
+        .price { font-size: 32px; color: #667eea; font-weight: 700; margin: 20px 0; }
+        .description { color: #718096; line-height: 1.6; margin-bottom: 30px; }
+        .size-selector { margin-bottom: 20px; }
+        .size-selector label { display: block; margin-bottom: 10px; font-weight: 500; }
+        .sizes { display: flex; gap: 10px; }
+        .size-btn {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+        .size-btn.active { border-color: #667eea; background: #f0f4ff; }
+        .buy-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="product-image">🎨</div>
+        <div class="product-info">
+            <h1>Premium Product</h1>
+            <div class="price">$99.99</div>
+            <p class="description">
+                Experience luxury and quality with our premium product. 
+                Crafted with attention to detail and designed for excellence.
+            </p>
+            <div class="size-selector">
+                <label>Select Size</label>
+                <div class="sizes">
+                    <button class="size-btn" onclick="document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');">S</button>
+                    <button class="size-btn active" onclick="document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');">M</button>
+                    <button class="size-btn" onclick="document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');">L</button>
+                    <button class="size-btn" onclick="document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');">XL</button>
+                </div>
+            </div>
+            <button class="buy-btn" onclick="alert('Added to cart! (Demo)')">Add to Cart</button>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                about: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .hero p { font-size: 20px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+        .team {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        .team h2 { text-align: center; font-size: 36px; margin-bottom: 50px; }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        .team-member {
+            text-align: center;
+        }
+        .member-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+        .member-name { font-size: 20px; font-weight: 600; margin-bottom: 5px; }
+        .member-role { color: #718096; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>About Our Company</h1>
+        <p>We're a team of passionate individuals building amazing products that make a difference.</p>
+    </div>
+    <div class="team">
+        <h2>Meet Our Team</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-photo">👨</div>
+                <div class="member-name">John Doe</div>
+                <div class="member-role">CEO & Founder</div>
+            </div>
+            <div class="team-member">
+                <div class="member-photo">👩</div>
+                <div class="member-name">Jane Smith</div>
+                <div class="member-role">Lead Designer</div>
+            </div>
+            <div class="team-member">
+                <div class="member-photo">👨</div>
+                <div class="member-name">Mike Johnson</div>
+                <div class="member-role">Lead Developer</div>
+            </div>
+            <div class="team-member">
+                <div class="member-photo">👩</div>
+                <div class="member-name">Sarah Williams</div>
+                <div class="member-role">Marketing Director</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`,
+
+                app: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App Landing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .phone-mockup {
+            width: 250px;
+            height: 500px;
+            background: white;
+            border-radius: 30px;
+            margin: 40px auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        p { font-size: 20px; margin-bottom: 30px; opacity: 0.9; }
+        .download-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .store-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .store-btn:hover { background: rgba(255, 255, 255, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Amazing Mobile App</h1>
+        <p>Download now and experience the future</p>
+        <div class="phone-mockup">📱</div>
+        <div class="download-buttons">
+            <button class="store-btn" onclick="alert('App Store download would start')">
+                🍎 App Store
+            </button>
+            <button class="store-btn" onclick="alert('Play Store download would start')">
+                🤖 Play Store
+            </button>
+        </div>
+    </div>
+</body>
+</html>`
+            };
+
+            return templates[templateName] || `<!DOCTYPE html><html><head><title>${templateName}</title></head><body><h1>${templateName} Template</h1><p>Template code for ${templateName}</p></body></html>`;
+        }
+
+        console.log('✅ Template Builder loaded - 10 templates ready!');
+    </script>
+</body>
+</html>
