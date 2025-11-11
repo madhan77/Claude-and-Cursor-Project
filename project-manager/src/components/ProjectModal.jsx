@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useProjects } from '../contexts/ProjectContext';
 import { FaTimes } from 'react-icons/fa';
 
-export default function ProjectModal({ project, onClose }) {
-  const { createProject, updateProject } = useProjects();
+export default function ProjectModal({ project, parentProject, onClose }) {
+  const { createProject, updateProject, projects } = useProjects();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -11,7 +11,8 @@ export default function ProjectModal({ project, onClose }) {
     status: 'planning',
     startDate: '',
     endDate: '',
-    color: '#3b82f6'
+    color: '#3b82f6',
+    parentId: ''
   });
 
   useEffect(() => {
@@ -22,10 +23,16 @@ export default function ProjectModal({ project, onClose }) {
         status: project.status || 'planning',
         startDate: project.startDate || '',
         endDate: project.endDate || '',
-        color: project.color || '#3b82f6'
+        color: project.color || '#3b82f6',
+        parentId: project.parentId || ''
       });
+    } else if (parentProject) {
+      setFormData(prev => ({
+        ...prev,
+        parentId: parentProject.id
+      }));
     }
-  }, [project]);
+  }, [project, parentProject]);
 
   function handleChange(e) {
     setFormData({
@@ -105,6 +112,34 @@ export default function ProjectModal({ project, onClose }) {
               placeholder="Enter project description"
               disabled={loading}
             />
+          </div>
+
+          {/* Parent Project */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Parent Project (Optional)
+            </label>
+            <select
+              name="parentId"
+              value={formData.parentId}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={loading || !!parentProject}
+            >
+              <option value="">None (Top-level project)</option>
+              {projects
+                .filter(p => p.id !== project?.id) // Don't allow selecting self as parent
+                .map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+            </select>
+            {parentProject && (
+              <p className="text-xs text-gray-500 mt-1">
+                Creating sub-project under: {parentProject.name}
+              </p>
+            )}
           </div>
 
           {/* Status */}
