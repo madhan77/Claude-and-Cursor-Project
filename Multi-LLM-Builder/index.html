@@ -1551,35 +1551,58 @@
             document.getElementById('loadingDetail').textContent = 'Capturing screenshots, please wait...';
 
             try {
-                // Capture screenshots from iframes first
+                // Capture screenshots from generated HTML
                 const screenshots = {};
                 for (const tech of results.selectedTechs) {
                     screenshots[tech] = {};
                     for (const llm of results.selectedLLMs) {
                         const cardId = `${llm}-${tech}`;
-                        const iframe = document.querySelector(`#preview-${cardId} iframe`);
 
-                        if (iframe && iframe.src) {
-                            try {
-                                // Create a temporary canvas to capture iframe content
-                                const tempDiv = document.createElement('div');
-                                tempDiv.innerHTML = results.resultsByTech[tech][llm].code;
-                                tempDiv.style.cssText = 'position: absolute; left: -9999px; width: 800px; background: white;';
-                                document.body.appendChild(tempDiv);
-
-                                // Capture with html2canvas
-                                const canvas = await html2canvas(tempDiv, {
-                                    useCORS: true,
-                                    allowTaint: true,
-                                    backgroundColor: '#ffffff',
-                                    scale: 1
-                                });
-                                screenshots[tech][llm] = canvas.toDataURL('image/jpeg', 0.9);
-
-                                document.body.removeChild(tempDiv);
-                            } catch (e) {
-                                console.warn(`Failed to capture screenshot for ${cardId}:`, e);
+                        try {
+                            const result = results.resultsByTech[tech][llm];
+                            if (!result || !result.code) {
+                                console.warn(`No code found for ${cardId}`);
+                                continue;
                             }
+
+                            // Create a temporary container with the generated HTML
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = result.code;
+                            tempDiv.style.cssText = 'position: absolute; left: -9999px; width: 1000px; min-height: 600px; background: white; padding: 20px;';
+                            document.body.appendChild(tempDiv);
+
+                            // Wait for content to render and images to load
+                            await new Promise(resolve => setTimeout(resolve, 500));
+
+                            // Wait for all images to load
+                            const images = tempDiv.querySelectorAll('img');
+                            await Promise.all(Array.from(images).map(img => {
+                                return new Promise((resolve) => {
+                                    if (img.complete) {
+                                        resolve();
+                                    } else {
+                                        img.onload = resolve;
+                                        img.onerror = resolve;
+                                        setTimeout(resolve, 2000); // timeout after 2s
+                                    }
+                                });
+                            }));
+
+                            // Capture with html2canvas
+                            const canvas = await html2canvas(tempDiv, {
+                                useCORS: true,
+                                allowTaint: true,
+                                backgroundColor: '#ffffff',
+                                scale: 2,
+                                logging: false,
+                                width: 1000,
+                                height: Math.max(600, tempDiv.scrollHeight)
+                            });
+                            screenshots[tech][llm] = canvas.toDataURL('image/jpeg', 0.95);
+
+                            document.body.removeChild(tempDiv);
+                        } catch (e) {
+                            console.error(`Failed to capture screenshot for ${cardId}:`, e);
                         }
                     }
                 }
