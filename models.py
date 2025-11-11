@@ -19,7 +19,7 @@ class Transcript(Base):
     file_path = Column(String(512), nullable=False)
     file_format = Column(String(50))  # txt, vtt, srt, json
     content = Column(Text, nullable=False)
-    metadata = Column(JSON)  # Store additional metadata
+    transcript_metadata = Column(JSON)  # Store additional metadata
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
