@@ -71,10 +71,10 @@ export default function Sidebar() {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-gray-700 bg-red-600">
+        <div className="p-6 border-b border-gray-700">
           <div className="flex items-center gap-3">
-            <FaProjectDiagram className="text-3xl text-yellow-400" />
-            <h1 className="text-2xl font-bold text-white">🚀 NEW VERSION 2.0 🚀</h1>
+            <FaProjectDiagram className="text-3xl text-blue-500" />
+            <h1 className="text-2xl font-bold">ProjectHub</h1>
           </div>
         </div>
 
