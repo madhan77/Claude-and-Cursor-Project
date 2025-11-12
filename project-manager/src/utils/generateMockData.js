@@ -397,11 +397,11 @@ export async function generateMockData(userId, options = {}) {
     console.log(`✓ Created ${changeRequestCount} change requests`);
 
     const totalRecords = projectCount + taskCount + epicCount + featureCount + storyCount + sprintCount + requestCount + changeRequestCount;
-    const calendarEntriesCount = results.tasks.filter(t => t.dueDate).length;
+    const finalCalendarCount = results.tasks.filter(t => t.dueDate).length;
     console.log(`\n✓ Successfully generated ${totalRecords} total records!`);
     console.log(`\nBreakdown:`);
     console.log(`  - Projects: ${projectCount}`);
-    console.log(`  - Tasks: ${taskCount} (${calendarEntriesCount} calendar entries)`);
+    console.log(`  - Tasks: ${taskCount} (${finalCalendarCount} calendar entries)`);
     console.log(`  - Epics: ${epicCount}`);
     console.log(`  - Features: ${featureCount}`);
     console.log(`  - Stories: ${storyCount}`);
