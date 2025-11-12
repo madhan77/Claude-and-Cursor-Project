@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFeatures } from '../contexts/FeatureContext';
 import { useEpics } from '../contexts/EpicContext';
+import FileAttachment from './FileAttachment';
 import { FaTimes } from 'react-icons/fa';
 
 export default function FeatureModal({ feature, onClose }) {
@@ -12,7 +13,8 @@ export default function FeatureModal({ feature, onClose }) {
     status: 'planning',
     epicId: '',
     acceptanceCriteria: '',
-    targetDate: ''
+    targetDate: '',
+    attachments: []
   });
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +26,8 @@ export default function FeatureModal({ feature, onClose }) {
         status: feature.status || 'planning',
         epicId: feature.epicId || '',
         acceptanceCriteria: feature.acceptanceCriteria || '',
-        targetDate: feature.targetDate || ''
+        targetDate: feature.targetDate || '',
+        attachments: feature.attachments || []
       });
     }
   }, [feature]);
@@ -163,6 +166,16 @@ export default function FeatureModal({ feature, onClose }) {
                 value={formData.targetDate}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* File Attachments */}
+            <div>
+              <FileAttachment
+                attachments={formData.attachments}
+                onAttachmentsChange={(attachments) => setFormData(prev => ({ ...prev, attachments }))}
+                entityType="features"
+                entityId={feature?.id || 'temp-' + Date.now()}
               />
             </div>
           </div>

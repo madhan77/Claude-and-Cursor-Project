@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRequests } from '../contexts/RequestContext';
+import FileAttachment from './FileAttachment';
 import { FaTimes } from 'react-icons/fa';
 
 export default function ChangeRequestModal({ changeRequest, onClose }) {
@@ -12,7 +13,8 @@ export default function ChangeRequestModal({ changeRequest, onClose }) {
     requestedBy: '',
     implementationDate: '',
     impactAnalysis: '',
-    rollbackPlan: ''
+    rollbackPlan: '',
+    attachments: []
   });
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +28,8 @@ export default function ChangeRequestModal({ changeRequest, onClose }) {
         requestedBy: changeRequest.requestedBy || '',
         implementationDate: changeRequest.implementationDate || '',
         impactAnalysis: changeRequest.impactAnalysis || '',
-        rollbackPlan: changeRequest.rollbackPlan || ''
+        rollbackPlan: changeRequest.rollbackPlan || '',
+        attachments: changeRequest.attachments || []
       });
     }
   }, [changeRequest]);
@@ -196,6 +199,16 @@ export default function ChangeRequestModal({ changeRequest, onClose }) {
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="How to revert if something goes wrong?"
+              />
+            </div>
+
+            {/* File Attachments */}
+            <div>
+              <FileAttachment
+                attachments={formData.attachments}
+                onAttachmentsChange={(attachments) => setFormData(prev => ({ ...prev, attachments }))}
+                entityType="changeRequests"
+                entityId={changeRequest?.id || 'temp-' + Date.now()}
               />
             </div>
           </div>

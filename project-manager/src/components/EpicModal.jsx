@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useEpics } from '../contexts/EpicContext';
+import FileAttachment from './FileAttachment';
 import { FaTimes } from 'react-icons/fa';
 
 export default function EpicModal({ epic, onClose }) {
@@ -9,7 +10,8 @@ export default function EpicModal({ epic, onClose }) {
     description: '',
     status: 'planning',
     businessValue: '',
-    targetDate: ''
+    targetDate: '',
+    attachments: []
   });
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +22,8 @@ export default function EpicModal({ epic, onClose }) {
         description: epic.description || '',
         status: epic.status || 'planning',
         businessValue: epic.businessValue || '',
-        targetDate: epic.targetDate || ''
+        targetDate: epic.targetDate || '',
+        attachments: epic.attachments || []
       });
     }
   }, [epic]);
@@ -140,6 +143,16 @@ export default function EpicModal({ epic, onClose }) {
                 value={formData.targetDate}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* File Attachments */}
+            <div>
+              <FileAttachment
+                attachments={formData.attachments}
+                onAttachmentsChange={(attachments) => setFormData(prev => ({ ...prev, attachments }))}
+                entityType="epics"
+                entityId={epic?.id || 'temp-' + Date.now()}
               />
             </div>
           </div>

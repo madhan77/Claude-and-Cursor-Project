@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRequests } from '../contexts/RequestContext';
+import FileAttachment from './FileAttachment';
 import { FaTimes } from 'react-icons/fa';
 
 export default function RequestModal({ request, onClose }) {
@@ -11,7 +12,8 @@ export default function RequestModal({ request, onClose }) {
     priority: 'medium',
     requestedBy: '',
     targetDate: '',
-    releaseVersion: ''
+    releaseVersion: '',
+    attachments: []
   });
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +26,8 @@ export default function RequestModal({ request, onClose }) {
         priority: request.priority || 'medium',
         requestedBy: request.requestedBy || '',
         targetDate: request.targetDate || '',
-        releaseVersion: request.releaseVersion || ''
+        releaseVersion: request.releaseVersion || '',
+        attachments: request.attachments || []
       });
     }
   }, [request]);
@@ -182,6 +185,16 @@ export default function RequestModal({ request, onClose }) {
                   placeholder="e.g., v1.2.0"
                 />
               </div>
+            </div>
+
+            {/* File Attachments */}
+            <div>
+              <FileAttachment
+                attachments={formData.attachments}
+                onAttachmentsChange={(attachments) => setFormData(prev => ({ ...prev, attachments }))}
+                entityType="requests"
+                entityId={request?.id || 'temp-' + Date.now()}
+              />
             </div>
           </div>
 

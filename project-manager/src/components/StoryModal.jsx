@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStories } from '../contexts/StoryContext';
 import { useFeatures } from '../contexts/FeatureContext';
+import FileAttachment from './FileAttachment';
 import { FaTimes } from 'react-icons/fa';
 
 export default function StoryModal({ story, onClose }) {
@@ -14,7 +15,8 @@ export default function StoryModal({ story, onClose }) {
     priority: 'medium',
     storyPoints: '',
     acceptanceCriteria: '',
-    targetDate: ''
+    targetDate: '',
+    attachments: []
   });
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +30,8 @@ export default function StoryModal({ story, onClose }) {
         priority: story.priority || 'medium',
         storyPoints: story.storyPoints || '',
         acceptanceCriteria: story.acceptanceCriteria || '',
-        targetDate: story.targetDate || ''
+        targetDate: story.targetDate || '',
+        attachments: story.attachments || []
       });
     }
   }, [story]);
@@ -209,6 +212,16 @@ export default function StoryModal({ story, onClose }) {
                 value={formData.targetDate}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* File Attachments */}
+            <div>
+              <FileAttachment
+                attachments={formData.attachments}
+                onAttachmentsChange={(attachments) => setFormData(prev => ({ ...prev, attachments }))}
+                entityType="stories"
+                entityId={story?.id || 'temp-' + Date.now()}
               />
             </div>
           </div>
