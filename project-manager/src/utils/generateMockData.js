@@ -40,6 +40,9 @@ const benefits = [
 const statuses = ['planning', 'in-progress', 'testing', 'completed', 'on-hold'];
 const priorities = ['low', 'medium', 'high', 'critical'];
 const requestStatuses = ['new', 'in-review', 'approved', 'rejected', 'in-progress', 'completed'];
+const taskStatuses = ['todo', 'in-progress', 'completed'];
+const projectColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+const taskTags = ['bug', 'feature', 'enhancement', 'documentation', 'testing', 'deployment', 'refactoring'];
 
 function randomElement(array) {
   return array[Math.floor(Math.random() * array.length)];
@@ -62,6 +65,18 @@ function generateStoryTitle(index) {
   const action = randomElement(actions);
   const benefit = randomElement(benefits);
   return template.replace('{action}', action).replace('{benefit}', benefit) + ` #${index}`;
+}
+
+function generateProjectName(index) {
+  const prefixes = ['Project', 'Initiative', 'Program', 'Campaign'];
+  const suffixes = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Phoenix', 'Titan', 'Nova', 'Nexus'];
+  return `${randomElement(prefixes)} ${randomElement(suffixes)} ${randomInt(2023, 2025)} (${index})`;
+}
+
+function generateTaskTitle(index) {
+  const verbs = ['Implement', 'Fix', 'Update', 'Review', 'Test', 'Deploy', 'Document', 'Refactor'];
+  const subjects = ['authentication flow', 'database schema', 'API endpoints', 'user interface', 'error handling', 'caching layer', 'payment integration', 'notification system'];
+  return `${randomElement(verbs)} ${randomElement(subjects)} #${index}`;
 }
 
 function generateDescription() {
@@ -107,6 +122,8 @@ async function createDocumentsInBatches(collectionName, documents, batchSize = 5
 
 export async function generateMockData(userId, options = {}) {
   const {
+    projectCount = 100,
+    taskCount = 500,
     epicCount = 200,
     featureCount = 400,
     storyCount = 800,
@@ -116,6 +133,8 @@ export async function generateMockData(userId, options = {}) {
   } = options;
 
   const results = {
+    projects: [],
+    tasks: [],
     epics: [],
     features: [],
     stories: [],
@@ -127,6 +146,72 @@ export async function generateMockData(userId, options = {}) {
   console.log('Starting mock data generation with batched writes...');
 
   try {
+    // Generate Projects data
+    console.log(`Generating ${projectCount} projects...`);
+    const projectsData = [];
+    for (let i = 1; i <= projectCount; i++) {
+      const startDate = subDays(new Date(), randomInt(1, 365));
+      const endDate = addDays(startDate, randomInt(30, 180));
+
+      const projectDoc = {
+        data: {
+          name: generateProjectName(i),
+          description: generateDescription(),
+          status: randomElement(statuses),
+          startDate: format(startDate, 'yyyy-MM-dd'),
+          endDate: format(endDate, 'yyyy-MM-dd'),
+          color: randomElement(projectColors),
+          parentId: i > 20 && Math.random() > 0.7 ? randomElement(projectsData.slice(0, 20)).id : '',
+          members: [userId],
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
+      };
+      projectsData.push(projectDoc);
+    }
+    await createDocumentsInBatches('projects', projectsData);
+    results.projects = projectsData.map(p => ({ id: p.id, ...p.data }));
+    console.log(`✓ Created ${projectCount} projects`);
+
+    // Generate Tasks data (including calendar entries via dueDate)
+    console.log(`Generating ${taskCount} tasks (with calendar entries)...`);
+    const tasksData = [];
+    for (let i = 1; i <= taskCount; i++) {
+      const hasDueDate = Math.random() > 0.3; // 70% of tasks have due dates (calendar entries)
+      const dueDate = hasDueDate ? randomDate(subDays(new Date(), 30), addDays(new Date(), 90)) : null;
+
+      const numTags = randomInt(1, 3);
+      const selectedTags = [];
+      for (let j = 0; j < numTags; j++) {
+        const tag = randomElement(taskTags);
+        if (!selectedTags.includes(tag)) {
+          selectedTags.push(tag);
+        }
+      }
+
+      const taskDoc = {
+        data: {
+          title: generateTaskTitle(i),
+          description: generateDescription(),
+          status: randomElement(taskStatuses),
+          priority: randomElement(priorities),
+          dueDate: dueDate,
+          tags: selectedTags,
+          assignedTo: `user${randomInt(1, 20)}@example.com`,
+          projectId: projectsData.length > 0 ? randomElement(projectsData).id : '',
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
+      };
+      tasksData.push(taskDoc);
+    }
+    await createDocumentsInBatches('tasks', tasksData);
+    results.tasks = tasksData.map(t => ({ id: t.id, ...t.data }));
+    const calendarEntriesCount = tasksData.filter(t => t.data.dueDate).length;
+    console.log(`✓ Created ${taskCount} tasks (${calendarEntriesCount} with calendar entries)`);
+
     // Generate Epics data
     console.log(`Generating ${epicCount} epics...`);
     const epicsData = [];
@@ -311,9 +396,12 @@ export async function generateMockData(userId, options = {}) {
     results.changeRequests = changeRequestsData.map(cr => ({ id: cr.id, ...cr.data }));
     console.log(`✓ Created ${changeRequestCount} change requests`);
 
-    const totalRecords = epicCount + featureCount + storyCount + sprintCount + requestCount + changeRequestCount;
+    const totalRecords = projectCount + taskCount + epicCount + featureCount + storyCount + sprintCount + requestCount + changeRequestCount;
+    const calendarEntriesCount = results.tasks.filter(t => t.dueDate).length;
     console.log(`\n✓ Successfully generated ${totalRecords} total records!`);
     console.log(`\nBreakdown:`);
+    console.log(`  - Projects: ${projectCount}`);
+    console.log(`  - Tasks: ${taskCount} (${calendarEntriesCount} calendar entries)`);
     console.log(`  - Epics: ${epicCount}`);
     console.log(`  - Features: ${featureCount}`);
     console.log(`  - Stories: ${storyCount}`);
