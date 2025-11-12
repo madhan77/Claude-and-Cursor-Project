@@ -1,4 +1,4 @@
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, writeBatch, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { addDays, subDays, format } from 'date-fns';
 
@@ -80,6 +80,31 @@ function randomDate(start, end) {
   return format(date, 'yyyy-MM-dd');
 }
 
+// Helper function to commit batches
+async function commitBatch(batch, batchNumber, totalBatches) {
+  await batch.commit();
+  console.log(`  Committed batch ${batchNumber}/${totalBatches}`);
+}
+
+// Helper function to create documents in batches
+async function createDocumentsInBatches(collectionName, documents, batchSize = 500) {
+  const totalBatches = Math.ceil(documents.length / batchSize);
+
+  for (let i = 0; i < documents.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const batchNumber = Math.floor(i / batchSize) + 1;
+    const batchDocs = documents.slice(i, i + batchSize);
+
+    batchDocs.forEach(docData => {
+      const docRef = doc(collection(db, collectionName));
+      batch.set(docRef, docData.data);
+      docData.id = docRef.id; // Store the generated ID
+    });
+
+    await commitBatch(batch, batchNumber, totalBatches);
+  }
+}
+
 export async function generateMockData(userId, options = {}) {
   const {
     epicCount = 200,
@@ -99,198 +124,191 @@ export async function generateMockData(userId, options = {}) {
     changeRequests: []
   };
 
-  console.log('Starting mock data generation...');
+  console.log('Starting mock data generation with batched writes...');
 
   try {
-    // Generate Epics
+    // Generate Epics data
     console.log(`Generating ${epicCount} epics...`);
+    const epicsData = [];
     for (let i = 1; i <= epicCount; i++) {
-      const epicData = {
-        name: generateEpicName(i),
-        description: generateDescription(),
-        status: randomElement(statuses),
-        businessValue: `This epic will deliver ${randomInt(50, 500)}% ROI over the next ${randomInt(6, 24)} months.`,
-        targetDate: randomDate(new Date(), addDays(new Date(), 365)),
-        createdBy: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+      const epicDoc = {
+        data: {
+          name: generateEpicName(i),
+          description: generateDescription(),
+          status: randomElement(statuses),
+          businessValue: `This epic will deliver ${randomInt(50, 500)}% ROI over the next ${randomInt(6, 24)} months.`,
+          targetDate: randomDate(new Date(), addDays(new Date(), 365)),
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
       };
-
-      const docRef = await addDoc(collection(db, 'epics'), epicData);
-      results.epics.push({ id: docRef.id, ...epicData });
-
-      if (i % 20 === 0) {
-        console.log(`  Created ${i}/${epicCount} epics`);
-      }
+      epicsData.push(epicDoc);
     }
+    await createDocumentsInBatches('epics', epicsData);
+    results.epics = epicsData.map(e => ({ id: e.id, ...e.data }));
     console.log(`✓ Created ${epicCount} epics`);
 
-    // Generate Features
+    // Generate Features data
     console.log(`Generating ${featureCount} features...`);
+    const featuresData = [];
     for (let i = 1; i <= featureCount; i++) {
-      const epicId = randomElement(results.epics).id;
-      const featureData = {
-        name: generateFeatureName(i),
-        description: generateDescription(),
-        status: randomElement(statuses),
-        epicId,
-        acceptanceCriteria: `- All tests must pass\n- Code review completed\n- Documentation updated\n- Performance benchmarks met`,
-        targetDate: randomDate(new Date(), addDays(new Date(), 180)),
-        createdBy: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+      const epicId = randomElement(epicsData).id;
+      const featureDoc = {
+        data: {
+          name: generateFeatureName(i),
+          description: generateDescription(),
+          status: randomElement(statuses),
+          epicId,
+          acceptanceCriteria: `- All tests must pass\n- Code review completed\n- Documentation updated\n- Performance benchmarks met`,
+          targetDate: randomDate(new Date(), addDays(new Date(), 180)),
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
       };
-
-      const docRef = await addDoc(collection(db, 'features'), featureData);
-      results.features.push({ id: docRef.id, ...featureData });
-
-      if (i % 40 === 0) {
-        console.log(`  Created ${i}/${featureCount} features`);
-      }
+      featuresData.push(featureDoc);
     }
+    await createDocumentsInBatches('features', featuresData);
+    results.features = featuresData.map(f => ({ id: f.id, ...f.data }));
     console.log(`✓ Created ${featureCount} features`);
 
-    // Generate Stories
+    // Generate Stories data
     console.log(`Generating ${storyCount} stories...`);
+    const storiesData = [];
     for (let i = 1; i <= storyCount; i++) {
-      const featureId = randomElement(results.features).id;
-      const storyData = {
-        title: generateStoryTitle(i),
-        description: generateDescription(),
-        status: randomElement(statuses),
-        featureId,
-        priority: randomElement(priorities.slice(0, 3)), // low, medium, high
-        storyPoints: randomElement([1, 2, 3, 5, 8, 13]),
-        acceptanceCriteria: `Given a user\nWhen they perform the action\nThen the expected result occurs`,
-        targetDate: randomDate(new Date(), addDays(new Date(), 90)),
-        notes: [
-          {
-            id: Date.now().toString(),
-            text: 'Initial analysis completed. Waiting for design mockups.',
-            createdBy: userId,
-            createdAt: new Date().toISOString()
-          }
-        ],
-        createdBy: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+      const featureId = randomElement(featuresData).id;
+      const storyDoc = {
+        data: {
+          title: generateStoryTitle(i),
+          description: generateDescription(),
+          status: randomElement(statuses),
+          featureId,
+          priority: randomElement(priorities.slice(0, 3)),
+          storyPoints: randomElement([1, 2, 3, 5, 8, 13]),
+          acceptanceCriteria: `Given a user\nWhen they perform the action\nThen the expected result occurs`,
+          targetDate: randomDate(new Date(), addDays(new Date(), 90)),
+          notes: [
+            {
+              id: `${Date.now()}-${i}`,
+              text: 'Initial analysis completed. Waiting for design mockups.',
+              createdBy: userId,
+              createdAt: new Date().toISOString()
+            }
+          ],
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
       };
-
-      const docRef = await addDoc(collection(db, 'stories'), storyData);
-      results.stories.push({ id: docRef.id, ...storyData });
-
-      if (i % 80 === 0) {
-        console.log(`  Created ${i}/${storyCount} stories`);
-      }
+      storiesData.push(storyDoc);
     }
+    await createDocumentsInBatches('stories', storiesData);
+    results.stories = storiesData.map(s => ({ id: s.id, ...s.data }));
     console.log(`✓ Created ${storyCount} stories`);
 
-    // Generate Sprints
+    // Generate Sprints data
     console.log(`Generating ${sprintCount} sprints...`);
+    const sprintsData = [];
     for (let i = 1; i <= sprintCount; i++) {
       const startDate = subDays(new Date(), (sprintCount - i) * 14);
       const endDate = addDays(startDate, 14);
 
-      // Randomly select stories, features, and epics for this sprint
       const sprintStories = [];
       const sprintFeatures = [];
       const sprintEpics = [];
 
       const numStories = randomInt(5, 20);
-      for (let j = 0; j < numStories; j++) {
-        const story = randomElement(results.stories);
+      for (let j = 0; j < numStories && j < storiesData.length; j++) {
+        const story = randomElement(storiesData);
         if (!sprintStories.includes(story.id)) {
           sprintStories.push(story.id);
         }
       }
 
       const numFeatures = randomInt(2, 8);
-      for (let j = 0; j < numFeatures; j++) {
-        const feature = randomElement(results.features);
+      for (let j = 0; j < numFeatures && j < featuresData.length; j++) {
+        const feature = randomElement(featuresData);
         if (!sprintFeatures.includes(feature.id)) {
           sprintFeatures.push(feature.id);
         }
       }
 
       const numEpics = randomInt(1, 4);
-      for (let j = 0; j < numEpics; j++) {
-        const epic = randomElement(results.epics);
+      for (let j = 0; j < numEpics && j < epicsData.length; j++) {
+        const epic = randomElement(epicsData);
         if (!sprintEpics.includes(epic.id)) {
           sprintEpics.push(epic.id);
         }
       }
 
-      const sprintData = {
-        name: `Sprint ${i} - Q${Math.ceil(i / 13)}`,
-        goal: `Complete ${numStories} user stories and deliver key features for improved user experience.`,
-        startDate: format(startDate, 'yyyy-MM-dd'),
-        endDate: format(endDate, 'yyyy-MM-dd'),
-        stories: sprintStories,
-        features: sprintFeatures,
-        epics: sprintEpics,
-        createdBy: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+      const sprintDoc = {
+        data: {
+          name: `Sprint ${i} - Q${Math.ceil(i / 13)}`,
+          goal: `Complete ${numStories} user stories and deliver key features for improved user experience.`,
+          startDate: format(startDate, 'yyyy-MM-dd'),
+          endDate: format(endDate, 'yyyy-MM-dd'),
+          stories: sprintStories,
+          features: sprintFeatures,
+          epics: sprintEpics,
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
       };
-
-      const docRef = await addDoc(collection(db, 'sprints'), sprintData);
-      results.sprints.push({ id: docRef.id, ...sprintData });
-
-      if (i % 10 === 0) {
-        console.log(`  Created ${i}/${sprintCount} sprints`);
-      }
+      sprintsData.push(sprintDoc);
     }
+    await createDocumentsInBatches('sprints', sprintsData);
+    results.sprints = sprintsData.map(s => ({ id: s.id, ...s.data }));
     console.log(`✓ Created ${sprintCount} sprints`);
 
-    // Generate Requests
+    // Generate Requests data
     console.log(`Generating ${requestCount} requests...`);
+    const requestsData = [];
     for (let i = 1; i <= requestCount; i++) {
-      const requestData = {
-        title: `Release Request #${i} - ${randomElement(['Bug Fix', 'Feature Release', 'Hotfix', 'Security Patch'])}`,
-        description: `${generateDescription()} This release addresses critical production issues and includes new features requested by stakeholders.`,
-        status: randomElement(requestStatuses),
-        priority: randomElement(priorities),
-        requestedBy: `user${randomInt(1, 50)}@example.com`,
-        targetDate: randomDate(new Date(), addDays(new Date(), 60)),
-        releaseVersion: `v${randomInt(1, 10)}.${randomInt(0, 20)}.${randomInt(0, 100)}`,
-        createdBy: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+      const requestDoc = {
+        data: {
+          title: `Release Request #${i} - ${randomElement(['Bug Fix', 'Feature Release', 'Hotfix', 'Security Patch'])}`,
+          description: `${generateDescription()} This release addresses critical production issues and includes new features requested by stakeholders.`,
+          status: randomElement(requestStatuses),
+          priority: randomElement(priorities),
+          requestedBy: `user${randomInt(1, 50)}@example.com`,
+          targetDate: randomDate(new Date(), addDays(new Date(), 60)),
+          releaseVersion: `v${randomInt(1, 10)}.${randomInt(0, 20)}.${randomInt(0, 100)}`,
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
       };
-
-      const docRef = await addDoc(collection(db, 'requests'), requestData);
-      results.requests.push({ id: docRef.id, ...requestData });
-
-      if (i % 30 === 0) {
-        console.log(`  Created ${i}/${requestCount} requests`);
-      }
+      requestsData.push(requestDoc);
     }
+    await createDocumentsInBatches('requests', requestsData);
+    results.requests = requestsData.map(r => ({ id: r.id, ...r.data }));
     console.log(`✓ Created ${requestCount} requests`);
 
-    // Generate Change Requests
+    // Generate Change Requests data
     console.log(`Generating ${changeRequestCount} change requests...`);
+    const changeRequestsData = [];
     for (let i = 1; i <= changeRequestCount; i++) {
-      const changeRequestData = {
-        title: `Change Request #${i} - ${randomElement(['Database Migration', 'Configuration Update', 'Infrastructure Change', 'Security Update'])}`,
-        description: `${generateDescription()} This change requires coordination with DevOps and QA teams for validation.`,
-        status: randomElement(requestStatuses),
-        priority: randomElement(priorities),
-        requestedBy: `manager${randomInt(1, 20)}@example.com`,
-        implementationDate: randomDate(new Date(), addDays(new Date(), 45)),
-        impactAnalysis: `This change will affect ${randomInt(5, 50)} users and requires ${randomInt(1, 8)} hours of downtime.`,
-        rollbackPlan: `Restore from backup taken at ${format(new Date(), 'yyyy-MM-dd HH:mm')}. Estimated rollback time: ${randomInt(15, 120)} minutes.`,
-        createdBy: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+      const changeRequestDoc = {
+        data: {
+          title: `Change Request #${i} - ${randomElement(['Database Migration', 'Configuration Update', 'Infrastructure Change', 'Security Update'])}`,
+          description: `${generateDescription()} This change requires coordination with DevOps and QA teams for validation.`,
+          status: randomElement(requestStatuses),
+          priority: randomElement(priorities),
+          requestedBy: `manager${randomInt(1, 20)}@example.com`,
+          implementationDate: randomDate(new Date(), addDays(new Date(), 45)),
+          impactAnalysis: `This change will affect ${randomInt(5, 50)} users and requires ${randomInt(1, 8)} hours of downtime.`,
+          rollbackPlan: `Restore from backup taken at ${format(new Date(), 'yyyy-MM-dd HH:mm')}. Estimated rollback time: ${randomInt(15, 120)} minutes.`,
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
       };
-
-      const docRef = await addDoc(collection(db, 'changeRequests'), changeRequestData);
-      results.changeRequests.push({ id: docRef.id, ...changeRequestData });
-
-      if (i % 20 === 0) {
-        console.log(`  Created ${i}/${changeRequestCount} change requests`);
-      }
+      changeRequestsData.push(changeRequestDoc);
     }
+    await createDocumentsInBatches('changeRequests', changeRequestsData);
+    results.changeRequests = changeRequestsData.map(cr => ({ id: cr.id, ...cr.data }));
     console.log(`✓ Created ${changeRequestCount} change requests`);
 
     const totalRecords = epicCount + featureCount + storyCount + sprintCount + requestCount + changeRequestCount;
