@@ -161,7 +161,7 @@ export async function generateMockData(userId, options = {}) {
           startDate: format(startDate, 'yyyy-MM-dd'),
           endDate: format(endDate, 'yyyy-MM-dd'),
           color: randomElement(projectColors),
-          parentId: i > 20 && Math.random() > 0.7 ? randomElement(projectsData.slice(0, 20)).id : '',
+          parentId: '',
           members: [userId],
           createdBy: userId,
           createdAt: Timestamp.now(),
