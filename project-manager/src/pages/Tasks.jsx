@@ -3,7 +3,7 @@ import { useTasks } from '../contexts/TaskContext';
 import { useProjects } from '../contexts/ProjectContext';
 import Layout from '../components/Layout';
 import TaskModal from '../components/TaskModal';
-import { FaPlus, FaFilter, FaSort, FaList, FaColumns, FaGripVertical } from 'react-icons/fa';
+import { FaPlus, FaFilter, FaSort, FaList, FaColumns, FaGripVertical, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 
 const TASK_STATUS_COLUMNS = [
   { id: 'todo', label: 'To Do', color: 'bg-gray-100' },
@@ -21,6 +21,8 @@ export default function Tasks() {
   const [sortBy, setSortBy] = useState('dueDate');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
   const [draggedTask, setDraggedTask] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editDescription, setEditDescription] = useState('');
 
   // Filter tasks
   let filteredTasks = [...tasks];
@@ -97,6 +99,26 @@ export default function Tasks() {
       } catch (error) {
         console.error('Error updating task status:', error);
       }
+    }
+  };
+
+  const startEditDescription = (task) => {
+    setEditingId(task.id);
+    setEditDescription(task.description || '');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDescription('');
+  };
+
+  const saveDescription = async (task) => {
+    try {
+      await updateTask(task.id, { description: editDescription });
+      setEditingId(null);
+      setEditDescription('');
+    } catch (error) {
+      console.error('Error updating description:', error);
     }
   };
 
@@ -299,47 +321,113 @@ export default function Tasks() {
                   onDrop={(e) => handleDrop(e, column.id)}
                   className="flex-1 bg-gray-50 p-3 rounded-b-lg min-h-[600px] space-y-3 border border-t-0 border-gray-200"
                 >
-                  {tasksByStatus[column.id]?.map(task => (
-                    <div
-                      key={task.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, task)}
-                      onDragEnd={handleDragEnd}
-                      onClick={() => handleEdit(task)}
-                      className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-move"
-                    >
-                      <div className="flex items-start gap-2 mb-2">
-                        <FaGripVertical className="text-gray-400 mt-1 flex-shrink-0" />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-800 text-sm mb-1 line-clamp-2">
-                            {task.title}
-                          </h4>
-                          {task.description && (
-                            <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 flex-wrap text-xs">
-                            {task.priority && (
-                              <span className={`px-2 py-0.5 rounded-full ${priorityColors[task.priority]}`}>
-                                {task.priority}
-                              </span>
+                  {tasksByStatus[column.id]?.map(task => {
+                    const isEditing = editingId === task.id;
+                    return (
+                      <div
+                        key={task.id}
+                        draggable={!isEditing}
+                        onDragStart={(e) => handleDragStart(e, task)}
+                        onDragEnd={handleDragEnd}
+                        className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start gap-2 mb-2">
+                          {!isEditing && <FaGripVertical className="text-gray-400 mt-1 flex-shrink-0 cursor-move" />}
+                          <div className="flex-1">
+                            <h4
+                              className="font-medium text-gray-800 text-sm mb-1 line-clamp-2 cursor-pointer hover:text-blue-600"
+                              onClick={() => !isEditing && handleEdit(task)}
+                            >
+                              {task.title}
+                            </h4>
+
+                            {/* Description with inline editing */}
+                            {isEditing ? (
+                              <div className="space-y-2 mb-2">
+                                <textarea
+                                  value={editDescription}
+                                  onChange={(e) => setEditDescription(e.target.value)}
+                                  className="w-full px-2 py-1 text-xs border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  rows="3"
+                                  autoFocus
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      saveDescription(task);
+                                    }}
+                                    className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
+                                  >
+                                    <FaSave size={10} /> Save
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      cancelEdit();
+                                    }}
+                                    className="px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 flex items-center gap-1"
+                                  >
+                                    <FaTimes size={10} /> Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                {task.description && (
+                                  <div className="relative group">
+                                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                      {task.description}
+                                    </p>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        startEditDescription(task);
+                                      }}
+                                      className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 p-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-opacity"
+                                      title="Edit description"
+                                    >
+                                      <FaEdit size={10} />
+                                    </button>
+                                  </div>
+                                )}
+                                {!task.description && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      startEditDescription(task);
+                                    }}
+                                    className="text-xs text-blue-600 hover:text-blue-800 mb-2"
+                                  >
+                                    + Add description
+                                  </button>
+                                )}
+                              </>
                             )}
-                            {task.projectId && (
-                              <span className="text-gray-600">
-                                {getProjectName(task.projectId)}
-                              </span>
-                            )}
-                            {task.dueDate && (
-                              <span className="text-gray-600">
-                                {new Date(task.dueDate).toLocaleDateString()}
-                              </span>
-                            )}
+
+                            <div className="flex items-center gap-2 flex-wrap text-xs">
+                              {task.priority && (
+                                <span className={`px-2 py-0.5 rounded-full ${priorityColors[task.priority]}`}>
+                                  {task.priority}
+                                </span>
+                              )}
+                              {task.projectId && (
+                                <span className="text-gray-600">
+                                  {getProjectName(task.projectId)}
+                                </span>
+                              )}
+                              {task.dueDate && (
+                                <span className="text-gray-600">
+                                  {new Date(task.dueDate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {tasksByStatus[column.id]?.length === 0 && (
                     <div className="text-center text-gray-400 text-sm py-8">
                       Drop tasks here
