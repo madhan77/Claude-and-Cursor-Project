@@ -25,6 +25,7 @@ import Features from './pages/Features';
 import Stories from './pages/Stories';
 import Sprints from './pages/Sprints';
 import SprintBoard from './pages/SprintBoard';
+import SprintKanban from './pages/SprintKanban';
 import Requests from './pages/Requests';
 
 // Components
@@ -125,6 +126,14 @@ function App() {
                           element={
                             <PrivateRoute>
                               <SprintBoard />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/sprint-kanban"
+                          element={
+                            <PrivateRoute>
+                              <SprintKanban />
                             </PrivateRoute>
                           }
                         />

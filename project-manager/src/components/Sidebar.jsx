@@ -15,6 +15,7 @@ import {
   FaFileAlt,
   FaSync,
   FaClipboardList,
+  FaColumns,
   FaExclamationCircle
 } from 'react-icons/fa';
 import { useState } from 'react';
@@ -37,6 +38,7 @@ export default function Sidebar() {
     { path: '/stories', icon: FaFileAlt, label: 'Stories' },
     { path: '/sprints', icon: FaSync, label: 'Sprints' },
     { path: '/sprint-board', icon: FaClipboardList, label: 'Sprint Board' },
+    { path: '/sprint-kanban', icon: FaColumns, label: 'Sprint Kanban' },
     { path: '/requests', icon: FaExclamationCircle, label: 'Requests' },
     { path: '/team', icon: FaUsers, label: 'Team' },
     { path: '/settings', icon: FaCog, label: 'Settings' },
