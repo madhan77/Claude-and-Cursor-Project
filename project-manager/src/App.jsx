@@ -30,6 +30,7 @@ import Requests from './pages/Requests';
 // Components
 import PrivateRoute from './components/PrivateRoute';
 
+// Main Application Component
 function App() {
   return (
     <Router>
