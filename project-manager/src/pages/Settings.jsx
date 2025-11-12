@@ -1,10 +1,32 @@
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
-import { FaUser, FaEnvelope, FaCog } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaCog, FaDatabase } from 'react-icons/fa';
+import { generateMockData } from '../utils/generateMockData';
+import { toast } from 'react-toastify';
 
 export default function Settings() {
   const { currentUser, userProfile } = useAuth();
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerateMockData = async () => {
+    if (!window.confirm('This will generate 1950+ mock records in the database. Continue?')) {
+      return;
+    }
+
+    setIsGenerating(true);
+    toast.info('Starting mock data generation... This may take a few minutes.');
+
+    try {
+      await generateMockData(currentUser.uid);
+      toast.success('Successfully generated mock data! Refresh the page to see the data.');
+    } catch (error) {
+      console.error('Error generating mock data:', error);
+      toast.error('Failed to generate mock data. Check console for details.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <Layout>
@@ -65,7 +87,7 @@ export default function Settings() {
         </div>
 
         {/* Preferences */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             Preferences
           </h2>
@@ -89,6 +111,43 @@ export default function Settings() {
                 <input type="checkbox" className="sr-only peer" />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Developer Tools */}
+        <div className="bg-white rounded-lg shadow-md p-6 border-2 border-yellow-300">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <FaDatabase className="text-yellow-600" />
+            Developer Tools
+          </h2>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-yellow-800 mb-2">
+              <strong>Warning:</strong> These tools are for demonstration purposes only.
+            </p>
+            <p className="text-sm text-yellow-700">
+              Generate mock data to populate your database with sample Epics, Features, Stories, Sprints, and Requests.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-3">
+              <div>
+                <p className="font-medium text-gray-800">Generate Mock Data</p>
+                <p className="text-sm text-gray-600">
+                  Creates 200 Epics, 400 Features, 800 Stories, 50 Sprints, 300 Requests, and 200 Change Requests
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Total: 1,950+ records
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateMockData}
+                disabled={isGenerating}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <FaDatabase />
+                {isGenerating ? 'Generating...' : 'Generate'}
+              </button>
             </div>
           </div>
         </div>

@@ -9,7 +9,13 @@ import {
   FaCog,
   FaSignOutAlt,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaBook,
+  FaCube,
+  FaFileAlt,
+  FaSync,
+  FaClipboardList,
+  FaExclamationCircle
 } from 'react-icons/fa';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -25,6 +31,12 @@ export default function Sidebar() {
     { path: '/projects', icon: FaProjectDiagram, label: 'Projects' },
     { path: '/tasks', icon: FaTasks, label: 'Tasks' },
     { path: '/calendar', icon: FaCalendar, label: 'Calendar' },
+    { path: '/epics', icon: FaBook, label: 'Epics' },
+    { path: '/features', icon: FaCube, label: 'Features' },
+    { path: '/stories', icon: FaFileAlt, label: 'Stories' },
+    { path: '/sprints', icon: FaSync, label: 'Sprints' },
+    { path: '/sprint-board', icon: FaClipboardList, label: 'Sprint Board' },
+    { path: '/requests', icon: FaExclamationCircle, label: 'Requests' },
     { path: '/team', icon: FaUsers, label: 'Team' },
     { path: '/settings', icon: FaCog, label: 'Settings' },
   ];
@@ -53,7 +65,7 @@ export default function Sidebar() {
       {/* Sidebar */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-40
-        w-64 bg-gray-900 text-white
+        w-64 bg-gray-900 text-white flex flex-col
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -79,7 +91,7 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 flex-1">
+        <nav className="p-4 flex-1 overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -91,7 +103,7 @@ export default function Sidebar() {
                     to={item.path}
                     onClick={() => setIsOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg
+                      flex items-center gap-3 px-4 py-2 rounded-lg
                       transition-colors duration-200
                       ${isActive
                         ? 'bg-blue-600 text-white'
@@ -99,8 +111,8 @@ export default function Sidebar() {
                       }
                     `}
                   >
-                    <Icon size={20} />
-                    <span>{item.label}</span>
+                    <Icon size={18} />
+                    <span className="text-sm">{item.label}</span>
                   </Link>
                 </li>
               );
