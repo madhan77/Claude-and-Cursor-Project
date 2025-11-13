@@ -32,8 +32,10 @@ export function SprintProvider({ children }) {
       return;
     }
 
-    // Fetch all sprints, filter client-side for demo mode (no index needed)
-    const q = query(collection(db, 'sprints'), orderBy('startDate', 'desc'));
+    // For demo mode, fetch without orderBy to avoid index requirement
+    const q = isDemoMode
+      ? collection(db, 'sprints')
+      : query(collection(db, 'sprints'), orderBy('startDate', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let sprintsData = snapshot.docs.map(doc => ({
@@ -41,9 +43,11 @@ export function SprintProvider({ children }) {
         ...doc.data()
       }));
 
-      // Filter client-side for demo mode
+      // Filter and sort client-side for demo mode
       if (isDemoMode) {
-        sprintsData = sprintsData.filter(s => s.createdBy === 'demo-user-id');
+        sprintsData = sprintsData
+          .filter(s => s.createdBy === 'demo-user-id')
+          .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
       }
 
       setSprints(sprintsData);

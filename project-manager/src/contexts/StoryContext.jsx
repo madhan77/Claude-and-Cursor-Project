@@ -31,8 +31,10 @@ export function StoryProvider({ children }) {
       return;
     }
 
-    // Fetch all stories, filter client-side for demo mode (no index needed)
-    const q = query(collection(db, 'stories'), orderBy('createdAt', 'desc'));
+    // For demo mode, fetch without orderBy to avoid index requirement
+    const q = isDemoMode
+      ? collection(db, 'stories')
+      : query(collection(db, 'stories'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let storiesData = snapshot.docs.map(doc => ({
@@ -40,9 +42,11 @@ export function StoryProvider({ children }) {
         ...doc.data()
       }));
 
-      // Filter client-side for demo mode
+      // Filter and sort client-side for demo mode
       if (isDemoMode) {
-        storiesData = storiesData.filter(s => s.createdBy === 'demo-user-id');
+        storiesData = storiesData
+          .filter(s => s.createdBy === 'demo-user-id')
+          .sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
       }
 
       setStories(storiesData);
