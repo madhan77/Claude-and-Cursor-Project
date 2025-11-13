@@ -30,7 +30,7 @@ export function MeetingProvider({ children }) {
       },
       (error) => {
         console.error('Error fetching meetings:', error);
-        toast.error('Failed to load meetings');
+        // Don't show error toast on login page - will auto-load after authentication
         setLoading(false);
       }
     );
