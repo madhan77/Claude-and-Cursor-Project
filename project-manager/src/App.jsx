@@ -7,6 +7,7 @@ import { FeatureProvider } from './contexts/FeatureContext';
 import { StoryProvider } from './contexts/StoryContext';
 import { SprintProvider } from './contexts/SprintContext';
 import { RequestProvider } from './contexts/RequestContext';
+import { MeetingProvider } from './contexts/MeetingContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -27,6 +28,8 @@ import Sprints from './pages/Sprints';
 import SprintBoard from './pages/SprintBoard';
 import SprintKanban from './pages/SprintKanban';
 import Requests from './pages/Requests';
+import Meetings from './pages/Meetings';
+import MeetingRoom from './pages/MeetingRoom';
 
 // Components
 import PrivateRoute from './components/PrivateRoute';
@@ -43,7 +46,8 @@ function App() {
                 <StoryProvider>
                   <SprintProvider>
                     <RequestProvider>
-                      <Routes>
+                      <MeetingProvider>
+                        <Routes>
                         {/* Public Routes */}
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
@@ -146,6 +150,22 @@ function App() {
                           }
                         />
                         <Route
+                          path="/meetings"
+                          element={
+                            <PrivateRoute>
+                              <Meetings />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
+                          path="/meeting-room/:id"
+                          element={
+                            <PrivateRoute>
+                              <MeetingRoom />
+                            </PrivateRoute>
+                          }
+                        />
+                        <Route
                           path="/team"
                           element={
                             <PrivateRoute>
@@ -167,19 +187,20 @@ function App() {
                         <Route path="*" element={<Navigate to="/dashboard" />} />
                       </Routes>
 
-                      {/* Toast Notifications */}
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={3000}
-                        hideProgressBar={false}
-                        newestOnTop
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="light"
-                      />
+                        {/* Toast Notifications */}
+                        <ToastContainer
+                          position="top-right"
+                          autoClose={3000}
+                          hideProgressBar={false}
+                          newestOnTop
+                          closeOnClick
+                          rtl={false}
+                          pauseOnFocusLoss
+                          draggable
+                          pauseOnHover
+                          theme="light"
+                        />
+                      </MeetingProvider>
                     </RequestProvider>
                   </SprintProvider>
                 </StoryProvider>

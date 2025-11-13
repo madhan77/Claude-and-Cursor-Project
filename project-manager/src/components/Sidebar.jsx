@@ -16,7 +16,8 @@ import {
   FaSync,
   FaClipboardList,
   FaColumns,
-  FaExclamationCircle
+  FaExclamationCircle,
+  FaVideo
 } from 'react-icons/fa';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -40,6 +41,7 @@ export default function Sidebar() {
     { path: '/sprint-board', icon: FaClipboardList, label: 'Sprint Board' },
     { path: '/sprint-kanban', icon: FaColumns, label: 'Sprint Kanban' },
     { path: '/requests', icon: FaExclamationCircle, label: 'Requests' },
+    { path: '/meetings', icon: FaVideo, label: 'Meetings' },
     { path: '/team', icon: FaUsers, label: 'Team' },
     { path: '/settings', icon: FaCog, label: 'Settings' },
   ];
