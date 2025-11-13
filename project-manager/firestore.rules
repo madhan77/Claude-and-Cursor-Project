@@ -17,9 +17,13 @@ service cloud.firestore {
       allow create: if request.resource.data.createdBy == 'demo-user-id';
 
       // Allow authenticated users to read
-      allow read: if request.auth != null;
-      // Allow unauthenticated reads for demo data
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      // Allow unauthenticated reads for demo data only
+      allow get: if resource.data.createdBy == 'demo-user-id';
+
+      // Allow list operations for both authenticated and unauthenticated users
+      // (filtering happens on client side for demo data)
+      allow list: if true;
 
       // Allow updates and deletes
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
@@ -30,8 +34,9 @@ service cloud.firestore {
     match /tasks/{taskId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -40,8 +45,9 @@ service cloud.firestore {
     match /epics/{epicId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -50,8 +56,9 @@ service cloud.firestore {
     match /features/{featureId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -60,8 +67,9 @@ service cloud.firestore {
     match /stories/{storyId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -70,8 +78,9 @@ service cloud.firestore {
     match /sprints/{sprintId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -80,8 +89,9 @@ service cloud.firestore {
     match /requests/{requestId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -90,8 +100,9 @@ service cloud.firestore {
     match /changeRequests/{changeRequestId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
@@ -100,8 +111,9 @@ service cloud.firestore {
     match /meetings/{meetingId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
       allow create: if request.resource.data.createdBy == 'demo-user-id';
-      allow read: if request.auth != null;
-      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow get: if request.auth != null;
+      allow get: if resource.data.createdBy == 'demo-user-id';
+      allow list: if true;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
       allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }

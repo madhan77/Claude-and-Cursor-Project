@@ -26,7 +26,7 @@ export const useProjects = () => useContext(ProjectContext);
 export function ProjectProvider({ children }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   // Fetch projects in real-time
   useEffect(() => {
@@ -36,11 +36,18 @@ export function ProjectProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'projects'),
-      where('members', 'array-contains', currentUser.uid),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, query by createdBy instead of members
+    const q = isDemoMode
+      ? query(
+          collection(db, 'projects'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'projects'),
+          where('members', 'array-contains', currentUser.uid),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const projectsData = snapshot.docs.map(doc => ({
@@ -51,12 +58,15 @@ export function ProjectProvider({ children }) {
       setLoading(false);
     }, (error) => {
       console.error('Error fetching projects:', error);
-      toast.error('Failed to load projects');
+      // Don't show error toast for demo mode permission errors
+      if (!isDemoMode) {
+        toast.error('Failed to load projects');
+      }
       setLoading(false);
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   // Create a new project
   async function createProject(projectData) {
@@ -65,6 +75,7 @@ export function ProjectProvider({ children }) {
         ...projectData,
         ownerId: currentUser.uid,
         members: [currentUser.uid],
+        createdBy: currentUser.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       };
