@@ -18,6 +18,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Sign up with email and password
   async function signup(email, password, displayName) {
@@ -67,7 +68,41 @@ export function AuthProvider({ children }) {
 
   // Sign out
   function logout() {
+    // Clear demo mode if active
+    if (isDemoMode) {
+      localStorage.removeItem('demoMode');
+      setIsDemoMode(false);
+      setCurrentUser(null);
+      setUserProfile(null);
+      return Promise.resolve();
+    }
     return signOut(auth);
+  }
+
+  // Demo mode login
+  function loginDemoMode() {
+    const demoUser = {
+      uid: 'demo-user-id',
+      email: 'demo@projecthub.com',
+      displayName: 'Demo User',
+      photoURL: null
+    };
+
+    const demoProfile = {
+      uid: 'demo-user-id',
+      email: 'demo@projecthub.com',
+      displayName: 'Demo User',
+      photoURL: null,
+      role: 'demo',
+      createdAt: new Date().toISOString()
+    };
+
+    setCurrentUser(demoUser);
+    setUserProfile(demoProfile);
+    setIsDemoMode(true);
+    localStorage.setItem('demoMode', 'true');
+
+    return Promise.resolve({ user: demoUser });
   }
 
   // Fetch user profile from Firestore
@@ -83,17 +118,28 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      if (user) {
-        await fetchUserProfile(user.uid);
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
+    // Check if demo mode is active from localStorage
+    const demoModeActive = localStorage.getItem('demoMode') === 'true';
 
-    return unsubscribe;
+    if (demoModeActive) {
+      // Restore demo mode session
+      loginDemoMode().then(() => {
+        setLoading(false);
+      });
+    } else {
+      // Normal Firebase auth
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        setCurrentUser(user);
+        if (user) {
+          await fetchUserProfile(user.uid);
+        } else {
+          setUserProfile(null);
+        }
+        setLoading(false);
+      });
+
+      return unsubscribe;
+    }
   }, []);
 
   const value = {
@@ -102,7 +148,9 @@ export function AuthProvider({ children }) {
     signup,
     login,
     logout,
-    signInWithGoogle
+    signInWithGoogle,
+    loginDemoMode,
+    isDemoMode
   };
 
   return (

@@ -26,7 +26,7 @@ import { toast } from 'react-toastify';
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, userProfile } = useAuth();
+  const { logout, userProfile, isDemoMode } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
@@ -88,9 +88,16 @@ export default function Sidebar() {
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
               {userProfile?.displayName?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div>
+            <div className="flex-1">
               <p className="font-medium">{userProfile?.displayName || 'User'}</p>
               <p className="text-xs text-gray-400">{userProfile?.email}</p>
+              {isDemoMode && (
+                <div className="mt-1">
+                  <span className="inline-block px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs rounded-full font-medium">
+                    Demo Mode
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

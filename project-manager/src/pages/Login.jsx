@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
-import { FaGoogle, FaEnvelope, FaLock, FaProjectDiagram } from 'react-icons/fa';
+import { FaGoogle, FaEnvelope, FaLock, FaProjectDiagram, FaEye } from 'react-icons/fa';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, signInWithGoogle } = useAuth();
+  const { login, signInWithGoogle, loginDemoMode } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -40,6 +40,20 @@ export default function Login() {
     } catch (error) {
       console.error(error);
       toast.error(error.message || 'Failed to sign in with Google');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDemoMode() {
+    try {
+      setLoading(true);
+      await loginDemoMode();
+      toast.success('Welcome to Demo Mode! Explore all features with sample data.');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to enter demo mode');
     } finally {
       setLoading(false);
     }
@@ -127,6 +141,21 @@ export default function Login() {
             <FaGoogle className="text-red-500" />
             Sign in with Google
           </button>
+
+          {/* Demo Mode Button */}
+          <div className="mt-4">
+            <button
+              onClick={handleDemoMode}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              <FaEye />
+              Try Demo Mode
+            </button>
+            <p className="mt-2 text-xs text-center text-gray-500">
+              Explore all features with pre-loaded sample data
+            </p>
+          </div>
 
           {/* Sign Up Link */}
           <p className="mt-6 text-center text-sm text-gray-600">
