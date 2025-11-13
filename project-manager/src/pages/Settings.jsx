@@ -3,11 +3,13 @@ import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { FaUser, FaEnvelope, FaCog, FaDatabase } from 'react-icons/fa';
 import { generateMockData } from '../utils/generateMockData';
+import { createDemoData } from '../utils/createDemoData';
 import { toast } from 'react-toastify';
 
 export default function Settings() {
   const { currentUser, userProfile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCreatingDemo, setIsCreatingDemo] = useState(false);
 
   const handleGenerateMockData = async () => {
     if (!window.confirm('This will generate 1950+ mock records in the database. Continue?')) {
@@ -25,6 +27,25 @@ export default function Settings() {
       toast.error('Failed to generate mock data. Check console for details.');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCreateDemoData = async () => {
+    if (!window.confirm('This will create demo data for testing Demo Mode. Continue?')) {
+      return;
+    }
+
+    setIsCreatingDemo(true);
+    toast.info('Creating demo data...');
+
+    try {
+      await createDemoData();
+      toast.success('Demo data created successfully! Try Demo Mode now.');
+    } catch (error) {
+      console.error('Error creating demo data:', error);
+      toast.error('Failed to create demo data. Check console for details.');
+    } finally {
+      setIsCreatingDemo(false);
     }
   };
 
@@ -130,6 +151,25 @@ export default function Settings() {
             </p>
           </div>
           <div className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b border-gray-200">
+              <div>
+                <p className="font-medium text-gray-800">Create Demo Data</p>
+                <p className="text-sm text-gray-600">
+                  Creates minimal sample data for Demo Mode (2 projects, 2 epics, 2 features, 2 stories, 3 tasks, 1 sprint, 1 request, 1 meeting)
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Total: ~15 records - Perfect for testing Demo Mode
+                </p>
+              </div>
+              <button
+                onClick={handleCreateDemoData}
+                disabled={isCreatingDemo}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <FaDatabase />
+                {isCreatingDemo ? 'Creating...' : 'Create Demo'}
+              </button>
+            </div>
             <div className="flex items-center justify-between py-3">
               <div>
                 <p className="font-medium text-gray-800">Generate Mock Data</p>
@@ -137,7 +177,7 @@ export default function Settings() {
                   Creates 200 Epics, 400 Features, 800 Stories, 50 Sprints, 300 Requests, and 200 Change Requests
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Total: 1,950+ records
+                  Total: 1,950+ records - Takes several minutes
                 </p>
               </div>
               <button
