@@ -6,6 +6,7 @@ import {
   deleteDoc,
   doc,
   query,
+  where,
   onSnapshot,
   orderBy,
   Timestamp
@@ -21,7 +22,7 @@ export const useStories = () => useContext(StoryContext);
 export function StoryProvider({ children }) {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   useEffect(() => {
     if (!currentUser) {
@@ -30,10 +31,17 @@ export function StoryProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'stories'),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'stories'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'stories'),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const storiesData = snapshot.docs.map(doc => ({
@@ -48,7 +56,7 @@ export function StoryProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   async function createStory(storyData) {
     try {

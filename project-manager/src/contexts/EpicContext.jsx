@@ -22,7 +22,7 @@ export const useEpics = () => useContext(EpicContext);
 export function EpicProvider({ children }) {
   const [epics, setEpics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   // Fetch epics in real-time
   useEffect(() => {
@@ -32,10 +32,17 @@ export function EpicProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'epics'),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'epics'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'epics'),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const epicsData = snapshot.docs.map(doc => ({
@@ -51,7 +58,7 @@ export function EpicProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   // Create a new epic
   async function createEpic(epicData) {

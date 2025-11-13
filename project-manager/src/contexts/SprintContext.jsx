@@ -6,6 +6,7 @@ import {
   deleteDoc,
   doc,
   query,
+  where,
   onSnapshot,
   orderBy,
   Timestamp
@@ -22,7 +23,7 @@ export const useSprints = () => useContext(SprintContext);
 export function SprintProvider({ children }) {
   const [sprints, setSprints] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   useEffect(() => {
     if (!currentUser) {
@@ -31,10 +32,17 @@ export function SprintProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'sprints'),
-      orderBy('startDate', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'sprints'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('startDate', 'desc')
+        )
+      : query(
+          collection(db, 'sprints'),
+          orderBy('startDate', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const sprintsData = snapshot.docs.map(doc => ({
@@ -49,7 +57,7 @@ export function SprintProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   async function createSprint(sprintData) {
     try {

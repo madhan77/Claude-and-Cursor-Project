@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { toast } from 'react-toastify';
+import { useAuth } from './AuthContext';
 
 const MeetingContext = createContext();
 
@@ -16,32 +17,48 @@ export function useMeetings() {
 export function MeetingProvider({ children }) {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { currentUser, isDemoMode } = useAuth();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, 'meetings'),
-      (snapshot) => {
-        const meetingsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setMeetings(meetingsData);
-        setLoading(false);
-      },
-      (error) => {
-        console.error('Error fetching meetings:', error);
-        // Don't show error toast on login page - will auto-load after authentication
-        setLoading(false);
-      }
-    );
+    if (!currentUser) {
+      setMeetings([]);
+      setLoading(false);
+      return;
+    }
+
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'meetings'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'meetings'),
+          orderBy('createdAt', 'desc')
+        );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const meetingsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setMeetings(meetingsData);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching meetings:', error);
+      // Don't show error toast on login page - will auto-load after authentication
+      setLoading(false);
+    });
 
     return () => unsubscribe();
-  }, []);
+  }, [currentUser, isDemoMode]);
 
   const addMeeting = async (meetingData) => {
     try {
       const docRef = await addDoc(collection(db, 'meetings'), {
         ...meetingData,
+        createdBy: currentUser.uid,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         status: 'scheduled', // scheduled, in-progress, completed, cancelled

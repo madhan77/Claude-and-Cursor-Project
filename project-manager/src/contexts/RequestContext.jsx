@@ -22,7 +22,7 @@ export function RequestProvider({ children }) {
   const [requests, setRequests] = useState([]);
   const [changeRequests, setChangeRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   // Fetch requests
   useEffect(() => {
@@ -32,10 +32,17 @@ export function RequestProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'requests'),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'requests'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'requests'),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const requestsData = snapshot.docs.map(doc => ({
@@ -50,7 +57,7 @@ export function RequestProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   // Fetch change requests
   useEffect(() => {
@@ -59,10 +66,17 @@ export function RequestProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'changeRequests'),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'changeRequests'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'changeRequests'),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const changeRequestsData = snapshot.docs.map(doc => ({
@@ -75,7 +89,7 @@ export function RequestProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   async function createRequest(requestData) {
     try {

@@ -21,7 +21,7 @@ export const useFeatures = () => useContext(FeatureContext);
 export function FeatureProvider({ children }) {
   const [features, setFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   useEffect(() => {
     if (!currentUser) {
@@ -30,10 +30,17 @@ export function FeatureProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'features'),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'features'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'features'),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const featuresData = snapshot.docs.map(doc => ({
@@ -49,7 +56,7 @@ export function FeatureProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   async function createFeature(featureData) {
     try {

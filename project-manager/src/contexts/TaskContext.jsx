@@ -22,7 +22,7 @@ export const useTasks = () => useContext(TaskContext);
 export function TaskProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, isDemoMode } = useAuth();
 
   // Fetch tasks in real-time
   useEffect(() => {
@@ -32,10 +32,17 @@ export function TaskProvider({ children }) {
       return;
     }
 
-    const q = query(
-      collection(db, 'tasks'),
-      orderBy('createdAt', 'desc')
-    );
+    // For demo mode, filter by createdBy
+    const q = isDemoMode
+      ? query(
+          collection(db, 'tasks'),
+          where('createdBy', '==', 'demo-user-id'),
+          orderBy('createdAt', 'desc')
+        )
+      : query(
+          collection(db, 'tasks'),
+          orderBy('createdAt', 'desc')
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tasksData = snapshot.docs.map(doc => ({
@@ -50,7 +57,7 @@ export function TaskProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, [currentUser, isDemoMode]);
 
   // Create a new task
   async function createTask(taskData) {
