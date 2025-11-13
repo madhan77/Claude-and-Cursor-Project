@@ -45,7 +45,8 @@ export function EpicProvider({ children }) {
       setEpics(epicsData);
       setLoading(false);
     }, (error) => {
-      console.error('Error fetching epics:', error);
+      // Suppress permission errors on login page - will auto-load after authentication
+      // console.error('Error fetching epics:', error);
       setLoading(false);
     });
 
