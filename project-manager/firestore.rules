@@ -5,44 +5,105 @@ service cloud.firestore {
     // Users collection - users can only read/write their own data
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow demo mode to read demo user
+      allow read: if userId == 'demo-user-id';
     }
 
     // Projects collection
     match /projects/{projectId} {
-      // Anyone authenticated can create a project if they set themselves as owner
-      allow create: if request.auth != null &&
-                      request.auth.uid == request.resource.data.ownerId &&
-                      request.auth.uid in request.resource.data.members;
+      // Allow authenticated users to create if they're the owner
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      // Demo mode can create with demo-user-id
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
 
-      // Only members can read the project
-      allow read: if request.auth != null &&
-                    request.auth.uid in resource.data.members;
+      // Allow authenticated users to read
+      allow read: if request.auth != null;
+      // Allow unauthenticated reads for demo data
+      allow read: if resource.data.createdBy == 'demo-user-id';
 
-      // Only the owner can update or delete
-      allow update: if request.auth != null &&
-                      request.auth.uid == resource.data.ownerId;
-
-      allow delete: if request.auth != null &&
-                      request.auth.uid == resource.data.ownerId;
+      // Allow updates and deletes
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
 
     // Tasks collection
     match /tasks/{taskId} {
-      // Authenticated users can create tasks
-      allow create: if request.auth != null &&
-                      request.auth.uid == request.resource.data.createdBy;
-
-      // Authenticated users can read tasks
-      // In production, you'd verify project membership
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
       allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
 
-      // Task creator or anyone authenticated can update
-      // In production, verify project membership
-      allow update: if request.auth != null;
+    // Epics collection
+    match /epics/{epicId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
 
-      // Task creator can delete
-      allow delete: if request.auth != null &&
-                      request.auth.uid == resource.data.createdBy;
+    // Features collection
+    match /features/{featureId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
+
+    // Stories collection
+    match /stories/{storyId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
+
+    // Sprints collection
+    match /sprints/{sprintId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
+
+    // Requests collection
+    match /requests/{requestId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
+
+    // Change Requests collection
+    match /changeRequests/{changeRequestId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
+    }
+
+    // Meetings collection
+    match /meetings/{meetingId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.createdBy;
+      allow create: if request.resource.data.createdBy == 'demo-user-id';
+      allow read: if request.auth != null;
+      allow read: if resource.data.createdBy == 'demo-user-id';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+      allow update, delete: if resource.data.createdBy == 'demo-user-id';
     }
   }
 }
