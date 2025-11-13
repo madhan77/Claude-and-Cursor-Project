@@ -43,7 +43,8 @@ export function FeatureProvider({ children }) {
       setFeatures(featuresData);
       setLoading(false);
     }, (error) => {
-      console.error('Error fetching features:', error);
+      // Suppress permission errors on login page - will auto-load after authentication
+      // console.error('Error fetching features:', error);
       setLoading(false);
     });
 
