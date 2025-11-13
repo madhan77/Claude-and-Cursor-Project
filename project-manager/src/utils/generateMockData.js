@@ -44,6 +44,64 @@ const taskStatuses = ['todo', 'in-progress', 'completed'];
 const projectColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
 const taskTags = ['bug', 'feature', 'enhancement', 'documentation', 'testing', 'deployment', 'refactoring'];
 
+const meetingTypes = [
+  'Sprint Planning',
+  'Daily Standup',
+  'Sprint Review',
+  'Sprint Retrospective',
+  'Backlog Refinement',
+  'General Discussion'
+];
+
+const meetingStatuses = ['scheduled', 'in-progress', 'completed', 'cancelled'];
+
+const attendees = [
+  'john.doe@example.com',
+  'jane.smith@example.com',
+  'mike.johnson@example.com',
+  'sarah.williams@example.com',
+  'robert.brown@example.com',
+  'emily.davis@example.com',
+  'david.miller@example.com',
+  'lisa.wilson@example.com',
+  'james.moore@example.com',
+  'maria.taylor@example.com'
+];
+
+const sampleTranscripts = [
+  `[10:00:15] John: Good morning everyone, let's start today's sprint planning meeting.
+[10:00:30] Sarah: Thanks John. I've reviewed the backlog and we have 15 high priority stories ready.
+[10:01:45] Mike: We need to create a new epic for the customer portal redesign. This is critical for Q4.
+[10:02:20] Lisa: Agreed. I'll take ownership of that epic. We should also update the authentication feature with two-factor support.
+[10:03:10] John: Great. Action items: Sarah will create the customer portal epic, Lisa will update the authentication feature story, and Mike will fix the high priority bug in the payment system.
+[10:04:00] Emily: I'll implement the new dashboard feature this sprint. Expected to be 8 story points.
+[10:05:15] John: Perfect. Let's target completion by end of next week.`,
+
+  `[14:30:00] Robert: Welcome to the sprint retrospective. What went well this sprint?
+[14:30:45] Emily: The team collaboration was excellent. We completed 95% of our committed stories.
+[14:31:20] David: I need to update three stories with the latest requirements from the product owner meeting.
+[14:32:00] Maria: We should create a task to improve our testing coverage. It's currently below our target.
+[14:33:10] Robert: Action items: David will update the three stories by tomorrow, Maria will create a testing improvement task with high priority, and I'll schedule a follow-up meeting for next week.`,
+
+  `[09:00:00] Jane: Good morning team. Daily standup time.
+[09:00:15] Mike: Yesterday I completed the API integration story. Today I'll start working on the new feature for data export.
+[09:00:45] Sarah: I'm working on the mobile app epic. Need to create two new features under it for push notifications and offline mode.
+[09:01:20] John: I'll implement the search functionality task today. Should be completed by EOD.
+[09:02:00] Jane: Great progress everyone. Action items: Sarah create the two features, Mike start the data export feature, and John complete the search task today.`,
+
+  `[15:00:00] Lisa: Sprint review meeting. Let's demonstrate what we've completed.
+[15:01:30] Robert: We completed the payment integration epic ahead of schedule. This was a major milestone.
+[15:02:45] Emily: I need to fix a critical bug in the user authentication system. This is blocking the next release.
+[15:03:20] David: We should update the admin panel feature to include the new reporting capabilities.
+[15:04:00] Lisa: Action items: Emily will fix the authentication bug with critical priority, David will update the admin panel feature, and Robert will create a new epic for the analytics dashboard.`,
+
+  `[11:00:00] Sarah: Backlog refinement session. We have 25 stories to review.
+[11:01:15] Mike: Story #123 needs more clarity. I'll update the acceptance criteria and add implementation notes.
+[11:02:30] Jane: We should create a new task under Story #145 for database optimization. This is important for performance.
+[11:03:45] John: I'll implement the caching feature this week. Estimated 5 story points.
+[11:05:00] Sarah: Action items: Mike update Story #123, Jane create the database optimization task, and John implement the caching feature by Friday.`
+];
+
 function randomElement(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
@@ -90,6 +148,71 @@ function generateDescription() {
   return randomElement(descriptions);
 }
 
+function generateMeetingTitle(type, index) {
+  switch (type) {
+    case 'Sprint Planning':
+      return `Sprint ${randomInt(1, 20)} Planning - Q${randomInt(1, 4)} 2024`;
+    case 'Daily Standup':
+      return `Daily Standup - ${format(new Date(), 'MMM dd, yyyy')}`;
+    case 'Sprint Review':
+      return `Sprint ${randomInt(1, 20)} Review & Demo`;
+    case 'Sprint Retrospective':
+      return `Sprint ${randomInt(1, 20)} Retrospective`;
+    case 'Backlog Refinement':
+      return `Backlog Refinement Session #${index}`;
+    case 'General Discussion':
+      return `Team Discussion - ${randomElement(['Architecture', 'Technical Debt', 'Feature Planning', 'Process Improvement'])}`;
+    default:
+      return `Team Meeting #${index}`;
+  }
+}
+
+function generateMeetingDescription(type) {
+  const descriptions = {
+    'Sprint Planning': 'Plan and estimate work for the upcoming sprint. Review backlog items and commit to sprint goals.',
+    'Daily Standup': 'Quick sync on progress, blockers, and plans for the day.',
+    'Sprint Review': 'Demonstrate completed work to stakeholders and gather feedback.',
+    'Sprint Retrospective': 'Reflect on the sprint and identify improvements for the team.',
+    'Backlog Refinement': 'Review and refine backlog items, add details, and estimate effort.',
+    'General Discussion': 'Open discussion on team processes, technical decisions, and planning.'
+  };
+  return descriptions[type] || 'Team meeting to discuss project progress and next steps.';
+}
+
+function generateActionItemsFromTranscript(transcript, meetingId, projectId, sprintId) {
+  const actionItems = [];
+
+  // Simple patterns to extract action items
+  const patterns = [
+    { regex: /create (?:a |an |the )?(?:new )?(\w+(?:\s+\w+)*)/gi, type: 'story' },
+    { regex: /implement (?:a |an |the )?(\w+(?:\s+\w+)*)/gi, type: 'task' },
+    { regex: /fix (?:a |an |the )?(\w+(?:\s+\w+)*)/gi, type: 'task' },
+    { regex: /update (?:a |an |the )?(\w+(?:\s+\w+)*)/gi, type: 'story' }
+  ];
+
+  patterns.forEach(({ regex, type }) => {
+    const matches = [...transcript.matchAll(regex)];
+    matches.slice(0, 3).forEach((match, idx) => {
+      const title = match[1].charAt(0).toUpperCase() + match[1].slice(0, 50);
+      actionItems.push({
+        id: `action-${Date.now()}-${idx}`,
+        title: `${match[0].split(' ')[0]} ${title}`,
+        description: `Action item extracted from meeting discussion: ${title}`,
+        type: type,
+        priority: randomElement(['high', 'medium', 'low']),
+        assignee: randomElement(attendees),
+        status: 'planning',
+        projectId: projectId,
+        sprintId: sprintId,
+        meetingId: meetingId,
+        approved: true
+      });
+    });
+  });
+
+  return actionItems.slice(0, 5); // Return up to 5 action items per meeting
+}
+
 function randomDate(start, end) {
   const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   return format(date, 'yyyy-MM-dd');
@@ -129,7 +252,8 @@ export async function generateMockData(userId, options = {}) {
     storyCount = 800,
     sprintCount = 50,
     requestCount = 300,
-    changeRequestCount = 200
+    changeRequestCount = 200,
+    meetingCount = 100
   } = options;
 
   const results = {
@@ -140,7 +264,8 @@ export async function generateMockData(userId, options = {}) {
     stories: [],
     sprints: [],
     requests: [],
-    changeRequests: []
+    changeRequests: [],
+    meetings: []
   };
 
   console.log('Starting mock data generation with batched writes...');
@@ -396,7 +521,103 @@ export async function generateMockData(userId, options = {}) {
     results.changeRequests = changeRequestsData.map(cr => ({ id: cr.id, ...cr.data }));
     console.log(`✓ Created ${changeRequestCount} change requests`);
 
-    const totalRecords = projectCount + taskCount + epicCount + featureCount + storyCount + sprintCount + requestCount + changeRequestCount;
+    // Generate Meetings data
+    console.log(`Generating ${meetingCount} meetings...`);
+    const meetingsData = [];
+    for (let i = 1; i <= meetingCount; i++) {
+      const type = randomElement(meetingTypes);
+      const statusWeights = [0.3, 0.1, 0.5, 0.1]; // 30% scheduled, 10% in-progress, 50% completed, 10% cancelled
+      const rand = Math.random();
+      let status;
+      if (rand < 0.3) status = 'scheduled';
+      else if (rand < 0.4) status = 'in-progress';
+      else if (rand < 0.9) status = 'completed';
+      else status = 'cancelled';
+
+      // Date logic based on status
+      let scheduledDate, scheduledTime, startedAt, completedAt;
+      if (status === 'scheduled') {
+        // Future meetings
+        const futureDate = addDays(new Date(), randomInt(1, 30));
+        scheduledDate = format(futureDate, 'yyyy-MM-dd');
+        scheduledTime = `${randomInt(9, 17)}:${randomElement(['00', '30'])}`;
+      } else if (status === 'in-progress') {
+        // Today's meetings
+        scheduledDate = format(new Date(), 'yyyy-MM-dd');
+        scheduledTime = `${randomInt(9, 17)}:${randomElement(['00', '30'])}`;
+        startedAt = new Date().toISOString();
+      } else {
+        // Past meetings (completed or cancelled)
+        const pastDate = subDays(new Date(), randomInt(1, 60));
+        scheduledDate = format(pastDate, 'yyyy-MM-dd');
+        scheduledTime = `${randomInt(9, 17)}:${randomElement(['00', '30'])}`;
+        if (status === 'completed') {
+          startedAt = pastDate.toISOString();
+          completedAt = addDays(pastDate, 0).toISOString();
+        }
+      }
+
+      // Select random attendees
+      const numAttendees = randomInt(3, 8);
+      const meetingAttendees = [];
+      for (let j = 0; j < numAttendees; j++) {
+        const attendee = randomElement(attendees);
+        if (!meetingAttendees.includes(attendee)) {
+          meetingAttendees.push(attendee);
+        }
+      }
+
+      // Link to project and sprint
+      const linkedProject = projectsData.length > 0 && Math.random() > 0.3 ? randomElement(projectsData) : null;
+      const linkedSprint = sprintsData.length > 0 && Math.random() > 0.4 ? randomElement(sprintsData) : null;
+
+      // For completed meetings, add transcript and action items
+      let transcript = '';
+      let actionItems = [];
+      if (status === 'completed') {
+        transcript = randomElement(sampleTranscripts);
+        actionItems = generateActionItemsFromTranscript(
+          transcript,
+          '', // Will be set after doc is created
+          linkedProject?.id || '',
+          linkedSprint?.id || ''
+        );
+      }
+
+      const meetingDoc = {
+        data: {
+          title: generateMeetingTitle(type, i),
+          type: type,
+          description: generateMeetingDescription(type),
+          scheduledDate: scheduledDate,
+          scheduledTime: scheduledTime,
+          duration: type === 'Daily Standup' ? 15 : randomElement([30, 60, 90, 120]),
+          projectId: linkedProject?.id || '',
+          sprintId: linkedSprint?.id || '',
+          attendees: meetingAttendees,
+          organizer: randomElement(attendees),
+          location: 'Virtual',
+          status: status,
+          transcript: transcript,
+          actionItems: actionItems,
+          startedAt: startedAt || null,
+          completedAt: completedAt || null,
+          createdBy: userId,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
+      };
+      meetingsData.push(meetingDoc);
+    }
+    await createDocumentsInBatches('meetings', meetingsData);
+    results.meetings = meetingsData.map(m => ({ id: m.id, ...m.data }));
+
+    const scheduledCount = meetingsData.filter(m => m.data.status === 'scheduled').length;
+    const completedCount = meetingsData.filter(m => m.data.status === 'completed').length;
+    const inProgressCount = meetingsData.filter(m => m.data.status === 'in-progress').length;
+    console.log(`✓ Created ${meetingCount} meetings (${scheduledCount} scheduled, ${inProgressCount} in-progress, ${completedCount} completed)`);
+
+    const totalRecords = projectCount + taskCount + epicCount + featureCount + storyCount + sprintCount + requestCount + changeRequestCount + meetingCount;
     const finalCalendarCount = results.tasks.filter(t => t.dueDate).length;
     console.log(`\n✓ Successfully generated ${totalRecords} total records!`);
     console.log(`\nBreakdown:`);
@@ -408,6 +629,7 @@ export async function generateMockData(userId, options = {}) {
     console.log(`  - Sprints: ${sprintCount}`);
     console.log(`  - Requests: ${requestCount}`);
     console.log(`  - Change Requests: ${changeRequestCount}`);
+    console.log(`  - Meetings: ${meetingCount} (${completedCount} with transcripts & action items)`);
 
     return results;
 
