@@ -32,23 +32,20 @@ export function EpicProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'epics'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'epics'),
-          orderBy('createdAt', 'desc')
-        );
+    // Fetch all epics, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'epics'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const epicsData = snapshot.docs.map(doc => ({
+      let epicsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        epicsData = epicsData.filter(e => e.createdBy === 'demo-user-id');
+      }
+
       setEpics(epicsData);
       setLoading(false);
     }, (error) => {

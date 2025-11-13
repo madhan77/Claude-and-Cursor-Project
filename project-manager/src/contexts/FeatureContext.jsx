@@ -31,23 +31,20 @@ export function FeatureProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'features'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'features'),
-          orderBy('createdAt', 'desc')
-        );
+    // Fetch all features, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'features'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const featuresData = snapshot.docs.map(doc => ({
+      let featuresData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        featuresData = featuresData.filter(f => f.createdBy === 'demo-user-id');
+      }
+
       setFeatures(featuresData);
       setLoading(false);
     }, (error) => {

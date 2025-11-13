@@ -32,23 +32,20 @@ export function TaskProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'tasks'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'tasks'),
-          orderBy('createdAt', 'desc')
-        );
+    // Fetch all tasks, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const tasksData = snapshot.docs.map(doc => ({
+      let tasksData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        tasksData = tasksData.filter(t => t.createdBy === 'demo-user-id');
+      }
+
       setTasks(tasksData);
       setLoading(false);
     }, (error) => {

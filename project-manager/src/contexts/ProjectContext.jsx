@@ -36,13 +36,10 @@ export function ProjectProvider({ children }) {
       return;
     }
 
-    // For demo mode, query by createdBy instead of members
+    // For demo mode, fetch all and filter client-side (no index needed)
+    // For regular users, query by members array
     const q = isDemoMode
-      ? query(
-          collection(db, 'projects'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
+      ? collection(db, 'projects')
       : query(
           collection(db, 'projects'),
           where('members', 'array-contains', currentUser.uid),
@@ -50,10 +47,18 @@ export function ProjectProvider({ children }) {
         );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const projectsData = snapshot.docs.map(doc => ({
+      let projectsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        projectsData = projectsData
+          .filter(p => p.createdBy === 'demo-user-id')
+          .sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
+      }
+
       setProjects(projectsData);
       setLoading(false);
     }, (error) => {

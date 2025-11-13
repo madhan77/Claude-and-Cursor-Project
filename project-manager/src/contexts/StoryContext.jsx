@@ -31,23 +31,20 @@ export function StoryProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'stories'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'stories'),
-          orderBy('createdAt', 'desc')
-        );
+    // Fetch all stories, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'stories'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const storiesData = snapshot.docs.map(doc => ({
+      let storiesData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        storiesData = storiesData.filter(s => s.createdBy === 'demo-user-id');
+      }
+
       setStories(storiesData);
       setLoading(false);
     }, (error) => {

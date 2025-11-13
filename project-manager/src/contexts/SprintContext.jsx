@@ -32,23 +32,20 @@ export function SprintProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'sprints'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('startDate', 'desc')
-        )
-      : query(
-          collection(db, 'sprints'),
-          orderBy('startDate', 'desc')
-        );
+    // Fetch all sprints, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'sprints'), orderBy('startDate', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const sprintsData = snapshot.docs.map(doc => ({
+      let sprintsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        sprintsData = sprintsData.filter(s => s.createdBy === 'demo-user-id');
+      }
+
       setSprints(sprintsData);
       setLoading(false);
     }, (error) => {

@@ -26,23 +26,24 @@ export function MeetingProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
+    // Fetch all meetings - use collection directly for demo mode (no index needed)
     const q = isDemoMode
-      ? query(
-          collection(db, 'meetings'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'meetings'),
-          orderBy('createdAt', 'desc')
-        );
+      ? collection(db, 'meetings')
+      : query(collection(db, 'meetings'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const meetingsData = snapshot.docs.map(doc => ({
+      let meetingsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter and sort client-side for demo mode
+      if (isDemoMode) {
+        meetingsData = meetingsData
+          .filter(m => m.createdBy === 'demo-user-id')
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
+
       setMeetings(meetingsData);
       setLoading(false);
     }, (error) => {

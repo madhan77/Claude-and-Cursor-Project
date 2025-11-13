@@ -33,23 +33,20 @@ export function RequestProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'requests'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'requests'),
-          orderBy('createdAt', 'desc')
-        );
+    // Fetch all requests, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'requests'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const requestsData = snapshot.docs.map(doc => ({
+      let requestsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        requestsData = requestsData.filter(r => r.createdBy === 'demo-user-id');
+      }
+
       setRequests(requestsData);
       setLoading(false);
     }, (error) => {
@@ -67,23 +64,20 @@ export function RequestProvider({ children }) {
       return;
     }
 
-    // For demo mode, filter by createdBy
-    const q = isDemoMode
-      ? query(
-          collection(db, 'changeRequests'),
-          where('createdBy', '==', 'demo-user-id'),
-          orderBy('createdAt', 'desc')
-        )
-      : query(
-          collection(db, 'changeRequests'),
-          orderBy('createdAt', 'desc')
-        );
+    // Fetch all change requests, filter client-side for demo mode (no index needed)
+    const q = query(collection(db, 'changeRequests'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const changeRequestsData = snapshot.docs.map(doc => ({
+      let changeRequestsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+
+      // Filter client-side for demo mode
+      if (isDemoMode) {
+        changeRequestsData = changeRequestsData.filter(cr => cr.createdBy === 'demo-user-id');
+      }
+
       setChangeRequests(changeRequestsData);
     }, (error) => {
       console.error('Error fetching change requests:', error);
