@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Populate Demo Data</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .log-item {
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Populate Demo Data</h1>
+        <p>This utility will create sample data for testing Demo Mode.</p>
+
+        <div id="status" class="status info">
+            Ready to populate demo data. Click the button below to start.
+        </div>
+
+        <button id="populateBtn" onclick="populateDemoData()">
+            🚀 Populate Demo Data
+        </button>
+
+        <div id="log" class="log" style="display: none;"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6_fltxzke20VBf3U67Nmau0N6JawIjTQ",
+            authDomain: "claude-project-10b09.firebaseapp.com",
+            projectId: "claude-project-10b09",
+            storageBucket: "claude-project-10b09.firebasestorage.app",
+            messagingSenderId: "998432816875",
+            appId: "1:998432816875:web:24a231fcfa8cccd5efc8ae",
+            measurementId: "G-XXEWGC4KNZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            logDiv.style.display = 'block';
+            const item = document.createElement('div');
+            item.className = 'log-item';
+            item.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logDiv.appendChild(item);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function setStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        async function populateDemoData() {
+            const btn = document.getElementById('populateBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Creating data...';
+
+            try {
+                setStatus('Creating demo data...', 'info');
+                log('Starting demo data creation...');
+
+                // Create demo projects
+                log('Creating demo projects...');
+                const project1Ref = await addDoc(collection(db, 'projects'), {
+                    name: 'E-Commerce Platform',
+                    description: 'Building a modern e-commerce platform with React and Node.js',
+                    status: 'in-progress',
+                    color: '#3b82f6',
+                    startDate: new Date('2024-01-01').toISOString(),
+                    endDate: new Date('2024-12-31').toISOString(),
+                    createdBy: 'demo-user-id',
+                    members: ['demo-user-id'],
+                    ownerId: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                const project2Ref = await addDoc(collection(db, 'projects'), {
+                    name: 'Mobile App Development',
+                    description: 'Cross-platform mobile app using React Native',
+                    status: 'planning',
+                    color: '#10b981',
+                    startDate: new Date('2024-03-01').toISOString(),
+                    endDate: new Date('2024-09-30').toISOString(),
+                    createdBy: 'demo-user-id',
+                    members: ['demo-user-id'],
+                    ownerId: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 2 demo projects');
+
+                // Create demo epics
+                log('Creating demo epics...');
+                await addDoc(collection(db, 'epics'), {
+                    title: 'User Authentication System',
+                    description: 'Implement comprehensive user authentication and authorization',
+                    status: 'in-progress',
+                    priority: 'high',
+                    projectId: project1Ref.id,
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                await addDoc(collection(db, 'epics'), {
+                    title: 'Payment Integration',
+                    description: 'Integrate payment gateway with Stripe',
+                    status: 'planning',
+                    priority: 'critical',
+                    projectId: project1Ref.id,
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 2 demo epics');
+
+                // Create demo features
+                log('Creating demo features...');
+                await addDoc(collection(db, 'features'), {
+                    title: 'User Registration',
+                    description: 'Allow users to register with email and password',
+                    status: 'completed',
+                    priority: 'high',
+                    projectId: project1Ref.id,
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                await addDoc(collection(db, 'features'), {
+                    title: 'Social Login',
+                    description: 'Enable login with Google and Facebook',
+                    status: 'in-progress',
+                    priority: 'medium',
+                    projectId: project1Ref.id,
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 2 demo features');
+
+                // Create demo stories
+                log('Creating demo stories...');
+                await addDoc(collection(db, 'stories'), {
+                    title: 'As a user, I want to register with email',
+                    description: 'Users should be able to create an account using their email address',
+                    status: 'completed',
+                    priority: 'high',
+                    storyPoints: 5,
+                    projectId: project1Ref.id,
+                    notes: [],
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                await addDoc(collection(db, 'stories'), {
+                    title: 'As a user, I want to reset my password',
+                    description: 'Users should be able to reset their password via email',
+                    status: 'in-progress',
+                    priority: 'medium',
+                    storyPoints: 3,
+                    projectId: project1Ref.id,
+                    notes: [],
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 2 demo stories');
+
+                // Create demo tasks
+                log('Creating demo tasks...');
+                await addDoc(collection(db, 'tasks'), {
+                    title: 'Design login page UI',
+                    description: 'Create mockups for the login page',
+                    status: 'completed',
+                    priority: 'high',
+                    projectId: project1Ref.id,
+                    assignee: 'demo-user-id',
+                    dueDate: addDays(new Date(), -5).toISOString(),
+                    tags: ['design', 'ui'],
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                await addDoc(collection(db, 'tasks'), {
+                    title: 'Implement email validation',
+                    description: 'Add email validation on registration form',
+                    status: 'in-progress',
+                    priority: 'high',
+                    projectId: project1Ref.id,
+                    assignee: 'demo-user-id',
+                    dueDate: addDays(new Date(), 3).toISOString(),
+                    tags: ['development', 'backend'],
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                await addDoc(collection(db, 'tasks'), {
+                    title: 'Write unit tests for auth service',
+                    description: 'Create comprehensive unit tests for authentication service',
+                    status: 'todo',
+                    priority: 'medium',
+                    projectId: project1Ref.id,
+                    assignee: 'demo-user-id',
+                    dueDate: addDays(new Date(), 7).toISOString(),
+                    tags: ['testing'],
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 3 demo tasks');
+
+                // Create demo sprint
+                log('Creating demo sprint...');
+                const today = new Date();
+                await addDoc(collection(db, 'sprints'), {
+                    name: 'Sprint 1 - Authentication',
+                    goal: 'Complete user authentication features',
+                    startDate: today.toISOString().split('T')[0],
+                    endDate: addDays(today, 14).toISOString().split('T')[0],
+                    status: 'active',
+                    projectId: project1Ref.id,
+                    stories: [],
+                    features: [],
+                    epics: [],
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 1 demo sprint');
+
+                // Create demo requests
+                log('Creating demo requests...');
+                await addDoc(collection(db, 'requests'), {
+                    title: 'Add dark mode support',
+                    description: 'Users are requesting a dark mode theme option',
+                    type: 'feature',
+                    status: 'in-review',
+                    priority: 'low',
+                    projectId: project1Ref.id,
+                    requestedBy: 'Customer Support',
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 1 demo request');
+
+                // Create demo change request
+                log('Creating demo change request...');
+                await addDoc(collection(db, 'changeRequests'), {
+                    title: 'Update password strength requirements',
+                    description: 'Change minimum password length from 6 to 8 characters',
+                    type: 'enhancement',
+                    status: 'approved',
+                    priority: 'medium',
+                    impact: 'low',
+                    projectId: project1Ref.id,
+                    requestedBy: 'Security Team',
+                    createdBy: 'demo-user-id',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now()
+                });
+
+                log('✅ Created 1 demo change request');
+
+                // Create demo meeting
+                log('Creating demo meeting...');
+                await addDoc(collection(db, 'meetings'), {
+                    title: 'Sprint Planning',
+                    description: 'Plan the upcoming sprint and assign tasks',
+                    date: addDays(new Date(), 1).toISOString(),
+                    time: '10:00',
+                    duration: 60,
+                    attendees: ['demo-user-id'],
+                    projectId: project1Ref.id,
+                    status: 'scheduled',
+                    transcript: '',
+                    actionItems: [],
+                    createdBy: 'demo-user-id',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+
+                log('✅ Created 1 demo meeting');
+
+                log('🎉 All demo data created successfully!');
+                setStatus('✅ Demo data created successfully! You can now test Demo Mode.', 'success');
+                btn.textContent = '✅ Data Created!';
+
+            } catch (error) {
+                console.error('Error:', error);
+                log(`❌ Error: ${error.message}`, 'error');
+                setStatus(`❌ Error: ${error.message}`, 'error');
+                btn.disabled = false;
+                btn.textContent = '🔄 Try Again';
+            }
+        }
+
+        window.populateDemoData = populateDemoData;
+    </script>
+</body>
+</html>
