@@ -312,11 +312,18 @@ body {
     background: var(--gray-100);
 }
 
-.user-menu img {
-    width: 28px;
-    height: 28px;
+.user-avatar {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: 2px solid var(--gray-200);
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .user-menu span {
