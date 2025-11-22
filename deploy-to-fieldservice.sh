@@ -1,0 +1,52 @@
+#!/bin/bash
+
+echo "🚀 Deploying Field Service App to New URL"
+echo "=========================================="
+echo ""
+
+# Change to project directory
+echo "📂 Navigating to project directory..."
+cd "/Users/madhanbaskaran/Documents/Claude and Cursor Project" || exit 1
+
+# Pull latest changes
+echo "⬇️  Pulling latest changes from GitHub..."
+git pull origin claude/field-service-prd-011CV1NrdRUasxDwzW4qQ15r
+
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to pull latest changes"
+    exit 1
+fi
+
+echo ""
+echo "✅ Latest changes pulled successfully!"
+echo ""
+
+# Change to field-service-app directory
+echo "📂 Changing to field-service-app directory..."
+cd field-service-app || exit 1
+
+# Create the new Firebase site (if it doesn't exist)
+echo "🏗️  Creating new Firebase hosting site..."
+firebase hosting:sites:create claude-project-fieldserviceagent 2>/dev/null || echo "Site already exists, continuing..."
+
+echo ""
+
+# Deploy to Firebase
+echo "🔥 Deploying to Firebase Hosting..."
+echo "   Target: claude-project-fieldserviceagent"
+echo ""
+firebase deploy --only hosting:fieldservice
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "✅ Deployment complete!"
+    echo "🌐 Your app is live at: https://claude-project-fieldserviceagent.web.app"
+    echo ""
+    echo "⚠️  IMPORTANT: Clear your browser cache to see the changes!"
+    echo "   Press Cmd+Shift+Delete and select 'All time'"
+    echo ""
+else
+    echo ""
+    echo "❌ Deployment failed!"
+    exit 1
+fi
