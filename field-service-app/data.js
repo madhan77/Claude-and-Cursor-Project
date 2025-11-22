@@ -604,5 +604,142 @@ const demoData = {
     }
 };
 
+// ============ BULK DATA GENERATOR ============
+// Generate 1000 rows for each entity for performance testing
+
+const serviceTypes = ['Installation', 'Maintenance', 'Repair', 'Inspection', 'Emergency', 'Consultation', 'Upgrade'];
+const statuses = ['scheduled', 'in-progress', 'completed', 'cancelled'];
+const priorities = ['low', 'medium', 'high'];
+const clientNames = ['Acme Corp', 'TechStart Inc', 'Global Solutions', 'Retail Mart', 'Healthcare Plus', 'Manufacturing Co', 'Finance Group', 'Education Center', 'Hotel Chain', 'Restaurant Group'];
+const techNames = ['Mike Johnson', 'Sarah Williams', 'David Brown', 'Emily Davis', 'John Doe', 'Jane Smith', 'Robert Wilson', 'Lisa Anderson', 'Tom Martinez', 'Anna Lee'];
+const categories = ['Filters', 'Electrical', 'Refrigerants', 'Pumps', 'Motors', 'Safety', 'Supplies', 'Tools', 'Parts', 'Equipment'];
+
+function generateDate(daysOffset) {
+    const date = new Date('2025-11-22');
+    date.setDate(date.getDate() + daysOffset);
+    return date.toISOString().split('T')[0];
+}
+
+function randomFromArray(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate appointments (1000 rows)
+for (let i = demoData.appointments.length; i < 1000; i++) {
+    const daysOffset = Math.floor((i - demoData.appointments.length) / 10) - 50;
+    const aptId = `APT${String(i + 1).padStart(5, '0')}`;
+    const clientName = randomFromArray(clientNames) + (i > 100 ? ` #${randomNumber(1, 999)}` : '');
+    const techName = randomFromArray(techNames);
+
+    demoData.appointments.push({
+        id: aptId,
+        clientId: `CLI${String(randomNumber(1, 500)).padStart(5, '0')}`,
+        clientName: clientName,
+        clientAddress: `${randomNumber(100, 9999)} ${randomFromArray(['Main', 'Oak', 'Elm', 'Pine', 'Maple'])} ${randomFromArray(['St', 'Ave', 'Blvd', 'Dr'])}, City ${randomNumber(1, 50)}, CA ${randomNumber(90001, 99999)}`,
+        clientPhone: `+1 (${randomNumber(200, 999)}) ${randomNumber(100, 999)}-${randomNumber(1000, 9999)}`,
+        serviceType: randomFromArray(serviceTypes),
+        date: generateDate(daysOffset),
+        time: `${String(randomNumber(8, 17)).padStart(2, '0')}:${randomNumber(0, 1) * 30 === 0 ? '00' : '30'}`,
+        duration: `${randomNumber(1, 4)} hours`,
+        assignedTo: `tech${randomNumber(1, 10)}`,
+        technicianName: techName,
+        technicianPhone: `+1 (555) ${randomNumber(100, 999)}-${randomNumber(1000, 9999)}`,
+        status: randomFromArray(statuses),
+        priority: randomFromArray(priorities),
+        description: `${randomFromArray(serviceTypes)} service for ${randomFromArray(['HVAC', 'Electrical', 'Plumbing', 'Security', 'Network'])} system`,
+        equipmentNeeded: [randomFromArray(['Tools', 'Parts', 'Safety Gear', 'Diagnostic Equipment'])],
+        notes: i % 5 === 0 ? 'Priority client' : 'Standard service',
+        created: `2025-${String(randomNumber(10, 11)).padStart(2, '0')}-${String(randomNumber(1, 22)).padStart(2, '0')}T${String(randomNumber(8, 17)).padStart(2, '0')}:${String(randomNumber(0, 59)).padStart(2, '0')}:00`,
+        lastUpdated: `2025-11-${String(randomNumber(15, 22)).padStart(2, '0')}T${String(randomNumber(8, 17)).padStart(2, '0')}:${String(randomNumber(0, 59)).padStart(2, '0')}:00`
+    });
+}
+
+// Generate work orders (1000 rows)
+for (let i = demoData.workOrders.length; i < 1000; i++) {
+    const woId = `WO-2025-${String(i + 1).padStart(4, '0')}`;
+    const estimatedHours = randomNumber(10, 100);
+    const actualHours = randomNumber(5, estimatedHours + 20);
+
+    demoData.workOrders.push({
+        id: woId,
+        title: `${randomFromArray(serviceTypes)} - ${randomFromArray(['Building', 'Floor', 'Zone', 'Area'])} ${randomNumber(1, 50)}`,
+        client: randomFromArray(clientNames) + (i > 100 ? ` #${randomNumber(1, 999)}` : ''),
+        status: randomFromArray(['pending', 'in-progress', 'completed', 'on-hold']),
+        priority: randomFromArray(priorities),
+        assignedDate: generateDate(-randomNumber(1, 60)),
+        dueDate: generateDate(randomNumber(1, 30)),
+        technicians: [randomFromArray(techNames), randomFromArray(techNames)].filter((v, i, a) => a.indexOf(v) === i),
+        estimatedHours: estimatedHours,
+        actualHours: actualHours,
+        description: `Complete ${randomFromArray(serviceTypes).toLowerCase()} of ${randomFromArray(['HVAC', 'Electrical', 'Plumbing', 'Network'])} systems`,
+        tasks: [
+            { id: 1, name: 'Initial inspection', status: 'completed' },
+            { id: 2, name: 'Parts procurement', status: randomFromArray(['completed', 'in-progress', 'pending']) },
+            { id: 3, name: 'Installation/Repair', status: randomFromArray(['in-progress', 'pending']) },
+            { id: 4, name: 'Testing & verification', status: 'pending' },
+            { id: 5, name: 'Final documentation', status: 'pending' }
+        ],
+        materials: [
+            { name: randomFromArray(['Filter', 'Pump', 'Motor', 'Sensor', 'Controller']), quantity: randomNumber(1, 10), cost: randomNumber(50, 500) }
+        ]
+    });
+}
+
+// Generate clients (1000 rows)
+for (let i = demoData.clients.length; i < 1000; i++) {
+    const clientId = `CLI${String(i + 1).padStart(5, '0')}`;
+    const companyName = randomFromArray(clientNames) + (i > 100 ? ` #${randomNumber(1, 999)}` : '');
+
+    demoData.clients.push({
+        id: clientId,
+        name: companyName,
+        contactPerson: `${randomFromArray(['John', 'Jane', 'Mike', 'Sarah', 'David', 'Emily'])} ${randomFromArray(['Smith', 'Johnson', 'Williams', 'Brown', 'Davis', 'Miller'])}`,
+        email: `contact${i}@${companyName.toLowerCase().replace(/\s+/g, '')}.com`,
+        phone: `+1 (${randomNumber(200, 999)}) ${randomNumber(100, 999)}-${randomNumber(1000, 9999)}`,
+        address: `${randomNumber(100, 9999)} ${randomFromArray(['Commerce', 'Business', 'Enterprise', 'Corporate'])} ${randomFromArray(['St', 'Ave', 'Blvd'])}, City ${randomNumber(1, 50)}, CA ${randomNumber(90001, 99999)}`,
+        industry: randomFromArray(['Technology', 'Healthcare', 'Retail', 'Manufacturing', 'Finance', 'Education', 'Hospitality', 'Real Estate']),
+        accountStatus: randomFromArray(['active', 'active', 'active', 'inactive']),
+        totalJobs: randomNumber(5, 200),
+        activeContracts: randomNumber(0, 5),
+        lastService: generateDate(-randomNumber(1, 90)),
+        rating: (randomNumber(35, 50) / 10).toFixed(1),
+        totalRevenue: randomNumber(5000, 500000)
+    });
+}
+
+// Generate team members (up to 100 to keep reasonable)
+const teamTarget = Math.min(100, demoData.team.length + 90);
+for (let i = demoData.team.length; i < teamTarget; i++) {
+    const firstName = randomFromArray(['Mike', 'Sarah', 'David', 'Emily', 'John', 'Jane', 'Robert', 'Lisa', 'Tom', 'Anna', 'James', 'Mary', 'Chris', 'Amy', 'Steve']);
+    const lastName = randomFromArray(['Johnson', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas']);
+    const fullName = `${firstName} ${lastName}`;
+    const totalJobs = randomNumber(20, 150);
+    const activeJobs = randomNumber(1, 8);
+
+    demoData.team.push({
+        id: `TECH${String(i + 1).padStart(3, '0')}`,
+        name: fullName,
+        role: randomFromArray(['Senior Technician', 'Lead Technician', 'Technician', 'Junior Technician', 'Specialist']),
+        specialization: randomFromArray(['HVAC', 'Electrical', 'Plumbing', 'General Maintenance', 'Security Systems', 'Network Infrastructure']),
+        phone: `+1 (555) ${randomNumber(100, 999)}-${randomNumber(1000, 9999)}`,
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@fieldservice.com`,
+        status: randomFromArray(['available', 'on-job', 'off-duty']),
+        rating: (randomNumber(35, 50) / 10).toFixed(1),
+        totalJobs: totalJobs,
+        activeJobs: activeJobs,
+        completedThisMonth: randomNumber(5, 25),
+        efficiency: randomNumber(75, 100) + '%',
+        location: { lat: 37.7749 + (Math.random() - 0.5) * 0.5, lng: -122.4194 + (Math.random() - 0.5) * 0.5 },
+        certifications: [randomFromArray(['HVAC Certified', 'Electrical License', 'Safety Certified', 'EPA Certified'])],
+        joinDate: `20${randomNumber(18, 24)}-${String(randomNumber(1, 12)).padStart(2, '0')}-${String(randomNumber(1, 28)).padStart(2, '0')}`
+    });
+}
+
+console.log(`✅ Bulk data generated: ${demoData.appointments.length} appointments, ${demoData.workOrders.length} work orders, ${demoData.clients.length} clients, ${demoData.team.length} team members`);
+
 // Export for use in app.js
 window.demoData = demoData;
