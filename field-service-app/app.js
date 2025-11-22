@@ -1700,6 +1700,36 @@ function loadDashboard() {
     const todayAppointments = state.filteredAppointments.filter(apt => apt.date === today);
 
     renderAppointments('appointmentsList', todayAppointments);
+    animateStatCounters();
+}
+
+function animateStatCounters() {
+    const statValues = document.querySelectorAll('.stat-value[data-target]');
+
+    statValues.forEach(stat => {
+        const target = parseFloat(stat.getAttribute('data-target'));
+        const duration = 1500; // 1.5 seconds
+        const increment = target / (duration / 16); // 60fps
+        let current = 0;
+        const isRevenue = stat.textContent.includes('$');
+        const isRating = target < 10 && target % 1 !== 0;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+
+            if (isRevenue) {
+                stat.textContent = '$' + Math.floor(current).toLocaleString();
+            } else if (isRating) {
+                stat.textContent = current.toFixed(1);
+            } else {
+                stat.textContent = Math.floor(current);
+            }
+        }, 16);
+    });
 }
 
 function renderAppointments(containerId, appointments) {

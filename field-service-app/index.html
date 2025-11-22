@@ -188,9 +188,9 @@
 
                 <!-- Enhanced Stats Cards -->
                 <div class="stats-grid-enhanced">
-                    <div class="stat-card-enhanced card-blue">
+                    <div class="stat-card-enhanced card-blue stat-card-interactive" onclick="navigateToPage('appointments')" title="Click to view all appointments">
                         <div class="stat-card-header">
-                            <div class="stat-icon-large">
+                            <div class="stat-icon-large pulse-animation">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
                             <div class="stat-trend-badge positive">
@@ -198,17 +198,18 @@
                             </div>
                         </div>
                         <div class="stat-card-body">
-                            <h2 class="stat-value">24</h2>
+                            <h2 class="stat-value" data-target="24">0</h2>
                             <p class="stat-label">Total Appointments</p>
                             <div class="stat-footer">
                                 <span class="stat-detail">vs last week</span>
+                                <i class="fas fa-chevron-right stat-arrow"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stat-card-enhanced card-green">
+                    <div class="stat-card-enhanced card-green stat-card-interactive" onclick="navigateToPage('work-orders')" title="Click to view work orders">
                         <div class="stat-card-header">
-                            <div class="stat-icon-large">
+                            <div class="stat-icon-large pulse-animation">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-trend-badge positive">
@@ -216,17 +217,18 @@
                             </div>
                         </div>
                         <div class="stat-card-body">
-                            <h2 class="stat-value">18</h2>
+                            <h2 class="stat-value" data-target="18">0</h2>
                             <p class="stat-label">Completed Jobs</p>
                             <div class="stat-footer">
                                 <span class="stat-detail">75% completion rate</span>
+                                <i class="fas fa-chevron-right stat-arrow"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stat-card-enhanced card-orange">
+                    <div class="stat-card-enhanced card-orange stat-card-interactive" onclick="navigateToPage('analytics')" title="Click to view revenue analytics">
                         <div class="stat-card-header">
-                            <div class="stat-icon-large">
+                            <div class="stat-icon-large pulse-animation">
                                 <i class="fas fa-dollar-sign"></i>
                             </div>
                             <div class="stat-trend-badge positive">
@@ -234,17 +236,18 @@
                             </div>
                         </div>
                         <div class="stat-card-body">
-                            <h2 class="stat-value">$18,450</h2>
+                            <h2 class="stat-value" data-target="18450">$0</h2>
                             <p class="stat-label">Revenue This Week</p>
                             <div class="stat-footer">
                                 <span class="stat-detail">$2,640 avg per day</span>
+                                <i class="fas fa-chevron-right stat-arrow"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stat-card-enhanced card-purple">
+                    <div class="stat-card-enhanced card-purple stat-card-interactive" onclick="navigateToPage('analytics')" title="Click to view customer feedback">
                         <div class="stat-card-header">
-                            <div class="stat-icon-large">
+                            <div class="stat-icon-large pulse-animation">
                                 <i class="fas fa-star"></i>
                             </div>
                             <div class="stat-trend-badge positive">
@@ -252,10 +255,11 @@
                             </div>
                         </div>
                         <div class="stat-card-body">
-                            <h2 class="stat-value">4.8</h2>
+                            <h2 class="stat-value" data-target="4.8">0</h2>
                             <p class="stat-label">Avg Customer Rating</p>
                             <div class="stat-footer">
                                 <span class="stat-detail">Based on 156 reviews</span>
+                                <i class="fas fa-chevron-right stat-arrow"></i>
                             </div>
                         </div>
                     </div>
@@ -300,6 +304,117 @@
                         </div>
                         <div class="chart-body">
                             <canvas id="teamPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technician Leaderboard -->
+                <div class="leaderboard-section">
+                    <div class="leaderboard-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-trophy" style="color: #FFD700;"></i>
+                                Technician Leaderboard
+                            </h2>
+                            <p class="section-subtitle">Top performers this week</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="navigateToPage('team')">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="leaderboard-grid">
+                        <div class="leaderboard-card rank-1">
+                            <div class="rank-badge gold">
+                                <i class="fas fa-crown"></i>
+                                <span>1</span>
+                            </div>
+                            <div class="technician-info">
+                                <div class="tech-avatar-large">JD</div>
+                                <div class="tech-details">
+                                    <h4>John Doe</h4>
+                                    <p class="tech-role">Senior Technician</p>
+                                </div>
+                            </div>
+                            <div class="leaderboard-stats">
+                                <div class="leader-stat">
+                                    <span class="stat-num">87</span>
+                                    <span class="stat-label">Jobs</span>
+                                </div>
+                                <div class="leader-stat">
+                                    <span class="stat-num">4.9</span>
+                                    <span class="stat-label">Rating</span>
+                                </div>
+                                <div class="leader-stat">
+                                    <span class="stat-num">1,240</span>
+                                    <span class="stat-label">Points</span>
+                                </div>
+                            </div>
+                            <div class="achievement-badges-row">
+                                <span class="mini-badge" title="Perfect Week">🌟</span>
+                                <span class="mini-badge" title="Speed Demon">⚡</span>
+                                <span class="mini-badge" title="Customer Favorite">❤️</span>
+                            </div>
+                        </div>
+
+                        <div class="leaderboard-card rank-2">
+                            <div class="rank-badge silver">
+                                <span>2</span>
+                            </div>
+                            <div class="technician-info">
+                                <div class="tech-avatar-large">MS</div>
+                                <div class="tech-details">
+                                    <h4>Mike Smith</h4>
+                                    <p class="tech-role">Lead Technician</p>
+                                </div>
+                            </div>
+                            <div class="leaderboard-stats">
+                                <div class="leader-stat">
+                                    <span class="stat-num">76</span>
+                                    <span class="stat-label">Jobs</span>
+                                </div>
+                                <div class="leader-stat">
+                                    <span class="stat-num">4.8</span>
+                                    <span class="stat-label">Rating</span>
+                                </div>
+                                <div class="leader-stat">
+                                    <span class="stat-num">1,010</span>
+                                    <span class="stat-label">Points</span>
+                                </div>
+                            </div>
+                            <div class="achievement-badges-row">
+                                <span class="mini-badge" title="Consistent Performer">🎯</span>
+                                <span class="mini-badge" title="Team Player">🤝</span>
+                            </div>
+                        </div>
+
+                        <div class="leaderboard-card rank-3">
+                            <div class="rank-badge bronze">
+                                <span>3</span>
+                            </div>
+                            <div class="technician-info">
+                                <div class="tech-avatar-large">SJ</div>
+                                <div class="tech-details">
+                                    <h4>Sarah Johnson</h4>
+                                    <p class="tech-role">Technician</p>
+                                </div>
+                            </div>
+                            <div class="leaderboard-stats">
+                                <div class="leader-stat">
+                                    <span class="stat-num">68</span>
+                                    <span class="stat-label">Jobs</span>
+                                </div>
+                                <div class="leader-stat">
+                                    <span class="stat-num">4.7</span>
+                                    <span class="stat-label">Rating</span>
+                                </div>
+                                <div class="leader-stat">
+                                    <span class="stat-num">890</span>
+                                    <span class="stat-label">Points</span>
+                                </div>
+                            </div>
+                            <div class="achievement-badges-row">
+                                <span class="mini-badge" title="Rising Star">⭐</span>
+                            </div>
                         </div>
                     </div>
                 </div>
