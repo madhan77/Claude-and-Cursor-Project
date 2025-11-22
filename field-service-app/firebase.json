@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "fieldservice",
     "public": ".",
     "ignore": [
       "firebase.json",
