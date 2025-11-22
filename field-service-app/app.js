@@ -1436,8 +1436,8 @@ function clearFilters() {
 
 // ============ Navigation ============
 function navigateToPage(page) {
-    // Update active nav link
-    document.querySelectorAll('.nav-link').forEach(link => {
+    // Update active nav link (both nav-link and sidebar-link)
+    document.querySelectorAll('.nav-link, .sidebar-link').forEach(link => {
         link.classList.remove('active');
     });
     const activeLink = document.querySelector(`[data-page="${page}"]`);
@@ -1488,8 +1488,8 @@ function navigateToPage(page) {
 
 // ============ Setup Event Listeners ============
 function setupEventListeners() {
-    // Navigation
-    document.querySelectorAll('.nav-link').forEach(link => {
+    // Navigation (both nav-link and sidebar-link)
+    document.querySelectorAll('.nav-link, .sidebar-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const page = this.dataset.page;

@@ -41,63 +41,31 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <div class="logo-icon">
-                    <i class="fas fa-tools"></i>
-                </div>
-                <div class="brand-text">
-                    <span class="brand-name">FieldService</span>
-                    <span class="brand-badge">PRO</span>
-                </div>
+                <i class="fas fa-tools"></i>
+                <span class="brand-name">FieldService</span>
+                <span class="brand-tag">PRO</span>
             </div>
 
-            <!-- Global Search Bar -->
-            <div class="nav-search" onclick="openGlobalSearch()">
-                <i class="fas fa-search"></i>
-                <span>Search anything...</span>
-                <kbd>Ctrl+K</kbd>
-            </div>
-
-            <div class="nav-menu">
-                <a href="#" class="nav-link active" data-page="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-                <a href="#" class="nav-link" data-page="calendar">
-                    <i class="fas fa-calendar"></i> Calendar
-                </a>
-                <a href="#" class="nav-link" data-page="appointments">
-                    <i class="fas fa-calendar-check"></i> Appointments
-                </a>
-                <a href="#" class="nav-link" data-page="work-orders">
-                    <i class="fas fa-clipboard-list"></i> Work Orders
-                </a>
-                <a href="#" class="nav-link" data-page="analytics">
-                    <i class="fas fa-chart-line"></i> Analytics
-                </a>
-                <a href="#" class="nav-link" data-page="clients">
-                    <i class="fas fa-building"></i> Clients
-                </a>
-                <a href="#" class="nav-link" data-page="team">
-                    <i class="fas fa-users"></i> Team
-                </a>
-                <a href="#" class="nav-link" data-page="inventory">
-                    <i class="fas fa-boxes"></i> Inventory
-                </a>
+            <!-- Centered Search Bar -->
+            <div class="nav-search-center">
+                <div class="search-input-wrapper" onclick="openGlobalSearch()">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search appointments, clients, work orders..." readonly>
+                    <kbd>⌘K</kbd>
+                </div>
             </div>
 
             <div class="nav-actions">
-                <button class="nav-icon-btn" onclick="openGlobalSearch()" title="Search (Ctrl+K)">
-                    <i class="fas fa-search"></i>
+                <button class="icon-btn" onclick="toggleVoiceControl()" title="Voice Control">
+                    <i class="fas fa-microphone"></i>
                 </button>
-                <button class="nav-icon-btn" onclick="toggleNotifications()" title="Notifications">
+                <button class="icon-btn" onclick="toggleNotifications()" title="Notifications">
                     <i class="fas fa-bell"></i>
-                    <span class="badge pulse">7</span>
+                    <span class="notification-dot">7</span>
                 </button>
-                <div class="user-profile" onclick="toggleUserMenu()">
+                <div class="user-menu" onclick="toggleUserMenu()">
                     <img src="https://i.pravatar.cc/150?img=12" alt="User">
-                    <div class="user-info">
-                        <span class="user-name">John Doe</span>
-                        <span class="user-role">Field Manager</span>
-                    </div>
+                    <span>John D.</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
@@ -106,129 +74,64 @@
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Enhanced Sidebar -->
+        <!-- Sidebar -->
         <aside class="sidebar">
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="appointments">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Appointments</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="work-orders">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Work Orders</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="clients">
+                    <i class="fas fa-building"></i>
+                    <span>Clients</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="team">
+                    <i class="fas fa-users"></i>
+                    <span>Team</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="calendar">
+                    <i class="fas fa-calendar"></i>
+                    <span>Calendar</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="sidebar-link" data-page="inventory">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventory</span>
+                </a>
+            </nav>
+
             <!-- Quick Actions -->
-            <div class="sidebar-section quick-actions-section">
-                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-                <button class="btn btn-primary btn-block btn-glow" onclick="openModal('newAppointmentModal')">
-                    <i class="fas fa-plus-circle"></i> New Appointment
-                </button>
-                <button class="btn btn-gradient btn-block" onclick="openModal('newWorkOrderModal')">
-                    <i class="fas fa-file-plus"></i> New Work Order
-                </button>
-                <button class="btn btn-outline btn-block" onclick="startTimeTracking()">
-                    <i class="fas fa-clock"></i> Clock In/Out
-                </button>
-            </div>
-
-            <!-- Time Tracking Widget -->
-            <div class="sidebar-section time-tracking-widget">
-                <h3><i class="fas fa-stopwatch"></i> Time Tracking</h3>
-                <div id="activeTimeTracking" class="time-tracker-card">
-                    <div class="tracker-status">Not clocked in</div>
-                    <button class="btn btn-success btn-block btn-sm" onclick="clockIn()">
-                        <i class="fas fa-play"></i> Clock In
-                    </button>
-                </div>
-            </div>
-
-            <!-- Filters -->
             <div class="sidebar-section">
-                <h3><i class="fas fa-filter"></i> Filters</h3>
-                <div class="filter-group">
-                    <label>Status</label>
-                    <select id="statusFilter" onchange="filterAppointments()" class="modern-select">
-                        <option value="all">All Status</option>
-                        <option value="scheduled">📅 Scheduled</option>
-                        <option value="in-progress">⚡ In Progress</option>
-                        <option value="completed">✅ Completed</option>
-                        <option value="cancelled">❌ Cancelled</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Technician</label>
-                    <select id="technicianFilter" onchange="filterAppointments()" class="modern-select">
-                        <option value="all">All Technicians</option>
-                        <option value="tech1">Mike Johnson</option>
-                        <option value="tech2">Sarah Williams</option>
-                        <option value="tech3">David Brown</option>
-                        <option value="tech4">Emily Davis</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Priority</label>
-                    <select id="priorityFilter" onchange="filterAppointments()" class="modern-select">
-                        <option value="all">All Priorities</option>
-                        <option value="high">🔴 High</option>
-                        <option value="medium">🟡 Medium</option>
-                        <option value="low">🟢 Low</option>
-                    </select>
-                </div>
-                <button class="btn btn-secondary btn-block btn-sm" onclick="clearFilters()">
-                    <i class="fas fa-redo"></i> Clear Filters
+                <button class="btn-quick-action primary" onclick="openModal('newAppointmentModal')">
+                    <i class="fas fa-plus"></i>
+                    <span>New Appointment</span>
+                </button>
+                <button class="btn-quick-action secondary" onclick="openModal('newWorkOrderModal')">
+                    <i class="fas fa-file-plus"></i>
+                    <span>New Work Order</span>
                 </button>
             </div>
 
-            <!-- Today's Stats -->
-            <div class="sidebar-section stats-widget">
-                <h3><i class="fas fa-chart-pie"></i> Today's Stats</h3>
-                <div class="mini-stats">
-                    <div class="mini-stat-item blue">
-                        <div class="mini-stat-icon"><i class="fas fa-calendar-check"></i></div>
-                        <div class="mini-stat-info">
-                            <span class="mini-stat-value">8</span>
-                            <span class="mini-stat-label">Appointments</span>
-                        </div>
-                    </div>
-                    <div class="mini-stat-item green">
-                        <div class="mini-stat-icon"><i class="fas fa-check-circle"></i></div>
-                        <div class="mini-stat-info">
-                            <span class="mini-stat-value">3</span>
-                            <span class="mini-stat-label">Completed</span>
-                        </div>
-                    </div>
-                    <div class="mini-stat-item orange">
-                        <div class="mini-stat-icon"><i class="fas fa-clock"></i></div>
-                        <div class="mini-stat-info">
-                            <span class="mini-stat-value">2</span>
-                            <span class="mini-stat-label">In Progress</span>
-                        </div>
-                    </div>
-                    <div class="mini-stat-item red">
-                        <div class="mini-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                        <div class="mini-stat-info">
-                            <span class="mini-stat-value">3</span>
-                            <span class="mini-stat-label">Pending</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="sidebar-section activity-widget">
-                <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                <div class="activity-feed">
-                    <div class="activity-item">
-                        <div class="activity-icon blue"><i class="fas fa-plus"></i></div>
-                        <div class="activity-content">
-                            <div class="activity-text">New appointment created</div>
-                            <div class="activity-time">5 min ago</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon green"><i class="fas fa-check"></i></div>
-                        <div class="activity-content">
-                            <div class="activity-text">APT007 completed</div>
-                            <div class="activity-time">1 hour ago</div>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon orange"><i class="fas fa-edit"></i></div>
-                        <div class="activity-content">
-                            <div class="activity-text">Work order updated</div>
-                            <div class="activity-time">2 hours ago</div>
-                        </div>
+            <!-- Time Tracking -->
+            <div class="sidebar-section">
+                <div class="time-tracking-compact">
+                    <div id="activeTimeTracking" class="time-tracker-compact">
+                        <div class="tracker-label">Not clocked in</div>
+                        <button class="btn-clock-in" onclick="clockIn()">
+                            <i class="fas fa-play"></i> Clock In
+                        </button>
                     </div>
                 </div>
             </div>
