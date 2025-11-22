@@ -888,8 +888,13 @@ body {
 }
 
 .chart-body {
-    height: 280px;
     position: relative;
+    width: 100%;
+}
+
+.chart-body canvas {
+    max-width: 100%;
+    height: auto !important;
 }
 
 /* ============ Section Card ============ */
@@ -1017,81 +1022,122 @@ body {
     border-bottom: none;
 }
 
-/* ============ Appointment Cards ============ */
+/* ============ Appointment Cards - Enhanced ============ */
 .appointments-list-enhanced {
     display: grid;
     gap: var(--space-lg);
 }
 
 .appointment-card-enhanced {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: white;
+    border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: var(--space-xl);
-    align-items: start;
+    overflow: hidden;
     cursor: pointer;
     transition: all var(--transition-base);
 }
 
 .appointment-card-enhanced:hover {
     border-color: var(--primary);
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+    transform: translateY(-2px);
 }
 
-.appointment-time {
+.appointment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.appointment-time-block {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-md);
-    background: var(--gray-50);
-    border-radius: var(--radius-md);
-    min-width: 70px;
+    gap: 2px;
 }
 
-.appointment-hour {
+.time-large {
     font-size: var(--text-lg);
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--gray-900);
 }
 
-.appointment-period {
+.duration-small {
     font-size: var(--text-xs);
-    color: var(--text-tertiary);
+    color: var(--gray-500);
 }
 
-.appointment-details {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-}
-
-.appointment-client {
-    font-size: var(--text-base);
-    font-weight: 600;
-    color: var(--text-primary);
+.appointment-card-body {
+    padding: var(--space-lg);
 }
 
 .appointment-service {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 var(--space-xs) 0;
 }
 
-.appointment-location {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
+.appointment-id {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+    margin-bottom: var(--space-md);
+}
+
+.appointment-info-grid {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.info-row {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--gray-700);
 }
 
-.appointment-actions {
-    display: flex;
+.info-row i {
+    width: 16px;
+    color: var(--gray-400);
+    font-size: var(--text-sm);
+}
+
+.priority-text {
+    font-weight: 600;
+}
+
+.priority-text.priority-high {
+    color: var(--danger);
+}
+
+.priority-text.priority-medium {
+    color: var(--warning);
+}
+
+.priority-text.priority-low {
+    color: var(--success);
+}
+
+.appointment-card-footer {
+    padding: var(--space-md) var(--space-lg);
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+}
+
+.equipment-tag {
+    display: inline-flex;
+    align-items: center;
     gap: var(--space-sm);
+    font-size: var(--text-xs);
+    color: var(--gray-600);
+}
+
+.equipment-tag i {
+    color: var(--gray-400);
 }
 
 /* ============ Status Badges ============ */
@@ -1130,6 +1176,344 @@ body {
 .status-badge.pending {
     background: var(--gray-100);
     color: var(--gray-600);
+}
+
+.status-badge-large {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-badge-large.scheduled {
+    background: var(--primary-bg);
+    color: var(--primary);
+}
+
+.status-badge-large.in-progress {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.status-badge-large.completed {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.status-badge-large.cancelled {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+/* ============ Work Order Cards - Enhanced ============ */
+.work-orders-list-enhanced {
+    display: grid;
+    gap: var(--space-lg);
+}
+
+.work-order-card-enhanced {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.work-order-card-enhanced:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+}
+
+.wo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--space-lg);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.wo-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.wo-id {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: uppercase;
+}
+
+.wo-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.wo-body {
+    padding: var(--space-lg);
+}
+
+.wo-description {
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+    margin: 0 0 var(--space-lg) 0;
+    line-height: 1.6;
+}
+
+.wo-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.wo-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+}
+
+.wo-info-item i {
+    width: 16px;
+    color: var(--gray-400);
+    margin-top: 2px;
+}
+
+.info-label {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+    margin-bottom: 2px;
+}
+
+.info-value {
+    font-size: var(--text-sm);
+    color: var(--gray-900);
+    font-weight: 500;
+}
+
+.wo-progress {
+    background: var(--gray-50);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+}
+
+.progress-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.progress-value {
+    font-size: var(--text-sm);
+    color: var(--gray-700);
+    font-weight: 600;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    transition: width 0.3s ease;
+}
+
+.wo-tasks-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+}
+
+.wo-tasks-summary i {
+    color: var(--gray-400);
+}
+
+.wo-footer {
+    padding: var(--space-md) var(--space-lg);
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+}
+
+.btn-view-details {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: white;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-view-details:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* ============ Clients Grid - 2 Per Row ============ */
+.clients-grid-enhanced {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+}
+
+@media (max-width: 1024px) {
+    .clients-grid-enhanced {
+        grid-template-columns: 1fr;
+    }
+}
+
+.client-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: all var(--transition-base);
+}
+
+.client-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.client-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.client-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    font-weight: 700;
+}
+
+.client-name {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.client-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.client-info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--gray-700);
+}
+
+.client-info-item i {
+    width: 16px;
+    color: var(--gray-400);
+}
+
+.client-stats {
+    display: flex;
+    gap: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--gray-200);
+}
+
+.client-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.client-stat-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--gray-900);
+    display: block;
+}
+
+.client-stat-label {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+    margin-top: 4px;
+    display: block;
+}
+
+/* ============ Team Cards with Initials ============ */
+.team-avatar-initials {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin: 0 auto var(--space-lg);
+    letter-spacing: 1px;
+}
+
+.team-specializations {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--gray-200);
+}
+
+.specializations-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--gray-600);
+    margin-bottom: var(--space-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.specializations-list {
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+    line-height: 1.6;
 }
 
 /* ============ Buttons ============ */

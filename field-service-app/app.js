@@ -1646,37 +1646,44 @@ function renderAppointments(containerId, appointments) {
     }
 
     container.innerHTML = appointments.map(apt => `
-        <div class="appointment-card" onclick="viewAppointmentDetails('${apt.id}')">
-            <div class="appointment-time">
-                <span class="time">${apt.time}</span>
-                <span class="duration">${apt.duration}</span>
-            </div>
-            <div class="appointment-info">
-                <div class="appointment-header">
-                    <div>
-                        <div class="appointment-title">${apt.serviceType} - ${apt.id}</div>
-                        <div class="appointment-client">
-                            <i class="fas fa-building"></i> ${apt.clientName}
-                        </div>
-                    </div>
+        <div class="appointment-card-enhanced" onclick="viewAppointmentDetails('${apt.id}')">
+            <div class="appointment-card-header">
+                <div class="appointment-time-block">
+                    <div class="time-large">${apt.time}</div>
+                    <div class="duration-small">${apt.duration}</div>
                 </div>
-                <div class="appointment-details">
-                    <div class="detail-item">
-                        <i class="fas fa-user"></i>
-                        <span>${apt.technicianName}</span>
+                <span class="status-badge-large ${apt.status}">${formatStatus(apt.status)}</span>
+            </div>
+
+            <div class="appointment-card-body">
+                <h3 class="appointment-service">${apt.serviceType}</h3>
+                <div class="appointment-id">ID: ${apt.id}</div>
+
+                <div class="appointment-info-grid">
+                    <div class="info-row">
+                        <i class="fas fa-building"></i>
+                        <span>${apt.clientName}</span>
                     </div>
-                    <div class="detail-item">
+                    <div class="info-row">
                         <i class="fas fa-map-marker-alt"></i>
                         <span>${apt.clientAddress.split(',')[0]}</span>
                     </div>
-                </div>
-                <div class="appointment-tags">
-                    <span class="tag service">${apt.serviceType}</span>
-                    <span class="tag priority-${apt.priority}">${apt.priority.toUpperCase()} Priority</span>
+                    <div class="info-row">
+                        <i class="fas fa-user"></i>
+                        <span>${apt.technicianName}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="fas fa-flag"></i>
+                        <span class="priority-text priority-${apt.priority}">${apt.priority.toUpperCase()} Priority</span>
+                    </div>
                 </div>
             </div>
-            <div class="appointment-actions">
-                <span class="status-badge ${apt.status}">${formatStatus(apt.status)}</span>
+
+            <div class="appointment-card-footer">
+                <span class="equipment-tag">
+                    <i class="fas fa-tools"></i>
+                    ${apt.equipmentNeeded ? apt.equipmentNeeded[0] : 'No equipment'}
+                </span>
             </div>
         </div>
     `).join('');
@@ -1690,55 +1697,79 @@ function renderWorkOrders() {
     const container = document.getElementById('workOrdersList');
     if (!container) return;
 
-    container.innerHTML = demoData.workOrders.map(wo => `
-        <div class="work-order-card">
-            <div class="work-order-header">
-                <div>
-                    <div class="work-order-id">${wo.id}</div>
-                    <div class="work-order-title">${wo.title}</div>
+    container.innerHTML = demoData.workOrders.map(wo => {
+        const progressPercent = Math.round((wo.actualHours / wo.estimatedHours) * 100);
+        const completedTasks = wo.tasks.filter(t => t.status === 'completed').length;
+
+        return `
+        <div class="work-order-card-enhanced">
+            <div class="wo-header">
+                <div class="wo-title-section">
+                    <span class="wo-id">#${wo.id}</span>
+                    <h3 class="wo-title">${wo.title}</h3>
                 </div>
-                <span class="status-badge ${wo.status}">${formatStatus(wo.status)}</span>
+                <span class="status-badge-large ${wo.status}">${formatStatus(wo.status)}</span>
             </div>
-            <div class="work-order-meta">
-                <div class="meta-item">
-                    <i class="fas fa-building"></i>
-                    <span>${wo.clientName}</span>
+
+            <div class="wo-body">
+                <p class="wo-description">${wo.description}</p>
+
+                <div class="wo-info-grid">
+                    <div class="wo-info-item">
+                        <i class="fas fa-building"></i>
+                        <div>
+                            <div class="info-label">Client</div>
+                            <div class="info-value">${wo.clientName}</div>
+                        </div>
+                    </div>
+                    <div class="wo-info-item">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <div class="info-label">Scheduled</div>
+                            <div class="info-value">${formatDate(wo.scheduledDate)}</div>
+                        </div>
+                    </div>
+                    <div class="wo-info-item">
+                        <i class="fas fa-wrench"></i>
+                        <div>
+                            <div class="info-label">Work Type</div>
+                            <div class="info-value">${wo.workType}</div>
+                        </div>
+                    </div>
+                    <div class="wo-info-item">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <div class="info-label">Technicians</div>
+                            <div class="info-value">${wo.technicians.length}</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="meta-item">
-                    <i class="fas fa-wrench"></i>
-                    <span>${wo.workType}</span>
+
+                <div class="wo-progress">
+                    <div class="progress-header">
+                        <span class="progress-label">Time Progress</span>
+                        <span class="progress-value">${wo.actualHours} / ${wo.estimatedHours} hours (${progressPercent}%)</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
+                    </div>
                 </div>
-                <div class="meta-item">
-                    <i class="fas fa-calendar"></i>
-                    <span>${formatDate(wo.scheduledDate)}</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-users"></i>
-                    <span>${wo.technicians.join(', ')}</span>
+
+                <div class="wo-tasks-summary">
+                    <i class="fas fa-tasks"></i>
+                    <span>${completedTasks} of ${wo.tasks.length} tasks completed</span>
                 </div>
             </div>
-            <div class="work-order-description">${wo.description}</div>
-            <div style="margin: 1rem 0;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.875rem;">
-                    <span>Progress: ${wo.actualHours} / ${wo.estimatedHours} hours</span>
-                    <span>${Math.round((wo.actualHours / wo.estimatedHours) * 100)}%</span>
-                </div>
-                <div style="background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden;">
-                    <div style="background: var(--primary-color); height: 100%; width: ${(wo.actualHours / wo.estimatedHours) * 100}%; transition: width 0.3s;"></div>
-                </div>
-            </div>
-            <div class="work-order-footer">
-                <div>
-                    <strong>Tasks:</strong> ${wo.tasks.filter(t => t.status === 'completed').length} / ${wo.tasks.length} completed
-                </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-sm btn-secondary" onclick="viewWorkOrderDetails('${wo.id}')">
-                        <i class="fas fa-eye"></i> View Details
-                    </button>
-                </div>
+
+            <div class="wo-footer">
+                <button class="btn-view-details" onclick="viewWorkOrderDetails('${wo.id}')">
+                    <i class="fas fa-eye"></i>
+                    View Full Details
+                </button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function renderClients() {
@@ -1790,9 +1821,13 @@ function renderTeam() {
     const container = document.getElementById('teamList');
     if (!container) return;
 
-    container.innerHTML = demoData.team.map(member => `
+    container.innerHTML = demoData.team.map(member => {
+        // Get initials from name
+        const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        return `
         <div class="team-card">
-            <img src="${member.avatar}" alt="${member.name}" class="team-avatar">
+            <div class="team-avatar-initials">${initials}</div>
             <div class="team-name">${member.name}</div>
             <div class="team-role">${member.role}</div>
             <div class="team-stats">
@@ -1813,16 +1848,13 @@ function renderTeam() {
                 <span class="status-dot"></span>
                 ${member.status.charAt(0).toUpperCase() + member.status.slice(1)}
             </div>
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
-                <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
-                    <strong>Specializations:</strong>
-                </div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);">
-                    ${member.specializations.join(', ')}
-                </div>
+            <div class="team-specializations">
+                <div class="specializations-label">Specializations:</div>
+                <div class="specializations-list">${member.specializations.join(', ')}</div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function viewAppointmentDetails(appointmentId) {
@@ -2083,7 +2115,8 @@ function initializeCharts() {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
+                aspectRatio: 2.5,
                 plugins: {
                     legend: {
                         display: false
@@ -2125,7 +2158,8 @@ function initializeCharts() {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
+                aspectRatio: 1.5,
                 plugins: {
                     legend: {
                         position: 'bottom'
