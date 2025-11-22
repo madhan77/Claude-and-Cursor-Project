@@ -235,6 +235,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    // Verify demoData is loaded
+    if (!window.demoData || !window.demoData.appointments) {
+        console.error('❌ ERROR: demoData not loaded! Check data.js');
+        return;
+    }
+
+    console.log('✅ Initializing app with data:', {
+        appointments: demoData.appointments.length,
+        workOrders: demoData.workOrders.length,
+        clients: demoData.clients.length,
+        team: demoData.team.length
+    });
+
     applyFilters();
     renderAllAppointments();
     renderWorkOrders();
@@ -1257,7 +1270,17 @@ function initializeAnalyticsCharts() {
 // ============ Inventory Management ============
 function renderInventory() {
     const container = document.getElementById('inventoryList');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ inventoryList container not found');
+        return;
+    }
+
+    try {
+        console.log('📋 Rendering inventory items');
+    } catch (error) {
+        console.error('❌ Error rendering inventory:', error);
+        return;
+    }
 
     const inventoryItems = [
         { id: 1, name: 'HVAC Filter (16x20)', sku: 'HVF-1620', quantity: 45, minStock: 20, maxStock: 100, price: 12.99, category: 'Filters', trend: 'up', trendValue: '+5' },
@@ -1851,12 +1874,27 @@ function renderAppointments(containerId, appointments) {
 }
 
 function renderAllAppointments() {
-    renderAppointments('allAppointmentsList', state.filteredAppointments);
+    try {
+        console.log('📋 Rendering appointments:', state.filteredAppointments.length);
+        renderAppointments('allAppointmentsList', state.filteredAppointments);
+    } catch (error) {
+        console.error('❌ Error rendering appointments:', error);
+    }
 }
 
 function renderWorkOrders() {
     const container = document.getElementById('workOrdersList');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ workOrdersList container not found');
+        return;
+    }
+
+    try {
+        console.log('📋 Rendering work orders:', demoData.workOrders.length);
+    } catch (error) {
+        console.error('❌ Error rendering work orders:', error);
+        return;
+    }
 
     container.innerHTML = demoData.workOrders.map(wo => {
         const progressPercent = Math.round((wo.actualHours / wo.estimatedHours) * 100);
@@ -1935,7 +1973,17 @@ function renderWorkOrders() {
 
 function renderClients() {
     const container = document.getElementById('clientsList');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ clientsList container not found');
+        return;
+    }
+
+    try {
+        console.log('📋 Rendering clients:', demoData.clients.length);
+    } catch (error) {
+        console.error('❌ Error rendering clients:', error);
+        return;
+    }
 
     container.innerHTML = demoData.clients.map(client => `
         <div class="client-card">
@@ -1980,7 +2028,17 @@ function renderClients() {
 
 function renderTeam() {
     const container = document.getElementById('teamList');
-    if (!container) return;
+    if (!container) {
+        console.warn('⚠️ teamList container not found');
+        return;
+    }
+
+    try {
+        console.log('📋 Rendering team members:', demoData.team.length);
+    } catch (error) {
+        console.error('❌ Error rendering team:', error);
+        return;
+    }
 
     container.innerHTML = demoData.team.map(member => {
         // Get initials from name
