@@ -2536,6 +2536,13 @@ body {
     min-height: 110px;
     padding: var(--space-md);
     position: relative;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.calendar-day:hover {
+    background: var(--gray-50);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .calendar-day.empty {
@@ -2590,6 +2597,36 @@ body {
 .calendar-appointment.completed {
     background: var(--success-bg);
     border-left-color: var(--success);
+}
+
+.day-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: var(--space-lg) var(--space-sm);
+    color: var(--gray-400);
+    font-size: var(--text-xs);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.calendar-day:hover .day-empty-state {
+    opacity: 1;
+}
+
+.day-empty-state i {
+    font-size: var(--text-lg);
+    color: var(--primary);
+}
+
+.more-appointments {
+    padding: 3px 6px;
+    text-align: center;
+    font-size: var(--text-xs);
+    color: var(--gray-600);
+    font-weight: 600;
 }
 
 /* ============ Photo Upload ============ */

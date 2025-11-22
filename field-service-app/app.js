@@ -1049,19 +1049,24 @@ function renderCalendar() {
         const isToday = dateStr === new Date().toISOString().split('T')[0];
 
         html += `
-            <div class="calendar-day ${isToday ? 'today' : ''}">
+            <div class="calendar-day ${isToday ? 'today' : ''}" onclick="createAppointmentForDate('${dateStr}')">
                 <div class="day-number">${day}</div>
                 ${appointments.length > 0 ? `
                     <div class="day-appointments">
                         ${appointments.slice(0, 3).map(apt => `
-                            <div class="calendar-appointment ${apt.status}" onclick="viewAppointmentDetails('${apt.id}')">
+                            <div class="calendar-appointment ${apt.status}" onclick="event.stopPropagation(); viewAppointmentDetails('${apt.id}')">
                                 <span class="apt-time">${apt.time}</span>
                                 <span class="apt-client">${apt.clientName}</span>
                             </div>
                         `).join('')}
-                        ${appointments.length > 3 ? `<div class="more-appointments">+${appointments.length - 3} more</div>` : ''}
+                        ${appointments.length > 3 ? `<div class="more-appointments" onclick="event.stopPropagation();">+${appointments.length - 3} more</div>` : ''}
                     </div>
-                ` : ''}
+                ` : `
+                    <div class="day-empty-state">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add appointment</span>
+                    </div>
+                `}
             </div>
         `;
     }
@@ -1083,6 +1088,19 @@ function calendarPrevMonth() {
 function calendarNextMonth() {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
     renderCalendar();
+}
+
+function createAppointmentForDate(dateStr) {
+    // Open the new appointment modal with the date pre-filled
+    openModal('newAppointmentModal');
+
+    // Pre-fill the date field
+    const dateInput = document.getElementById('newAppointmentDate');
+    if (dateInput) {
+        dateInput.value = dateStr;
+    }
+
+    showToast('📅 Creating appointment for ' + new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), 'success');
 }
 
 // ============ Analytics Dashboard ============
@@ -1624,6 +1642,7 @@ window.downloadInvoice = downloadInvoice;
 window.calendarToday = calendarToday;
 window.calendarPrevMonth = calendarPrevMonth;
 window.calendarNextMonth = calendarNextMonth;
+window.createAppointmentForDate = createAppointmentForDate;
 window.refreshDashboard = refreshDashboard;
 window.clearFilters = clearFilters;
 window.startVoiceCommand = startVoiceCommand;
