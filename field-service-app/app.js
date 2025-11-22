@@ -2041,19 +2041,22 @@ function renderTeam() {
     }
 
     container.innerHTML = demoData.team.map(member => {
-        // Get initials from name
-        const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        // Get initials from name (with safety check)
+        const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'NA';
 
-        // Calculate completion rate
-        const completionRate = member.totalJobs > 0 ? Math.round((member.totalJobs / (member.totalJobs + member.activeJobs)) * 100) : 0;
+        // Calculate completion rate (with safety checks)
+        const totalJobs = member.totalJobs || 0;
+        const activeJobs = member.activeJobs || 0;
+        const completionRate = totalJobs > 0 ? Math.round((totalJobs / (totalJobs + activeJobs)) * 100) : 0;
 
         // Determine badge based on performance
+        const rating = parseFloat(member.rating) || 0;
         let badge = '';
-        if (member.rating >= 4.8) {
+        if (rating >= 4.8) {
             badge = '<span class="achievement-badge gold"><i class="fas fa-star"></i> Top Performer</span>';
-        } else if (member.rating >= 4.5) {
+        } else if (rating >= 4.5) {
             badge = '<span class="achievement-badge silver"><i class="fas fa-award"></i> Excellent</span>';
-        } else if (member.rating >= 4.0) {
+        } else if (rating >= 4.0) {
             badge = '<span class="achievement-badge bronze"><i class="fas fa-medal"></i> Great</span>';
         }
 
@@ -2064,29 +2067,29 @@ function renderTeam() {
                 ${badge}
             </div>
             <div class="team-info">
-                <div class="team-name">${member.name}</div>
-                <div class="team-role">${member.role}</div>
+                <div class="team-name">${member.name || 'Unknown'}</div>
+                <div class="team-role">${member.role || 'Technician'}</div>
             </div>
 
             <div class="team-stats-grid">
                 <div class="team-stat-item">
                     <div class="stat-icon blue"><i class="fas fa-clipboard-check"></i></div>
                     <div class="stat-content">
-                        <div class="stat-value">${member.totalJobs}</div>
+                        <div class="stat-value">${totalJobs}</div>
                         <div class="stat-label">Completed</div>
                     </div>
                 </div>
                 <div class="team-stat-item">
                     <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
                     <div class="stat-content">
-                        <div class="stat-value">${member.activeJobs}</div>
+                        <div class="stat-value">${activeJobs}</div>
                         <div class="stat-label">Active</div>
                     </div>
                 </div>
                 <div class="team-stat-item">
                     <div class="stat-icon yellow"><i class="fas fa-star"></i></div>
                     <div class="stat-content">
-                        <div class="stat-value">${member.rating}</div>
+                        <div class="stat-value">${rating.toFixed(1)}</div>
                         <div class="stat-label">Rating</div>
                     </div>
                 </div>
@@ -2100,16 +2103,16 @@ function renderTeam() {
             </div>
 
             <div class="team-status-bar">
-                <div class="status-indicator ${member.status}">
+                <div class="status-indicator ${member.status || 'available'}">
                     <span class="status-dot"></span>
-                    ${member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                    ${(member.status || 'available').charAt(0).toUpperCase() + (member.status || 'available').slice(1)}
                 </div>
             </div>
 
             <div class="team-specializations">
-                <div class="specializations-label">Specializations</div>
+                <div class="specializations-label">Specialization</div>
                 <div class="specializations-tags">
-                    ${member.specializations.map(spec => `<span class="spec-tag">${spec}</span>`).join('')}
+                    <span class="spec-tag">${member.specialization || 'General'}</span>
                 </div>
             </div>
         </div>
