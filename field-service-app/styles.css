@@ -3114,6 +3114,286 @@ body {
     color: white;
 }
 
+/* ============ Enhanced Inventory Cards with Gamification ============ */
+.inventory-enhanced-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-xl);
+}
+
+.inventory-card {
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.inventory-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary);
+}
+
+.inventory-card.low-stock-card {
+    border-color: var(--warning);
+    background: linear-gradient(135deg, #FFF9E6 0%, #ffffff 100%);
+}
+
+.inventory-card.critical-stock {
+    border-color: var(--danger);
+    background: linear-gradient(135deg, #FEF2F2 0%, #ffffff 100%);
+    animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% {
+        border-color: var(--danger);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+    }
+}
+
+.inventory-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.category-badge {
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    font-weight: 700;
+}
+
+.trend-indicator.trend-up {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.trend-indicator.trend-down {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.trend-indicator.trend-stable {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.inventory-card-body {
+    margin-bottom: var(--space-lg);
+}
+
+.inventory-item-name {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 var(--space-sm) 0;
+}
+
+.inventory-sku {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+    margin-bottom: var(--space-lg);
+}
+
+.stock-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.stock-main {
+    display: flex;
+    flex-direction: column;
+}
+
+.stock-number {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stock-number.text-danger {
+    color: var(--danger);
+}
+
+.stock-number.text-success {
+    color: var(--success);
+}
+
+.stock-label {
+    font-size: var(--text-xs);
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stock-price {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+
+.price-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.price-label {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+}
+
+.stock-progress-container {
+    margin-bottom: var(--space-md);
+}
+
+.stock-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+}
+
+.stock-progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: var(--radius-full);
+}
+
+.stock-progress-fill.good {
+    background: linear-gradient(90deg, var(--success), #10b981);
+}
+
+.stock-progress-fill.warning {
+    background: linear-gradient(90deg, var(--warning), #f59e0b);
+}
+
+.stock-progress-fill.critical {
+    background: linear-gradient(90deg, var(--danger), #dc2626);
+    animation: pulse-fill 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-fill {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.stock-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--gray-500);
+}
+
+.low-stock-alert {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: #92400e;
+    font-weight: 600;
+}
+
+.low-stock-alert.critical-alert {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+    color: #991b1b;
+    animation: pulse-alert 2s ease-in-out infinite;
+}
+
+@keyframes pulse-alert {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+.inventory-card-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--gray-200);
+}
+
+.btn-inventory-action {
+    padding: var(--space-md);
+    border: 1px solid var(--gray-300);
+    background: white;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-700);
+    font-size: var(--text-sm);
+}
+
+.btn-inventory-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-inventory-action.decrease:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: white;
+}
+
+.btn-inventory-action.increase:hover {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.btn-inventory-action.edit:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.btn-inventory-action.reorder:hover {
+    background: var(--warning);
+    border-color: var(--warning);
+    color: white;
+}
+
 /* ============ Team Cards - Enhanced with Gamification ============ */
 .team-card-enhanced {
     background: white;

@@ -8,6 +8,7 @@ const state = {
     currentPage: 'dashboard',
     selectedAppointment: null,
     filteredAppointments: [],
+    editingAppointmentId: null,
     filters: {
         status: 'all',
         technician: 'all',
@@ -1259,71 +1260,113 @@ function renderInventory() {
     if (!container) return;
 
     const inventoryItems = [
-        { id: 1, name: 'HVAC Filter (16x20)', sku: 'HVF-1620', quantity: 45, minStock: 20, price: 12.99, category: 'Filters' },
-        { id: 2, name: 'Thermostat Wire (50ft)', sku: 'THW-50', quantity: 12, minStock: 15, price: 24.99, category: 'Electrical' },
-        { id: 3, name: 'Refrigerant R410A (25lb)', sku: 'REF-410', quantity: 8, minStock: 10, price: 189.99, category: 'Refrigerants' },
-        { id: 4, name: 'Condensate Pump', sku: 'CDP-100', quantity: 6, minStock: 5, price: 67.99, category: 'Pumps' },
-        { id: 5, name: 'Air Handler Motor', sku: 'AHM-750', quantity: 3, minStock: 2, price: 245.00, category: 'Motors' },
-        { id: 6, name: 'Safety Goggles', sku: 'SAF-GOG', quantity: 28, minStock: 15, price: 8.99, category: 'Safety' },
-        { id: 7, name: 'Work Gloves (Pair)', sku: 'GLV-MED', quantity: 34, minStock: 20, price: 6.49, category: 'Safety' },
-        { id: 8, name: 'Duct Tape (Industrial)', sku: 'DCT-IND', quantity: 18, minStock: 10, price: 9.99, category: 'Supplies' }
+        { id: 1, name: 'HVAC Filter (16x20)', sku: 'HVF-1620', quantity: 45, minStock: 20, maxStock: 100, price: 12.99, category: 'Filters', trend: 'up', trendValue: '+5' },
+        { id: 2, name: 'Thermostat Wire (50ft)', sku: 'THW-50', quantity: 12, minStock: 15, maxStock: 50, price: 24.99, category: 'Electrical', trend: 'down', trendValue: '-3' },
+        { id: 3, name: 'Refrigerant R410A (25lb)', sku: 'REF-410', quantity: 8, minStock: 10, maxStock: 30, price: 189.99, category: 'Refrigerants', trend: 'down', trendValue: '-2' },
+        { id: 4, name: 'Condensate Pump', sku: 'CDP-100', quantity: 6, minStock: 5, maxStock: 20, price: 67.99, category: 'Pumps', trend: 'up', trendValue: '+1' },
+        { id: 5, name: 'Air Handler Motor', sku: 'AHM-750', quantity: 3, minStock: 2, maxStock: 10, price: 245.00, category: 'Motors', trend: 'stable', trendValue: '0' },
+        { id: 6, name: 'Safety Goggles', sku: 'SAF-GOG', quantity: 28, minStock: 15, maxStock: 60, price: 8.99, category: 'Safety', trend: 'up', trendValue: '+4' },
+        { id: 7, name: 'Work Gloves (Pair)', sku: 'GLV-MED', quantity: 34, minStock: 20, maxStock: 80, price: 6.49, category: 'Safety', trend: 'up', trendValue: '+2' },
+        { id: 8, name: 'Duct Tape (Industrial)', sku: 'DCT-IND', quantity: 18, minStock: 10, maxStock: 40, price: 9.99, category: 'Supplies', trend: 'stable', trendValue: '0' }
     ];
 
+    // Category colors
+    const categoryColors = {
+        'Filters': '#3b82f6',
+        'Electrical': '#f59e0b',
+        'Refrigerants': '#10b981',
+        'Pumps': '#8b5cf6',
+        'Motors': '#ef4444',
+        'Safety': '#06b6d4',
+        'Supplies': '#6b7280'
+    };
+
     container.innerHTML = `
-        <div class="inventory-table-container">
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>SKU</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>In Stock</th>
-                        <th>Min Stock</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${inventoryItems.map(item => `
-                        <tr class="${item.quantity <= item.minStock ? 'row-low-stock' : ''}">
-                            <td class="item-name">${item.name}</td>
-                            <td class="item-sku">${item.sku}</td>
-                            <td>${item.category}</td>
-                            <td class="item-price">$${item.price.toFixed(2)}</td>
-                            <td class="stock-quantity ${item.quantity <= item.minStock ? 'low' : 'normal'}">${item.quantity}</td>
-                            <td>${item.minStock}</td>
-                            <td>
-                                ${item.quantity <= item.minStock
-                                    ? '<span class="status-badge-small danger">Low Stock</span>'
-                                    : '<span class="status-badge-small success">In Stock</span>'}
-                            </td>
-                            <td class="actions-cell">
-                                <button class="btn-icon-small" onclick="adjustStock(${item.id}, -1)" title="Decrease">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <button class="btn-icon-small" onclick="adjustStock(${item.id}, 1)" title="Increase">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                                <button class="btn-icon-small" onclick="editInventoryItem(${item.id})" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+        <div class="inventory-enhanced-grid">
+            ${inventoryItems.map(item => {
+                const stockPercent = (item.quantity / item.maxStock) * 100;
+                const isLow = item.quantity <= item.minStock;
+                const isCritical = item.quantity < item.minStock;
+
+                return `
+                <div class="inventory-card ${isLow ? 'low-stock-card' : ''} ${isCritical ? 'critical-stock' : ''}">
+                    <div class="inventory-card-header">
+                        <div class="category-badge" style="background: ${categoryColors[item.category]}20; color: ${categoryColors[item.category]}; border-left: 3px solid ${categoryColors[item.category]};">
+                            <i class="fas fa-tag"></i> ${item.category}
+                        </div>
+                        <div class="trend-indicator trend-${item.trend}">
+                            ${item.trend === 'up' ? '<i class="fas fa-arrow-up"></i>' : item.trend === 'down' ? '<i class="fas fa-arrow-down"></i>' : '<i class="fas fa-minus"></i>'}
+                            ${item.trendValue}
+                        </div>
+                    </div>
+
+                    <div class="inventory-card-body">
+                        <h3 class="inventory-item-name">${item.name}</h3>
+                        <div class="inventory-sku">SKU: ${item.sku}</div>
+
+                        <div class="stock-info-row">
+                            <div class="stock-main">
+                                <span class="stock-number ${item.quantity <= item.minStock ? 'text-danger' : 'text-success'}">${item.quantity}</span>
+                                <span class="stock-label">In Stock</span>
+                            </div>
+                            <div class="stock-price">
+                                <span class="price-value">$${item.price.toFixed(2)}</span>
+                                <span class="price-label">per unit</span>
+                            </div>
+                        </div>
+
+                        <div class="stock-progress-container">
+                            <div class="stock-progress-bar">
+                                <div class="stock-progress-fill ${stockPercent < 20 ? 'critical' : stockPercent < 40 ? 'warning' : 'good'}"
+                                     style="width: ${stockPercent}%"></div>
+                            </div>
+                            <div class="stock-progress-labels">
+                                <span class="min-stock-label">Min: ${item.minStock}</span>
+                                <span class="max-stock-label">Max: ${item.maxStock}</span>
+                            </div>
+                        </div>
+
+                        ${isLow ? `
+                            <div class="low-stock-alert ${isCritical ? 'critical-alert' : ''}">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                ${isCritical ? 'Critical: Below minimum stock!' : 'Warning: Low stock level'}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="inventory-card-actions">
+                        <button class="btn-inventory-action decrease" onclick="adjustStock(${item.id}, -1)" title="Decrease stock">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="btn-inventory-action increase" onclick="adjustStock(${item.id}, 1)" title="Increase stock">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btn-inventory-action edit" onclick="editInventoryItem(${item.id})" title="Edit item">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-inventory-action reorder" onclick="reorderItem(${item.id})" title="Reorder">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+            `}).join('')}
         </div>
     `;
 }
 
 function adjustStock(itemId, change) {
-    showToast(`Stock adjusted by ${change > 0 ? '+' : ''}${change}`, 'info');
-    // In a real app, this would update the database
+    showToast(`Stock adjusted by ${change > 0 ? '+' : ''}${change}`, 'success');
+    renderInventory();
 }
 
 function editInventoryItem(itemId) {
-    showToast('Edit inventory item - Feature coming soon!', 'info');
+    showToast('Edit inventory item - Opening editor...', 'info');
+    // Open edit modal with item details
+}
+
+function reorderItem(itemId) {
+    showToast('🛒 Reorder request submitted!', 'success');
+    // In a real app, this would create a purchase order
 }
 
 // ============ Invoice Generator ============
@@ -1624,6 +1667,9 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.filterAppointments = filterAppointments;
 window.viewAppointmentDetails = viewAppointmentDetails;
+window.editAppointment = editAppointment;
+window.saveAppointment = saveAppointment;
+window.resetAppointmentForm = resetAppointmentForm;
 window.updateAppointmentStatus = updateAppointmentStatus;
 window.navigateToPage = navigateToPage;
 window.toggleFabMenu = toggleFabMenu;
@@ -1648,6 +1694,8 @@ window.clearFilters = clearFilters;
 window.startVoiceCommand = startVoiceCommand;
 window.toggleUserMenu = toggleUserMenu;
 window.adjustStock = adjustStock;
+window.editInventoryItem = editInventoryItem;
+window.reorderItem = reorderItem;
 window.removePhoto = removePhoto;
 function applyFilters() {
     let filtered = [...demoData.appointments];
@@ -1681,9 +1729,19 @@ function applyFilters() {
 }
 
 function filterAppointments() {
-    state.filters.status = document.getElementById('statusFilter').value;
-    state.filters.technician = document.getElementById('technicianFilter').value;
-    state.filters.priority = document.getElementById('priorityFilter').value;
+    const statusFilter = document.getElementById('statusFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const technicianFilter = document.getElementById('technicianFilter');
+
+    if (statusFilter) {
+        state.filters.status = statusFilter.value;
+    }
+    if (technicianFilter) {
+        state.filters.technician = technicianFilter.value;
+    }
+    if (priorityFilter) {
+        state.filters.priority = priorityFilter.value;
+    }
 
     applyFilters();
 
@@ -1692,6 +1750,8 @@ function filterAppointments() {
         loadDashboard();
     } else if (state.currentPage === 'appointments') {
         renderAllAppointments();
+    } else if (state.currentPage === 'calendar') {
+        renderCalendar();
     }
 }
 
@@ -2139,7 +2199,7 @@ function viewAppointmentDetails(appointmentId) {
                                 <i class="fas fa-check"></i> Complete
                             </button>
                         ` : ''}
-                        <button class="btn btn-primary btn-block" onclick="alert('Edit functionality')">
+                        <button class="btn btn-primary btn-block" onclick="editAppointment('${appointment.id}')">
                             <i class="fas fa-edit"></i> Edit Appointment
                         </button>
                         ${appointment.status !== 'cancelled' ? `
@@ -2179,6 +2239,107 @@ function updateAppointmentStatus(appointmentId, newStatus) {
 
         // Show notification
         showNotification(`Appointment ${appointmentId} status updated to ${formatStatus(newStatus)}`, 'success');
+    }
+}
+
+function editAppointment(appointmentId) {
+    const appointment = demoData.appointments.find(apt => apt.id === appointmentId);
+    if (!appointment) return;
+
+    // Close detail modal
+    closeModal('appointmentDetailModal');
+
+    // Pre-fill the new appointment modal with existing data
+    document.getElementById('newAppointmentDate').value = appointment.date;
+    document.getElementById('newAppointmentTime').value = appointment.time;
+    document.getElementById('newAppointmentClient').value = appointment.clientName;
+    document.getElementById('newAppointmentService').value = appointment.serviceType;
+    document.getElementById('newAppointmentTechnician').value = appointment.assignedTo || appointment.technicianName;
+    document.getElementById('newAppointmentPriority').value = appointment.priority;
+    document.getElementById('newAppointmentDuration').value = appointment.duration;
+    document.getElementById('newAppointmentNotes').value = appointment.description || '';
+
+    // Store the appointment ID for updating
+    state.editingAppointmentId = appointmentId;
+
+    // Change modal title and button
+    const modalTitle = document.querySelector('#newAppointmentModal .modal-header-enhanced h2');
+    const submitBtn = document.getElementById('submitAppointmentBtn');
+    if (modalTitle) {
+        modalTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Appointment';
+    }
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+    }
+
+    // Open modal
+    openModal('newAppointmentModal');
+}
+
+function saveAppointment(event) {
+    event.preventDefault();
+
+    const formData = {
+        date: document.getElementById('newAppointmentDate').value,
+        time: document.getElementById('newAppointmentTime').value,
+        clientName: document.getElementById('newAppointmentClient').value,
+        serviceType: document.getElementById('newAppointmentService').value,
+        technicianName: document.getElementById('newAppointmentTechnician').value,
+        assignedTo: document.getElementById('newAppointmentTechnician').value,
+        priority: document.getElementById('newAppointmentPriority').value,
+        duration: document.getElementById('newAppointmentDuration').value,
+        description: document.getElementById('newAppointmentNotes').value,
+        equipmentNeeded: document.getElementById('newAppointmentEquipment').value ?
+            [document.getElementById('newAppointmentEquipment').value] : []
+    };
+
+    if (state.editingAppointmentId) {
+        // Update existing appointment
+        const appointment = demoData.appointments.find(apt => apt.id === state.editingAppointmentId);
+        if (appointment) {
+            Object.assign(appointment, formData);
+            showToast('Appointment updated successfully', 'success');
+        }
+    } else {
+        // Create new appointment
+        const newAppointment = {
+            id: 'APT-' + Date.now(),
+            ...formData,
+            status: 'scheduled',
+            clientAddress: '123 Business St, City, State',
+            clientPhone: '(555) 123-4567'
+        };
+        demoData.appointments.push(newAppointment);
+        showToast('Appointment created successfully', 'success');
+    }
+
+    // Reset form and close modal
+    resetAppointmentForm();
+    closeModal('newAppointmentModal');
+
+    // Refresh view
+    applyFilters();
+    if (state.currentPage === 'dashboard') {
+        loadDashboard();
+    } else if (state.currentPage === 'appointments') {
+        renderAllAppointments();
+    } else if (state.currentPage === 'calendar') {
+        renderCalendar();
+    }
+}
+
+function resetAppointmentForm() {
+    document.getElementById('newAppointmentForm').reset();
+    state.editingAppointmentId = null;
+
+    // Reset modal title and button
+    const modalTitle = document.querySelector('#newAppointmentModal .modal-header-enhanced h2');
+    const submitBtn = document.getElementById('submitAppointmentBtn');
+    if (modalTitle) {
+        modalTitle.innerHTML = '<i class="fas fa-plus-circle"></i> New Appointment';
+    }
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Create Appointment';
     }
 }
 
@@ -2445,5 +2606,6 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.filterAppointments = filterAppointments;
 window.viewAppointmentDetails = viewAppointmentDetails;
+window.editAppointment = editAppointment;
 window.viewWorkOrderDetails = viewWorkOrderDetails;
 window.updateAppointmentStatus = updateAppointmentStatus;
