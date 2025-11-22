@@ -2134,7 +2134,135 @@ function updateAppointmentStatus(appointmentId, newStatus) {
 }
 
 function viewWorkOrderDetails(workOrderId) {
-    alert(`Work Order Details for ${workOrderId} - Feature coming soon!`);
+    const workOrder = demoData.workOrders.find(wo => wo.id === workOrderId);
+    if (!workOrder) return;
+
+    // Update modal badge
+    document.getElementById('workOrderIdBadge').textContent = workOrder.id;
+
+    // Build modal content
+    const content = document.getElementById('workOrderDetailContent');
+    const progressPercent = Math.round((workOrder.actualHours / workOrder.estimatedHours) * 100);
+
+    content.innerHTML = `
+        <div class="detail-modal-grid">
+            <!-- Left Column -->
+            <div class="detail-section">
+                <h3 class="section-title"><i class="fas fa-info-circle"></i> Work Order Information</h3>
+                <div class="detail-group">
+                    <div class="detail-row">
+                        <span class="detail-label">Title</span>
+                        <span class="detail-value-large">${workOrder.title}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value">${workOrder.description}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Work Type</span>
+                        <span class="detail-value"><span class="badge-secondary">${workOrder.workType}</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value"><span class="status-badge-large ${workOrder.status}">${formatStatus(workOrder.status)}</span></span>
+                    </div>
+                </div>
+
+                <h3 class="section-title"><i class="fas fa-building"></i> Client Information</h3>
+                <div class="detail-group">
+                    <div class="detail-row">
+                        <span class="detail-label">Client Name</span>
+                        <span class="detail-value">${workOrder.clientName}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">${workOrder.location}</span>
+                    </div>
+                </div>
+
+                <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Schedule</h3>
+                <div class="detail-group">
+                    <div class="detail-row">
+                        <span class="detail-label">Scheduled Date</span>
+                        <span class="detail-value">${formatDate(workOrder.scheduledDate)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Estimated Hours</span>
+                        <span class="detail-value">${workOrder.estimatedHours} hours</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Actual Hours</span>
+                        <span class="detail-value">${workOrder.actualHours} hours</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Progress</span>
+                        <span class="detail-value">
+                            <div class="progress-bar-inline">
+                                <div class="progress-fill-inline" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <span class="progress-percent">${progressPercent}%</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="detail-section">
+                <h3 class="section-title"><i class="fas fa-users"></i> Assigned Technicians</h3>
+                <div class="detail-group">
+                    <div class="technician-list">
+                        ${workOrder.technicians.map(tech => `
+                            <div class="technician-item">
+                                <div class="tech-avatar">${tech.split(' ').map(n => n[0]).join('').toUpperCase()}</div>
+                                <span>${tech}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <h3 class="section-title"><i class="fas fa-tasks"></i> Tasks (${workOrder.tasks.filter(t => t.status === 'completed').length}/${workOrder.tasks.length})</h3>
+                <div class="detail-group">
+                    <div class="task-list">
+                        ${workOrder.tasks.map(task => `
+                            <div class="task-item ${task.status}">
+                                <div class="task-checkbox">
+                                    <i class="fas ${task.status === 'completed' ? 'fa-check-circle' : task.status === 'in-progress' ? 'fa-circle-notch' : 'fa-circle'}"></i>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-name">${task.name}</div>
+                                    ${task.assignedTo ? `<div class="task-assignee">Assigned to: ${task.assignedTo}</div>` : ''}
+                                </div>
+                                <span class="task-status-badge ${task.status}">${formatStatus(task.status)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                ${workOrder.materials && workOrder.materials.length > 0 ? `
+                <h3 class="section-title"><i class="fas fa-box"></i> Materials</h3>
+                <div class="detail-group">
+                    <div class="materials-list">
+                        ${workOrder.materials.map(material => `
+                            <div class="material-item">
+                                <span class="material-name">${material.name}</span>
+                                <span class="material-qty">Qty: ${material.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${workOrder.notes ? `
+                <h3 class="section-title"><i class="fas fa-sticky-note"></i> Notes</h3>
+                <div class="detail-group">
+                    <div class="notes-content">${workOrder.notes}</div>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+
+    openModal('workOrderDetailModal');
 }
 
 function openModal(modalId) {

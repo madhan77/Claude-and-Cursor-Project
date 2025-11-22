@@ -135,6 +135,35 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Filters -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-section-title">
+                    <i class="fas fa-filter"></i> Filters
+                </h3>
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select id="statusFilter" onchange="filterAppointments()" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Priority</label>
+                    <select id="priorityFilter" onchange="filterAppointments()" class="filter-select">
+                        <option value="all">All Priorities</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <button class="btn-filter-clear" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Clear Filters
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -441,6 +470,24 @@
                 </button>
             </div>
             <div id="appointmentDetailContent" class="modal-body-enhanced">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Order Details Modal -->
+    <div id="workOrderDetailModal" class="modal-enhanced">
+        <div class="modal-content-enhanced modal-xlarge">
+            <div class="modal-header-enhanced">
+                <div class="modal-title-section">
+                    <h2><i class="fas fa-clipboard-list"></i> Work Order Details</h2>
+                    <span id="workOrderIdBadge" class="badge-large">WO-001</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('workOrderDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="workOrderDetailContent" class="modal-body-enhanced">
                 <!-- Will be populated dynamically -->
             </div>
         </div>
