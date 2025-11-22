@@ -1114,14 +1114,28 @@ function renderAnalytics() {
             </div>
         </div>
 
-        <div class="analytics-charts">
-            <div class="chart-card-large">
-                <h3>Revenue Trend</h3>
-                <canvas id="revenueChart"></canvas>
+        <div class="analytics-charts-grid">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <div>
+                        <h3>Revenue Trend</h3>
+                        <p class="chart-subtitle">Monthly revenue over the year</p>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="revenueChart"></canvas>
+                </div>
             </div>
-            <div class="chart-card-large">
-                <h3>Service Type Performance</h3>
-                <canvas id="performanceChart"></canvas>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <div>
+                        <h3>Service Type Performance</h3>
+                        <p class="chart-subtitle">Jobs completed by type</p>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="performanceChart"></canvas>
+                </div>
             </div>
         </div>
     `;
@@ -1144,15 +1158,30 @@ function initializeAnalyticsCharts() {
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
                 plugins: {
                     legend: {
                         display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
@@ -1175,15 +1204,30 @@ function initializeAnalyticsCharts() {
                         '#f59e0b',
                         '#8b5cf6',
                         '#ef4444'
-                    ]
+                    ],
+                    borderRadius: 6
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
                 plugins: {
                     legend: {
                         display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
@@ -1208,45 +1252,49 @@ function renderInventory() {
     ];
 
     container.innerHTML = `
-        <div class="inventory-grid">
-            ${inventoryItems.map(item => `
-                <div class="inventory-card ${item.quantity <= item.minStock ? 'low-stock' : ''}">
-                    <div class="inventory-header">
-                        <h4>${item.name}</h4>
-                        ${item.quantity <= item.minStock ? '<span class="low-stock-badge">Low Stock</span>' : ''}
-                    </div>
-                    <div class="inventory-details">
-                        <div class="inventory-row">
-                            <span class="label">SKU:</span>
-                            <span class="value">${item.sku}</span>
-                        </div>
-                        <div class="inventory-row">
-                            <span class="label">Category:</span>
-                            <span class="value">${item.category}</span>
-                        </div>
-                        <div class="inventory-row">
-                            <span class="label">Price:</span>
-                            <span class="value">$${item.price.toFixed(2)}</span>
-                        </div>
-                        <div class="inventory-row">
-                            <span class="label">In Stock:</span>
-                            <span class="value stock-quantity ${item.quantity <= item.minStock ? 'low' : ''}">${item.quantity}</span>
-                        </div>
-                        <div class="inventory-row">
-                            <span class="label">Min Stock:</span>
-                            <span class="value">${item.minStock}</span>
-                        </div>
-                    </div>
-                    <div class="inventory-actions">
-                        <button class="btn btn-sm btn-outline" onclick="adjustStock(${item.id}, -1)">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline" onclick="adjustStock(${item.id}, 1)">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('')}
+        <div class="inventory-table-container">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>In Stock</th>
+                        <th>Min Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${inventoryItems.map(item => `
+                        <tr class="${item.quantity <= item.minStock ? 'row-low-stock' : ''}">
+                            <td class="item-name">${item.name}</td>
+                            <td class="item-sku">${item.sku}</td>
+                            <td>${item.category}</td>
+                            <td class="item-price">$${item.price.toFixed(2)}</td>
+                            <td class="stock-quantity ${item.quantity <= item.minStock ? 'low' : 'normal'}">${item.quantity}</td>
+                            <td>${item.minStock}</td>
+                            <td>
+                                ${item.quantity <= item.minStock
+                                    ? '<span class="status-badge-small danger">Low Stock</span>'
+                                    : '<span class="status-badge-small success">In Stock</span>'}
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-icon-small" onclick="adjustStock(${item.id}, -1)" title="Decrease">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="btn-icon-small" onclick="adjustStock(${item.id}, 1)" title="Increase">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="btn-icon-small" onclick="editInventoryItem(${item.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
         </div>
     `;
 }
@@ -1254,6 +1302,10 @@ function renderInventory() {
 function adjustStock(itemId, change) {
     showToast(`Stock adjusted by ${change > 0 ? '+' : ''}${change}`, 'info');
     // In a real app, this would update the database
+}
+
+function editInventoryItem(itemId) {
+    showToast('Edit inventory item - Feature coming soon!', 'info');
 }
 
 // ============ Invoice Generator ============
@@ -1825,32 +1877,73 @@ function renderTeam() {
         // Get initials from name
         const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
+        // Calculate completion rate
+        const completionRate = member.totalJobs > 0 ? Math.round((member.totalJobs / (member.totalJobs + member.activeJobs)) * 100) : 0;
+
+        // Determine badge based on performance
+        let badge = '';
+        if (member.rating >= 4.8) {
+            badge = '<span class="achievement-badge gold"><i class="fas fa-star"></i> Top Performer</span>';
+        } else if (member.rating >= 4.5) {
+            badge = '<span class="achievement-badge silver"><i class="fas fa-award"></i> Excellent</span>';
+        } else if (member.rating >= 4.0) {
+            badge = '<span class="achievement-badge bronze"><i class="fas fa-medal"></i> Great</span>';
+        }
+
         return `
-        <div class="team-card">
-            <div class="team-avatar-initials">${initials}</div>
-            <div class="team-name">${member.name}</div>
-            <div class="team-role">${member.role}</div>
-            <div class="team-stats">
-                <div class="team-stat">
-                    <span class="team-stat-value">${member.totalJobs}</span>
-                    <span class="team-stat-label">Total</span>
+        <div class="team-card-enhanced">
+            <div class="team-card-header">
+                <div class="team-avatar-initials">${initials}</div>
+                ${badge}
+            </div>
+            <div class="team-info">
+                <div class="team-name">${member.name}</div>
+                <div class="team-role">${member.role}</div>
+            </div>
+
+            <div class="team-stats-grid">
+                <div class="team-stat-item">
+                    <div class="stat-icon blue"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">${member.totalJobs}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
                 </div>
-                <div class="team-stat">
-                    <span class="team-stat-value">${member.activeJobs}</span>
-                    <span class="team-stat-label">Active</span>
+                <div class="team-stat-item">
+                    <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">${member.activeJobs}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
                 </div>
-                <div class="team-stat">
-                    <span class="team-stat-value">${member.rating}</span>
-                    <span class="team-stat-label">Rating</span>
+                <div class="team-stat-item">
+                    <div class="stat-icon yellow"><i class="fas fa-star"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">${member.rating}</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                </div>
+                <div class="team-stat-item">
+                    <div class="stat-icon green"><i class="fas fa-percentage"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">${completionRate}%</div>
+                        <div class="stat-label">Success</div>
+                    </div>
                 </div>
             </div>
-            <div class="team-status ${member.status}">
-                <span class="status-dot"></span>
-                ${member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+
+            <div class="team-status-bar">
+                <div class="status-indicator ${member.status}">
+                    <span class="status-dot"></span>
+                    ${member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                </div>
             </div>
+
             <div class="team-specializations">
-                <div class="specializations-label">Specializations:</div>
-                <div class="specializations-list">${member.specializations.join(', ')}</div>
+                <div class="specializations-label">Specializations</div>
+                <div class="specializations-tags">
+                    ${member.specializations.map(spec => `<span class="spec-tag">${spec}</span>`).join('')}
+                </div>
             </div>
         </div>
     `;

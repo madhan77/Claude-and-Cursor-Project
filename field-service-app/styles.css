@@ -2396,15 +2396,340 @@ body {
 /* ============ Analytics ============ */
 .analytics-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: var(--space-xl);
-    margin-bottom: var(--space-3xl);
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
 }
 
-.analytics-charts {
+.analytics-charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-xl);
+}
+
+.chart-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+}
+
+.chart-wrapper {
+    margin-top: var(--space-lg);
+}
+
+/* ============ Inventory Table ============ */
+.inventory-table-container {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventory-table thead {
+    background: var(--gray-50);
+}
+
+.inventory-table th {
+    padding: var(--space-md) var(--space-lg);
+    text-align: left;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.inventory-table td {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--gray-200);
+    font-size: var(--text-sm);
+    color: var(--gray-700);
+}
+
+.inventory-table tbody tr {
+    transition: all var(--transition-fast);
+}
+
+.inventory-table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+.inventory-table tbody tr.row-low-stock {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.inventory-table tbody tr.row-low-stock:hover {
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.inventory-table .item-name {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.inventory-table .item-sku {
+    font-family: var(--font-mono);
+    color: var(--gray-600);
+    font-size: var(--text-xs);
+}
+
+.inventory-table .item-price {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.inventory-table .stock-quantity {
+    font-weight: 700;
+    font-size: var(--text-lg);
+}
+
+.inventory-table .stock-quantity.low {
+    color: var(--danger);
+}
+
+.inventory-table .stock-quantity.normal {
+    color: var(--success);
+}
+
+.status-badge-small {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge-small.success {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.status-badge-small.danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.actions-cell {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.btn-icon-small {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--gray-300);
+    background: white;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--gray-600);
+}
+
+.btn-icon-small:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* ============ Team Cards - Enhanced with Gamification ============ */
+.team-card-enhanced {
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.team-card-enhanced:hover {
+    border-color: var(--primary);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.15);
+    transform: translateY(-4px);
+}
+
+.team-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.team-avatar-initials {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.achievement-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.achievement-badge.gold {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B4513;
+}
+
+.achievement-badge.silver {
+    background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+    color: #4A4A4A;
+}
+
+.achievement-badge.bronze {
+    background: linear-gradient(135deg, #CD7F32, #B8860B);
+    color: #3E2723;
+}
+
+.team-info {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.team-name {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+}
+
+.team-role {
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+}
+
+.team-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.team-stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: var(--text-lg);
+}
+
+.stat-icon.blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.stat-icon.orange {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.stat-icon.yellow {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.stat-icon.green {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--gray-900);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: var(--text-xs);
+    color: var(--gray-600);
+    margin-top: 2px;
+}
+
+.team-status-bar {
+    margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.status-indicator.available {
+    color: var(--success);
+}
+
+.status-indicator.busy {
+    color: var(--warning);
+}
+
+.status-indicator.offline {
+    color: var(--gray-500);
+}
+
+.specializations-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+.spec-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--primary-bg);
+    color: var(--primary);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 600;
 }
 
 /* ============ Responsive Design ============ */
