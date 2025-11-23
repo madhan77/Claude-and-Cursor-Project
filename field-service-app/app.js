@@ -1554,10 +1554,16 @@ function refreshDashboard() {
 
 // ============ Clear Filters ============
 function clearFilters() {
-    document.getElementById('statusFilter').value = 'all';
-    document.getElementById('technicianFilter').value = 'all';
-    document.getElementById('priorityFilter').value = 'all';
+    // Reset filter dropdowns (with safety checks)
+    const statusFilter = document.getElementById('statusFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const technicianFilter = document.getElementById('technicianFilter');
 
+    if (statusFilter) statusFilter.value = 'all';
+    if (priorityFilter) priorityFilter.value = 'all';
+    if (technicianFilter) technicianFilter.value = 'all';
+
+    // Reset state
     state.filters = {
         status: 'all',
         technician: 'all',
@@ -1565,9 +1571,18 @@ function clearFilters() {
         search: ''
     };
 
+    // Apply filters and refresh
     applyFilters();
-    loadDashboard();
-    showToast('Filters cleared', 'info');
+
+    if (state.currentPage === 'dashboard') {
+        loadDashboard();
+    } else if (state.currentPage === 'appointments') {
+        renderAllAppointments();
+    } else if (state.currentPage === 'calendar') {
+        renderCalendar();
+    }
+
+    showToast('✅ All filters cleared', 'success');
 }
 
 // ============ Navigation ============
