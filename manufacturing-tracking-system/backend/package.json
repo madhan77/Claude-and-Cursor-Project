@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "test": "jest",
     "lint": "eslint . --ext .ts",
-    "migrate": "node dist/config/migrate.js"
+    "migrate": "node dist/config/migrate.js",
+    "seed": "ts-node src/utils/seed.ts"
   },
   "keywords": [
     "manufacturing",
