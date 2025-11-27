@@ -17,7 +17,7 @@ import {
   CircularProgress,
   IconButton,
 } from '@mui/material';
-import { Add, Visibility, Edit } from '@mui/icons-material';
+import { Add, Visibility } from '@mui/icons-material';
 import { productionOrderAPI } from '../services/api';
 import { ProductionOrder } from '../types';
 import { format } from 'date-fns';

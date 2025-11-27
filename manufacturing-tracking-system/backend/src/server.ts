@@ -27,7 +27,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -48,7 +48,7 @@ app.use((req: Request, res: Response) => {
 });
 
 // Global error handler
-app.use((err: any, req: Request, res: Response, next: any) => {
+app.use((err: any, _req: Request, res: Response, _next: any) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
@@ -63,7 +63,7 @@ const startServer = async () => {
     await connectDatabase();
 
     // Connect to Redis (optional, continues even if it fails)
-    await connectRedis().catch((err) => {
+    await connectRedis().catch(() => {
       console.warn('⚠️  Redis connection failed, continuing without cache');
     });
 

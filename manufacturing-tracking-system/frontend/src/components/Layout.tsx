@@ -26,7 +26,6 @@ import {
   Inventory as InventoryIcon,
   Build as BuildIcon,
   Analytics as AnalyticsIcon,
-  AccountCircle,
 } from '@mui/icons-material';
 import { useAuthStore } from '../store/authStore';
 

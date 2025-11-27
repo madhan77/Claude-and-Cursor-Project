@@ -160,7 +160,7 @@ export const deleteProductionOrder = async (req: AuthRequest, res: Response): Pr
   }
 };
 
-export const getDashboardStats = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getDashboardStats = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const totalOrders = await ProductionOrder.count();
     const inProgress = await ProductionOrder.count({ where: { status: 'in_progress' } });
