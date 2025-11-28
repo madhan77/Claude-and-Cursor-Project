@@ -1,23 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'export',
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.amazonaws.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-    ],
+    unoptimized: true, // Required for static export
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '10mb',
-    },
-  },
+  // Disable features that don't work with static export
+  // experimental: {
+  //   serverActions: {
+  //     bodySizeLimit: '10mb',
+  //   },
+  // },
 };
 
 export default nextConfig;
