@@ -47,7 +47,7 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
 
     // Get flight details and calculate total price
     let totalPrice = 0;
-    const flightDetails = [];
+    const flightDetails: any[] = [];
 
     for (const flightId of flights) {
       const flightResult = await client.query(
@@ -69,7 +69,7 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
     }
 
     // Calculate price (assuming economy for now, can be extended)
-    passengers.forEach(passenger => {
+    passengers.forEach(() => {
       flightDetails.forEach(flight => {
         totalPrice += Number(flight.base_price_economy);
       });

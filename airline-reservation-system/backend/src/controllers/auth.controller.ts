@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { query } from '../config/database';
 import { generateTokens } from '../utils/jwt';
-import { UserRegistration, UserLogin, ApiResponse } from '../types';
+import { UserRegistration, UserLogin } from '../types';
 import validator from 'validator';
 
 const SALT_ROUNDS = 10;

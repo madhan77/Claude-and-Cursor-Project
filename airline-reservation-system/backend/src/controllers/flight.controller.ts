@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { query } from '../config/database';
-import { FlightSearchParams } from '../types';
 
 export const searchFlights = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -12,7 +11,6 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
       children = 0,
       infants = 0,
       class: cabin_class = 'economy',
-      max_stops,
       max_price,
       airlines,
       sort_by = 'price'
@@ -107,7 +105,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
     const result = await query(queryText, params);
 
     // Format results
-    const flights = result.rows.map(row => ({
+    const flights = result.rows.map((row: any) => ({
       id: row.id,
       flight_number: row.flight_number,
       airline: {
@@ -316,7 +314,7 @@ export const getAirports = async (req: Request, res: Response): Promise<Response
   }
 };
 
-export const getAirlines = async (req: Request, res: Response): Promise<Response> => {
+export const getAirlines = async (_req: Request, res: Response): Promise<Response> => {
   try {
     const result = await query(
       'SELECT code, name, logo_url, country FROM airlines ORDER BY name'

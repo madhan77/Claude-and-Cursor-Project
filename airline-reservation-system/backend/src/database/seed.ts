@@ -208,8 +208,6 @@ const seedDatabase = async () => {
       const arrTime = new Date(flight.depTime);
       arrTime.setMinutes(arrTime.getMinutes() + flight.duration);
 
-      const aircraftData = aircraft.find(a => a.id === flight.aircraft);
-
       await client.query(
         `INSERT INTO flights (flight_number, airline_code, aircraft_id, departure_airport,
                              arrival_airport, departure_time, arrival_time, duration,
@@ -241,7 +239,7 @@ const seedDatabase = async () => {
     const flightsResult = await client.query('SELECT id, aircraft_id FROM flights');
 
     for (const flight of flightsResult.rows) {
-      const aircraftData = aircraft.find(a => a.id === flight.aircraft_id);
+      const aircraftData = aircraft.find((a: any) => a.id === flight.aircraft_id);
 
       if (aircraftData) {
         // Generate seat map (simplified)
