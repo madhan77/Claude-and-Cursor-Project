@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import type {
   AuthResponse,
   Flight,
@@ -9,7 +9,7 @@ import type {
   User
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE_URL = (import.meta as any).env.VITE_API_URL || '/api/v1';
 
 class ApiService {
   private api: AxiosInstance;

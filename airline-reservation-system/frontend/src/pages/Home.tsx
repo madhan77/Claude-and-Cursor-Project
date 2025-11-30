@@ -8,7 +8,6 @@ import type { Airport } from '../types';
 export default function Home() {
   const navigate = useNavigate();
   const [airports, setAirports] = useState<Airport[]>([]);
-  const [loading, setLoading] = useState(false);
 
   // Form state
   const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('round-trip');
@@ -240,8 +239,8 @@ export default function Home() {
             </div>
 
             {/* Search Button */}
-            <button type="submit" className="btn-primary w-full text-lg" disabled={loading}>
-              {loading ? 'Searching...' : 'Search Flights'}
+            <button type="submit" className="btn-primary w-full text-lg">
+              Search Flights
             </button>
           </form>
         </div>

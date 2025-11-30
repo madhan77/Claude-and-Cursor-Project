@@ -10,7 +10,7 @@ export default function BookingFlow() {
   const { flightId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { selectedFlights, passengers, setPassengers, setContactInfo, clearBooking } = useBookingStore();
+  const { setPassengers, setContactInfo, clearBooking } = useBookingStore();
 
   const [flight, setFlight] = useState<Flight | null>(null);
   const [loading, setLoading] = useState(true);
