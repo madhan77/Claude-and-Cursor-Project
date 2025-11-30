@@ -12,6 +12,9 @@ import bookingRoutes from './routes/booking.routes';
 import userRoutes from './routes/user.routes';
 import adminRoutes from './routes/admin.routes';
 
+// Import auto-migration
+import { runAutoMigration } from './database/autoMigrate';
+
 // Load environment variables
 dotenv.config();
 
@@ -74,9 +77,17 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`
+// Start server with auto-migration
+const startServer = async () => {
+  try {
+    // Run auto-migration before starting server
+    console.log('🚀 Starting Airline Reservation System...\n');
+    await runAutoMigration();
+    console.log(''); // Empty line for formatting
+
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`
 ╔════════════════════════════════════════════════════════╗
 ║                                                        ║
 ║   🛫 Airline Reservation System API                   ║
@@ -86,7 +97,15 @@ app.listen(PORT, () => {
 ║   API Version: ${API_VERSION}                                  ║
 ║                                                        ║
 ╚════════════════════════════════════════════════════════╝
-  `);
-});
+      `);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Initialize server
+startServer();
 
 export default app;
