@@ -44,7 +44,6 @@ services:
     name: airline-frontend
     runtime: static
     plan: free
-    region: oregon
     rootDir: airline-reservation-system/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
