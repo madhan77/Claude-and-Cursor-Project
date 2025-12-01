@@ -43,7 +43,6 @@ services:
   - type: web
     name: airline-frontend
     runtime: static
-    plan: free
     rootDir: airline-reservation-system/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
