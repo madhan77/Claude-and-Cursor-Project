@@ -53,14 +53,18 @@ export default function SearchResults() {
     return `${hours}h ${mins}m`;
   };
 
-  const formatPrice = (price?: number) => {
+  const formatPrice = (price?: number | string) => {
     if (!price) return 'N/A';
-    return `$${price.toFixed(2)}`;
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (isNaN(numPrice)) return 'N/A';
+    return `$${numPrice.toFixed(2)}`;
   };
 
   const sortedFlights = [...flights].sort((a, b) => {
     if (sortBy === 'price') {
-      return (a.price.economy || 0) - (b.price.economy || 0);
+      const priceA = typeof a.price.economy === 'string' ? parseFloat(a.price.economy) : (a.price.economy || 0);
+      const priceB = typeof b.price.economy === 'string' ? parseFloat(b.price.economy) : (b.price.economy || 0);
+      return priceA - priceB;
     } else if (sortBy === 'duration') {
       return a.duration - b.duration;
     } else if (sortBy === 'departure') {
