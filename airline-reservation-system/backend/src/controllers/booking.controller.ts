@@ -173,24 +173,25 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
       );
     }
 
+    // Get flight details for notifications BEFORE committing/releasing client
+    const flightsForNotification = await client.query(
+      `SELECT f.flight_number, a.name as airline_name,
+              f.departure_airport, f.arrival_airport,
+              f.departure_time, f.arrival_time,
+              dep.city as dep_city, arr.city as arr_city
+       FROM flights f
+       JOIN airlines a ON f.airline_code = a.code
+       JOIN airports dep ON f.departure_airport = dep.code
+       JOIN airports arr ON f.arrival_airport = arr.code
+       WHERE f.id = ANY($1)`,
+      [flights]
+    );
+
     await client.query('COMMIT');
 
     // Send email and SMS notifications (async, don't block response)
+    // Note: Flight data already fetched above before client was released
     try {
-      // Get full flight details for notifications
-      const flightsForNotification = await client.query(
-        `SELECT f.flight_number, a.name as airline_name,
-                f.departure_airport, f.arrival_airport,
-                f.departure_time, f.arrival_time,
-                dep.city as dep_city, arr.city as arr_city
-         FROM flights f
-         JOIN airlines a ON f.airline_code = a.code
-         JOIN airports dep ON f.departure_airport = dep.code
-         JOIN airports arr ON f.arrival_airport = arr.code
-         WHERE f.id = ANY($1)`,
-        [flights]
-      );
-
       const passengerName = `${passengers[0].title} ${passengers[0].first_name} ${passengers[0].last_name}`;
 
       const baseNotificationData = {
@@ -205,7 +206,7 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
         ...baseNotificationData,
         contact_email: contact_email
       }).catch(err => {
-        console.error('Email notification failed:', err);
+        console.error('❌ Email notification failed:', err);
       });
 
       // Send SMS (don't await - fire and forget)
@@ -214,12 +215,12 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
           ...baseNotificationData,
           contact_phone: contact_phone
         }).catch(err => {
-          console.error('SMS notification failed:', err);
+          console.error('❌ SMS notification failed:', err);
         });
       }
     } catch (notificationError: any) {
       // Log but don't fail the booking
-      console.error('Notification error:', notificationError.message);
+      console.error('❌ Notification error:', notificationError.message);
     }
 
     return res.status(201).json({

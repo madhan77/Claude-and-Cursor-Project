@@ -80,7 +80,7 @@ export default function BookingConfirmation() {
             </div>
             <div>
               <p className="text-gray-600 mb-1">Total Amount</p>
-              <p className="font-bold text-lg">${booking.total_price.toFixed(2)}</p>
+              <p className="font-bold text-lg">${typeof booking.total_price === 'string' ? parseFloat(booking.total_price).toFixed(2) : booking.total_price.toFixed(2)}</p>
             </div>
           </div>
         </div>
