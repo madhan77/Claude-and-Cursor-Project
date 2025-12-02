@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { query } from '../config/database';
 import { CreateBookingRequest } from '../types';
+import emailService from '../services/email.service';
+import smsService from '../services/sms.service';
 
 // Helper function to generate PNR
 const generatePNR = (): string => {
@@ -172,6 +174,49 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
     }
 
     await client.query('COMMIT');
+
+    // Send email and SMS notifications (async, don't block response)
+    try {
+      // Get full flight details for notifications
+      const flightsForNotification = await client.query(
+        `SELECT f.flight_number, a.name as airline_name,
+                f.departure_airport, f.arrival_airport,
+                f.departure_time, f.arrival_time,
+                dep.city as dep_city, arr.city as arr_city
+         FROM flights f
+         JOIN airlines a ON f.airline_code = a.code
+         JOIN airports dep ON f.departure_airport = dep.code
+         JOIN airports arr ON f.arrival_airport = arr.code
+         WHERE f.id = ANY($1)`,
+        [flights]
+      );
+
+      const passengerName = `${passengers[0].title} ${passengers[0].first_name} ${passengers[0].last_name}`;
+
+      const notificationData = {
+        pnr: booking.pnr,
+        contact_email: contact_email,
+        contact_phone: contact_phone,
+        total_price: Number(totalPrice),
+        passenger_name: passengerName,
+        flights: flightsForNotification.rows
+      };
+
+      // Send email (don't await - fire and forget)
+      emailService.sendBookingConfirmation(notificationData).catch(err => {
+        console.error('Email notification failed:', err);
+      });
+
+      // Send SMS (don't await - fire and forget)
+      if (contact_phone) {
+        smsService.sendBookingConfirmation(notificationData).catch(err => {
+          console.error('SMS notification failed:', err);
+        });
+      }
+    } catch (notificationError: any) {
+      // Log but don't fail the booking
+      console.error('Notification error:', notificationError.message);
+    }
 
     return res.status(201).json({
       success: true,
