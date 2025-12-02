@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import apiService from '../services/api';
 import { useBookingStore } from '../store/bookingStore';
 import { useAuthStore } from '../store/authStore';
-import type { Flight, Passenger } from '../types';
+import type { Passenger } from '../types';
 
 export default function BookingFlow() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { selectedFlights, setPassengers, setContactInfo, clearBooking, getTotalPrice } = useBookingStore();
+  const { selectedFlights, setPassengers, setContactInfo, clearBooking } = useBookingStore();
 
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [passengerCount, setPassengerCount] = useState(1);
   const [contactEmail, setContactEmail] = useState(user?.email || '');
@@ -86,14 +85,14 @@ export default function BookingFlow() {
                   <div className="text-sm space-y-1">
                     <p><span className="font-medium">Flight:</span> {flight.airline.name} {flight.flight_number}</p>
                     <p><span className="font-medium">Route:</span> {flight.departure.city} → {flight.arrival.city}</p>
-                    <p><span className="font-medium">Departure:</span> {new Date(flight.departure_time).toLocaleString('en-US', {
+                    <p><span className="font-medium">Departure:</span> {new Date(flight.departure.time).toLocaleString('en-US', {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'
                     })}</p>
-                    <p><span className="font-medium">Price:</span> ${flight.price.economy.toFixed(2)} per person</p>
+                    <p><span className="font-medium">Price:</span> ${(flight.price.economy || 0).toFixed(2)} per person</p>
                   </div>
                 </div>
               ))}
