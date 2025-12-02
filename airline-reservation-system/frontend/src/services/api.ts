@@ -11,6 +11,9 @@ import type {
 
 const API_BASE_URL = (import.meta as any).env.VITE_API_URL || '/api/v1';
 
+// Log the API URL for debugging
+console.log('🔗 API Base URL:', API_BASE_URL);
+
 class ApiService {
   private api: AxiosInstance;
 

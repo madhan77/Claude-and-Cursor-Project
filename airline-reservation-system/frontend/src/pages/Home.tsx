@@ -26,10 +26,13 @@ export default function Home() {
 
   const loadAirports = async () => {
     try {
+      console.log('Loading airports from API...');
       const data = await apiService.getAirports();
+      console.log('Airports loaded:', data);
       setAirports(data);
     } catch (error) {
       console.error('Error loading airports:', error);
+      toast.error('Failed to load airports. Please refresh the page.');
     }
   };
 
