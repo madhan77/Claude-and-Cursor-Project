@@ -24,32 +24,32 @@ export const runAutoMigration = async (): Promise<void> => {
 
     if (tableCount > 0) {
       console.log(`✅ Database already initialized (${tableCount} tables found)`);
-      return;
+      // Don't return - still need to check if seeding is needed
+    } else {
+      console.log('📋 No tables found. Running initial migration...\n');
+
+      // Read schema file from src directory (not dist)
+      // __dirname will be in dist/database, so go up to project root then into src
+      const schemaPath = path.join(__dirname, '../../src/database/schema.sql');
+      const schemaSql = fs.readFileSync(schemaPath, 'utf-8');
+
+      // Execute schema
+      await client.query(schemaSql);
+
+      console.log('✅ Database schema created successfully!\n');
+
+      // Verify tables were created
+      const result = await client.query(`
+        SELECT COUNT(*) as table_count
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_type = 'BASE TABLE'
+      `);
+
+      console.log(`📊 Total tables created: ${result.rows[0].table_count}\n`);
     }
 
-    console.log('📋 No tables found. Running initial migration...\n');
-
-    // Read schema file from src directory (not dist)
-    // __dirname will be in dist/database, so go up to project root then into src
-    const schemaPath = path.join(__dirname, '../../src/database/schema.sql');
-    const schemaSql = fs.readFileSync(schemaPath, 'utf-8');
-
-    // Execute schema
-    await client.query(schemaSql);
-
-    console.log('✅ Database schema created successfully!\n');
-
-    // Verify tables were created
-    const result = await client.query(`
-      SELECT COUNT(*) as table_count
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-      AND table_type = 'BASE TABLE'
-    `);
-
-    console.log(`📊 Total tables created: ${result.rows[0].table_count}\n`);
-
-    // Auto-seed sample data if database is fresh
+    // Always check if seeding is needed (whether tables were just created or already existed)
     await runAutoSeed(client);
 
   } catch (error: any) {
