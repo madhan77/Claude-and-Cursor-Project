@@ -69,8 +69,13 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const flightCheck = await client.query('SELECT COUNT(*) FROM flights');
     const flightCount = parseInt(flightCheck.rows[0].count);
 
-    if (flightCount > 0) {
-      console.log('✅ Sample data already exists, skipping seed');
+    // We expect at least 90 flights (30 days * 3 routes, minimum)
+    // If less, delete old data and re-seed with updated 30-day flights
+    if (flightCount > 0 && flightCount < 90) {
+      console.log(`⚠️  Only ${flightCount} flights found, expected 90+. Re-seeding...`);
+      await client.query('DELETE FROM flights');
+    } else if (flightCount >= 90) {
+      console.log(`✅ Sample data already exists (${flightCount} flights), skipping seed`);
       return;
     }
 
