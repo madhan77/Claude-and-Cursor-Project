@@ -78,11 +78,11 @@ const runAutoSeed = async (client: any): Promise<void> => {
 
     // Basic seed data - Airlines
     const airlines = [
-      { code: 'AA', name: 'American Airlines', country: 'United States', logo_url: 'https://logo.clearbit.com/aa.com' },
-      { code: 'UA', name: 'United Airlines', country: 'United States', logo_url: 'https://logo.clearbit.com/united.com' },
-      { code: 'DL', name: 'Delta Air Lines', country: 'United States', logo_url: 'https://logo.clearbit.com/delta.com' },
-      { code: 'BA', name: 'British Airways', country: 'United Kingdom', logo_url: 'https://logo.clearbit.com/britishairways.com' },
-      { code: 'EK', name: 'Emirates', country: 'United Arab Emirates', logo_url: 'https://logo.clearbit.com/emirates.com' },
+      { code: 'AA', name: 'American Airlines', country: 'USA', logo_url: 'https://logo.clearbit.com/aa.com' },
+      { code: 'UA', name: 'United Airlines', country: 'USA', logo_url: 'https://logo.clearbit.com/united.com' },
+      { code: 'DL', name: 'Delta Air Lines', country: 'USA', logo_url: 'https://logo.clearbit.com/delta.com' },
+      { code: 'BA', name: 'British Airways', country: 'GBR', logo_url: 'https://logo.clearbit.com/britishairways.com' },
+      { code: 'EK', name: 'Emirates', country: 'ARE', logo_url: 'https://logo.clearbit.com/emirates.com' },
     ];
 
     for (const airline of airlines) {
@@ -94,14 +94,14 @@ const runAutoSeed = async (client: any): Promise<void> => {
 
     // Basic seed data - Airports
     const airports = [
-      { code: 'JFK', name: 'John F. Kennedy International Airport', city: 'New York', country: 'United States', timezone: 'America/New_York' },
-      { code: 'LAX', name: 'Los Angeles International Airport', city: 'Los Angeles', country: 'United States', timezone: 'America/Los_Angeles' },
-      { code: 'ORD', name: "O'Hare International Airport", city: 'Chicago', country: 'United States', timezone: 'America/Chicago' },
-      { code: 'LHR', name: 'London Heathrow Airport', city: 'London', country: 'United Kingdom', timezone: 'Europe/London' },
-      { code: 'DXB', name: 'Dubai International Airport', city: 'Dubai', country: 'United Arab Emirates', timezone: 'Asia/Dubai' },
-      { code: 'SFO', name: 'San Francisco International Airport', city: 'San Francisco', country: 'United States', timezone: 'America/Los_Angeles' },
-      { code: 'MIA', name: 'Miami International Airport', city: 'Miami', country: 'United States', timezone: 'America/New_York' },
-      { code: 'CDG', name: 'Charles de Gaulle Airport', city: 'Paris', country: 'France', timezone: 'Europe/Paris' },
+      { code: 'JFK', name: 'John F. Kennedy International Airport', city: 'New York', country: 'USA', timezone: 'America/New_York' },
+      { code: 'LAX', name: 'Los Angeles International Airport', city: 'Los Angeles', country: 'USA', timezone: 'America/Los_Angeles' },
+      { code: 'ORD', name: "O'Hare International Airport", city: 'Chicago', country: 'USA', timezone: 'America/Chicago' },
+      { code: 'LHR', name: 'London Heathrow Airport', city: 'London', country: 'GBR', timezone: 'Europe/London' },
+      { code: 'DXB', name: 'Dubai International Airport', city: 'Dubai', country: 'ARE', timezone: 'Asia/Dubai' },
+      { code: 'SFO', name: 'San Francisco International Airport', city: 'San Francisco', country: 'USA', timezone: 'America/Los_Angeles' },
+      { code: 'MIA', name: 'Miami International Airport', city: 'Miami', country: 'USA', timezone: 'America/New_York' },
+      { code: 'CDG', name: 'Charles de Gaulle Airport', city: 'Paris', country: 'FRA', timezone: 'Europe/Paris' },
     ];
 
     for (const airport of airports) {
