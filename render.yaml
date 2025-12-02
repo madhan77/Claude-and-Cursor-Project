@@ -66,9 +66,8 @@ services:
     autoDeploy: true
     envVars:
       - key: VITE_API_URL
-        # NOTE: After backend deploys, update this value to: https://airline-backend.onrender.com/api/v1
-        # Render will show the actual backend URL in the dashboard
-        value: https://airline-backend.onrender.com/api/v1
+        # Updated to match actual backend URL from Render
+        value: https://airline-backend-nlsk.onrender.com/api/v1
     routes:
       - type: rewrite
         source: /*
