@@ -65,11 +65,11 @@ export const runAutoMigration = async (): Promise<void> => {
  */
 const runAutoSeed = async (client: any): Promise<void> => {
   try {
-    // Check if airlines table has data
-    const airlineCheck = await client.query('SELECT COUNT(*) FROM airlines');
-    const airlineCount = parseInt(airlineCheck.rows[0].count);
+    // Check if flights table has data (most comprehensive check)
+    const flightCheck = await client.query('SELECT COUNT(*) FROM flights');
+    const flightCount = parseInt(flightCheck.rows[0].count);
 
-    if (airlineCount > 0) {
+    if (flightCount > 0) {
       console.log('✅ Sample data already exists, skipping seed');
       return;
     }
@@ -87,7 +87,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
 
     for (const airline of airlines) {
       await client.query(
-        'INSERT INTO airlines (code, name, country, logo_url) VALUES ($1, $2, $3, $4)',
+        'INSERT INTO airlines (code, name, country, logo_url) VALUES ($1, $2, $3, $4) ON CONFLICT (code) DO NOTHING',
         [airline.code, airline.name, airline.country, airline.logo_url]
       );
     }
@@ -106,7 +106,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
 
     for (const airport of airports) {
       await client.query(
-        'INSERT INTO airports (code, name, city, country, timezone) VALUES ($1, $2, $3, $4, $5)',
+        'INSERT INTO airports (code, name, city, country, timezone) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (code) DO NOTHING',
         [airport.code, airport.name, airport.city, airport.country, airport.timezone]
       );
     }
