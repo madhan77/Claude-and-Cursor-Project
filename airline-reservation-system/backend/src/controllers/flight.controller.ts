@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { query } from '../config/database';
 import flightAPIService from '../services/flightapi.service';
 import cacheService from '../services/cache.service';
-import { format } from 'date-fns';
 
 export const searchFlights = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -160,7 +159,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
         passengers: { adults, children, infants },
         class: cabin_class
       },
-      realtime_data: flights.some(f => f.realtime_updated) // Indicates if any real-time data was fetched
+      realtime_data: flights.some((f: any) => f.realtime_updated) // Indicates if any real-time data was fetched
     });
   } catch (error: any) {
     console.error('Flight search error:', error);
