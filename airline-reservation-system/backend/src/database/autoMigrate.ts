@@ -124,12 +124,12 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const aircraftIds = aircraftResult.rows.map((row: any) => row.id);
 
     // Basic seed data - Sample Flights
-    // Create flights for the next 7 days
+    // Create flights for the next 30 days (to support longer round trips)
     const today = new Date();
     const flights = [];
 
     // JFK to LAX (multiple times per day)
-    for (let day = 0; day < 7; day++) {
+    for (let day = 0; day < 30; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -181,7 +181,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to JFK
-    for (let day = 0; day < 7; day++) {
+    for (let day = 0; day < 30; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -209,7 +209,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to LHR (international)
-    for (let day = 0; day < 7; day++) {
+    for (let day = 0; day < 30; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
