@@ -192,7 +192,7 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
     // Send email and SMS notifications (async, don't block response)
     // Note: Flight data already fetched above before client was released
     try {
-      const passengerName = `${passengers[0].title} ${passengers[0].first_name} ${passengers[0].last_name}`;
+      const passengerName = `${passengers[0].title || ''} ${passengers[0].first_name} ${passengers[0].last_name}`.trim();
 
       const baseNotificationData = {
         pnr: booking.pnr,
@@ -201,12 +201,23 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
         flights: flightsForNotification.rows
       };
 
+      console.log(`📧 Attempting to send notifications for booking ${booking.pnr}`);
+      console.log(`   - Email to: ${contact_email}`);
+      console.log(`   - SMS to: ${contact_phone || 'Not provided'}`);
+      console.log(`   - Flight count: ${flightsForNotification.rows.length}`);
+
       // Send email (don't await - fire and forget)
       emailService.sendBookingConfirmation({
         ...baseNotificationData,
         contact_email: contact_email
+      }).then(result => {
+        if (result) {
+          console.log(`✅ Email notification sent successfully for ${booking.pnr}`);
+        } else {
+          console.log(`⚠️  Email notification skipped (service not configured)`);
+        }
       }).catch(err => {
-        console.error('❌ Email notification failed:', err);
+        console.error(`❌ Email notification failed for ${booking.pnr}:`, err.message);
       });
 
       // Send SMS (don't await - fire and forget)
@@ -214,9 +225,17 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
         smsService.sendBookingConfirmation({
           ...baseNotificationData,
           contact_phone: contact_phone
+        }).then(result => {
+          if (result) {
+            console.log(`✅ SMS notification sent successfully for ${booking.pnr}`);
+          } else {
+            console.log(`⚠️  SMS notification skipped (service not configured)`);
+          }
         }).catch(err => {
-          console.error('❌ SMS notification failed:', err);
+          console.error(`❌ SMS notification failed for ${booking.pnr}:`, err.message);
         });
+      } else {
+        console.log(`ℹ️  SMS notification skipped (no phone number provided)`);
       }
     } catch (notificationError: any) {
       // Log but don't fail the booking
