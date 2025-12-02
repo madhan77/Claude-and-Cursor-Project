@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { query } from '../config/database';
+import flightAPIService from '../services/flightapi.service';
+import cacheService from '../services/cache.service';
+import { format } from 'date-fns';
 
 export const searchFlights = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -105,7 +108,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
     const result = await query(queryText, params);
 
     // Format results
-    const flights = result.rows.map((row: any) => ({
+    let flights = result.rows.map((row: any) => ({
       id: row.id,
       flight_number: row.flight_number,
       airline: {
@@ -142,6 +145,10 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
       }
     }));
 
+    // Enrich with real-time flight status from Aviationstack API
+    // This is done asynchronously and won't block if API fails
+    flights = await enrichFlightsWithRealTimeData(flights, departure_date);
+
     return res.status(200).json({
       success: true,
       data: flights,
@@ -152,7 +159,8 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
         departure_date,
         passengers: { adults, children, infants },
         class: cabin_class
-      }
+      },
+      realtime_data: flights.some(f => f.realtime_updated) // Indicates if any real-time data was fetched
     });
   } catch (error: any) {
     console.error('Flight search error:', error);
@@ -161,6 +169,74 @@ export const searchFlights = async (req: Request, res: Response): Promise<Respon
       message: 'Failed to search flights',
       error: error.message
     });
+  }
+};
+
+/**
+ * Enriches flight data with real-time status from Aviationstack API
+ * Uses caching to minimize API calls (100 requests/month free tier)
+ * Gracefully handles API failures - returns original data if API unavailable
+ */
+const enrichFlightsWithRealTimeData = async (flights: any[], departure_date: string): Promise<any[]> => {
+  try {
+    // Process flights concurrently but with a limit to avoid hammering the API
+    const enrichedFlights = await Promise.all(
+      flights.map(async (flight) => {
+        try {
+          // Create cache key
+          const cacheKey = `flight_${flight.flight_number}_${departure_date}`;
+
+          // Check cache first
+          let realtimeData = cacheService.get(cacheKey);
+
+          if (!realtimeData) {
+            // Fetch from API (only if not in cache)
+            console.log(`📡 Fetching real-time data for ${flight.flight_number}`);
+            realtimeData = await flightAPIService.getFlightStatus(flight.flight_number, departure_date);
+
+            // Cache the result (even if null) to avoid repeated failed requests
+            cacheService.set(cacheKey, realtimeData);
+          } else {
+            console.log(`💾 Using cached data for ${flight.flight_number}`);
+          }
+
+          // Merge real-time data if available
+          if (realtimeData) {
+            return {
+              ...flight,
+              status: realtimeData.status || flight.status,
+              departure: {
+                ...flight.departure,
+                time: realtimeData.departure.scheduled_time || flight.departure.time,
+                actual_time: realtimeData.departure.actual_time,
+                terminal: realtimeData.departure.terminal || flight.departure.terminal,
+                gate: realtimeData.departure.gate || flight.departure.gate,
+              },
+              arrival: {
+                ...flight.arrival,
+                time: realtimeData.arrival.scheduled_time || flight.arrival.time,
+                actual_time: realtimeData.arrival.actual_time,
+              },
+              aircraft: realtimeData.aircraft || flight.aircraft,
+              realtime_updated: true,
+              realtime_status: realtimeData.status
+            };
+          }
+
+          return flight;
+        } catch (flightError) {
+          // If individual flight enrichment fails, just return original data
+          console.warn(`⚠️  Failed to enrich ${flight.flight_number}:`, flightError);
+          return flight;
+        }
+      })
+    );
+
+    return enrichedFlights;
+  } catch (error) {
+    // If entire enrichment process fails, return original flights
+    console.error('❌ Real-time enrichment failed:', error);
+    return flights;
   }
 };
 
