@@ -21,19 +21,20 @@ class SMSService {
   private isConfigured: boolean = false;
 
   constructor() {
+    // Initialize synchronously to avoid async constructor issues
     this.initializeTwilio();
   }
 
-  private async initializeTwilio() {
+  private initializeTwilio() {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
     if (accountSid && authToken && fromNumber) {
       try {
-        // Dynamically import Twilio (will be installed separately)
-        const twilio = await import('twilio');
-        this.twilioClient = twilio.default(accountSid, authToken);
+        // Use synchronous require instead of async import
+        const twilio = require('twilio');
+        this.twilioClient = twilio(accountSid, authToken);
         this.isConfigured = true;
         console.log('✅ SMS service initialized');
       } catch (error: any) {
