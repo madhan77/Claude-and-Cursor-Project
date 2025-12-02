@@ -69,9 +69,9 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const flightCheck = await client.query('SELECT COUNT(*) FROM flights');
     const flightCount = parseInt(flightCheck.rows[0].count);
 
-    // We expect at least 90 flights (30 days * 3 routes, minimum)
+    // We expect at least 200 flights (multiple routes × 30 days)
     // If less, delete old data and re-seed with updated 30-day flights
-    if (flightCount > 0 && flightCount < 90) {
+    if (flightCount > 0 && flightCount < 200) {
       console.log(`⚠️  Only ${flightCount} flights found, expected 90+. Re-seeding...`);
 
       // Delete in correct order to respect foreign key constraints
@@ -244,6 +244,258 @@ const runAutoSeed = async (client: any): Promise<void> => {
         base_price_economy: 599.99,
         base_price_business: 2499.99,
         base_price_first: 4999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LHR to JFK (return flight)
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(11, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 8); // 8 hours westbound
+
+      flights.push({
+        flight_number: 'BA102',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LHR',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 480,
+        base_price_economy: 649.99,
+        base_price_business: 2599.99,
+        base_price_first: 5199.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // JFK to SFO
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(10, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 6, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA500',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'JFK',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 390,
+        base_price_economy: 279.99,
+        base_price_business: 849.99,
+        base_price_first: 1399.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // SFO to JFK
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(7, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 5, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA501',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'SFO',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 330,
+        base_price_economy: 289.99,
+        base_price_business: 879.99,
+        base_price_first: 1449.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // JFK to MIA
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(13, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 3);
+
+      flights.push({
+        flight_number: 'AA400',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'JFK',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 180,
+        base_price_economy: 199.99,
+        base_price_business: 599.99,
+        base_price_first: 999.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // MIA to JFK
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(16, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 3);
+
+      flights.push({
+        flight_number: 'AA401',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'MIA',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 180,
+        base_price_economy: 189.99,
+        base_price_business: 579.99,
+        base_price_first: 949.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // LAX to SFO
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(11, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 1, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'DL600',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'LAX',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 90,
+        base_price_economy: 129.99,
+        base_price_business: 399.99,
+        base_price_first: 649.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // SFO to LAX
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(17, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 1, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'DL601',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'SFO',
+        arrival_airport: 'LAX',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 90,
+        base_price_economy: 119.99,
+        base_price_business: 379.99,
+        base_price_first: 629.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // JFK to CDG (Paris)
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(20, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 7, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'DL410',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'JFK',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 450,
+        base_price_economy: 579.99,
+        base_price_business: 2399.99,
+        base_price_first: 4799.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // CDG to JFK (return)
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(12, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 8, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'DL411',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'CDG',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 510,
+        base_price_economy: 599.99,
+        base_price_business: 2449.99,
+        base_price_first: 4899.99,
         available_seats_economy: 280,
         available_seats_business: 50,
         available_seats_first: 20
