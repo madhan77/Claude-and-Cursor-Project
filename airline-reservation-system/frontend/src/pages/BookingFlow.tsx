@@ -7,38 +7,28 @@ import { useAuthStore } from '../store/authStore';
 import type { Flight, Passenger } from '../types';
 
 export default function BookingFlow() {
-  const { flightId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { setPassengers, setContactInfo, clearBooking } = useBookingStore();
+  const { selectedFlights, setPassengers, setContactInfo, clearBooking, getTotalPrice } = useBookingStore();
 
-  const [flight, setFlight] = useState<Flight | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [passengerCount, setPassengerCount] = useState(1);
   const [contactEmail, setContactEmail] = useState(user?.email || '');
   const [contactPhone, setContactPhone] = useState('');
 
+  // Redirect if no flights selected
   useEffect(() => {
-    loadFlight();
-  }, [flightId]);
-
-  const loadFlight = async () => {
-    try {
-      if (!flightId) return;
-      const data = await apiService.getFlightById(flightId);
-      setFlight(data);
-    } catch (error) {
-      toast.error('Failed to load flight details');
-    } finally {
-      setLoading(false);
+    if (selectedFlights.length === 0) {
+      toast.error('No flights selected. Please select flights first.');
+      navigate('/');
     }
-  };
+  }, [selectedFlights, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!flight) return;
+    if (selectedFlights.length === 0) return;
 
     // Collect passenger data from form
     const passengerData: Passenger[] = [];
@@ -60,7 +50,7 @@ export default function BookingFlow() {
 
     try {
       const bookingData = {
-        flights: [flight.id],
+        flights: selectedFlights.map(f => f.id),
         passengers: passengerData,
         contact_email: contactEmail,
         contact_phone: contactPhone,
@@ -78,27 +68,6 @@ export default function BookingFlow() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
-  if (!flight) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Flight not found</h2>
-          <button onClick={() => navigate('/')} className="btn-primary">
-            Back to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,10 +77,26 @@ export default function BookingFlow() {
           {/* Flight Summary */}
           <div className="card">
             <h2 className="text-xl font-semibold mb-4">Flight Details</h2>
-            <div className="text-sm space-y-2">
-              <p><span className="font-medium">Flight:</span> {flight.airline.name} {flight.flight_number}</p>
-              <p><span className="font-medium">Route:</span> {flight.departure.city} → {flight.arrival.city}</p>
-              <p><span className="font-medium">Price:</span> ${flight.price.economy} per person</p>
+            <div className="space-y-4">
+              {selectedFlights.map((flight, index) => (
+                <div key={flight.id} className="border-b last:border-b-0 pb-4 last:pb-0">
+                  <p className="font-medium text-primary-600 mb-2">
+                    {selectedFlights.length > 1 ? (index === 0 ? 'Outbound Flight' : 'Return Flight') : 'Flight'}
+                  </p>
+                  <div className="text-sm space-y-1">
+                    <p><span className="font-medium">Flight:</span> {flight.airline.name} {flight.flight_number}</p>
+                    <p><span className="font-medium">Route:</span> {flight.departure.city} → {flight.arrival.city}</p>
+                    <p><span className="font-medium">Departure:</span> {new Date(flight.departure_time).toLocaleString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</p>
+                    <p><span className="font-medium">Price:</span> ${flight.price.economy.toFixed(2)} per person</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -207,7 +192,7 @@ export default function BookingFlow() {
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold">Total Price:</span>
               <span className="text-3xl font-bold text-primary-600">
-                ${((flight.price.economy || 0) * passengerCount).toFixed(2)}
+                ${(selectedFlights.reduce((sum, flight) => sum + (flight.price.economy || 0), 0) * passengerCount).toFixed(2)}
               </span>
             </div>
           </div>

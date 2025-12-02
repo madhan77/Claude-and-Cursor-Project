@@ -73,7 +73,7 @@ export default function SearchResults() {
       document.getElementById('return-flights')?.scrollIntoView({ behavior: 'smooth' });
     } else {
       addFlight(flight);
-      navigate(`/book/${flight.id}`);
+      navigate('/book');
     }
   };
 
@@ -89,7 +89,7 @@ export default function SearchResults() {
 
     addFlight(selectedOutbound);
     addFlight(selectedReturn);
-    navigate(`/book/${selectedOutbound.id}`);
+    navigate('/book');
   };
 
   const formatDuration = (minutes: number) => {
