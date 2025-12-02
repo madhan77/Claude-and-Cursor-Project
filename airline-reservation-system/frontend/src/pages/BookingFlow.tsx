@@ -92,7 +92,7 @@ export default function BookingFlow() {
                       hour: '2-digit',
                       minute: '2-digit'
                     })}</p>
-                    <p><span className="font-medium">Price:</span> ${(flight.price.economy || 0).toFixed(2)} per person</p>
+                    <p><span className="font-medium">Price:</span> ${Number(flight.price.economy || 0).toFixed(2)} per person</p>
                   </div>
                 </div>
               ))}
@@ -191,7 +191,7 @@ export default function BookingFlow() {
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold">Total Price:</span>
               <span className="text-3xl font-bold text-primary-600">
-                ${(selectedFlights.reduce((sum, flight) => sum + (flight.price.economy || 0), 0) * passengerCount).toFixed(2)}
+                ${(selectedFlights.reduce((sum, flight) => sum + Number(flight.price.economy || 0), 0) * passengerCount).toFixed(2)}
               </span>
             </div>
           </div>
