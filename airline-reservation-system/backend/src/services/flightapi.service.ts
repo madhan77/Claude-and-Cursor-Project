@@ -210,7 +210,7 @@ class FlightAPIService {
   // Docs: https://developers.amadeus.com
   // ============================================================================
 
-  private async searchAmadeus(params: FlightSearchParams): Promise<RealTimeFlightData[]> {
+  private async searchAmadeus(_params: FlightSearchParams): Promise<RealTimeFlightData[]> {
     // TODO: Implement Amadeus flight search
     // 1. Get OAuth2 token
     // 2. Call Flight Offers Search API
@@ -219,7 +219,7 @@ class FlightAPIService {
     return [];
   }
 
-  private async getAmadeusStatus(flightNumber: string, date: string): Promise<RealTimeFlightData | null> {
+  private async getAmadeusStatus(_flightNumber: string, _date: string): Promise<RealTimeFlightData | null> {
     // TODO: Implement Amadeus flight status
     console.log('Amadeus integration not yet implemented');
     return null;
@@ -231,13 +231,13 @@ class FlightAPIService {
   // Docs: https://www.flightaware.com/commercial/aeroapi/
   // ============================================================================
 
-  private async searchFlightAware(params: FlightSearchParams): Promise<RealTimeFlightData[]> {
+  private async searchFlightAware(_params: FlightSearchParams): Promise<RealTimeFlightData[]> {
     // TODO: Implement FlightAware flight search
     console.log('FlightAware integration not yet implemented');
     return [];
   }
 
-  private async getFlightAwareStatus(flightNumber: string, date: string): Promise<RealTimeFlightData | null> {
+  private async getFlightAwareStatus(_flightNumber: string, _date: string): Promise<RealTimeFlightData | null> {
     // TODO: Implement FlightAware flight status
     console.log('FlightAware integration not yet implemented');
     return null;

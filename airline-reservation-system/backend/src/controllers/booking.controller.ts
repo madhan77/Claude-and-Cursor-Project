@@ -193,23 +193,27 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
 
       const passengerName = `${passengers[0].title} ${passengers[0].first_name} ${passengers[0].last_name}`;
 
-      const notificationData = {
+      const baseNotificationData = {
         pnr: booking.pnr,
-        contact_email: contact_email,
-        contact_phone: contact_phone,
         total_price: Number(totalPrice),
         passenger_name: passengerName,
         flights: flightsForNotification.rows
       };
 
       // Send email (don't await - fire and forget)
-      emailService.sendBookingConfirmation(notificationData).catch(err => {
+      emailService.sendBookingConfirmation({
+        ...baseNotificationData,
+        contact_email: contact_email
+      }).catch(err => {
         console.error('Email notification failed:', err);
       });
 
       // Send SMS (don't await - fire and forget)
       if (contact_phone) {
-        smsService.sendBookingConfirmation(notificationData).catch(err => {
+        smsService.sendBookingConfirmation({
+          ...baseNotificationData,
+          contact_phone: contact_phone
+        }).catch(err => {
           console.error('SMS notification failed:', err);
         });
       }
