@@ -73,7 +73,16 @@ const runAutoSeed = async (client: any): Promise<void> => {
     // If less, delete old data and re-seed with updated 30-day flights
     if (flightCount > 0 && flightCount < 90) {
       console.log(`⚠️  Only ${flightCount} flights found, expected 90+. Re-seeding...`);
+
+      // Delete in correct order to respect foreign key constraints
+      await client.query('DELETE FROM ancillary_services');
+      await client.query('DELETE FROM passengers');
+      await client.query('DELETE FROM booking_flights');
+      await client.query('DELETE FROM bookings');
+      await client.query('DELETE FROM seats');
       await client.query('DELETE FROM flights');
+
+      console.log('✅ Old data cleared, re-seeding...');
     } else if (flightCount >= 90) {
       console.log(`✅ Sample data already exists (${flightCount} flights), skipping seed`);
       return;
