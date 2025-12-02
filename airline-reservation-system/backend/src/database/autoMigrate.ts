@@ -111,9 +111,162 @@ const runAutoSeed = async (client: any): Promise<void> => {
       );
     }
 
+    // Basic seed data - Aircraft
+    const aircraftResult = await client.query(`
+      INSERT INTO aircraft (model, manufacturer, total_seats, economy_seats, business_seats, first_class_seats)
+      VALUES
+        ('Boeing 737', 'Boeing', 180, 150, 20, 10),
+        ('Airbus A320', 'Airbus', 186, 156, 20, 10),
+        ('Boeing 777', 'Boeing', 350, 280, 50, 20)
+      RETURNING id
+    `);
+
+    const aircraftIds = aircraftResult.rows.map((row: any) => row.id);
+
+    // Basic seed data - Sample Flights
+    // Create flights for the next 7 days
+    const today = new Date();
+    const flights = [];
+
+    // JFK to LAX (multiple times per day)
+    for (let day = 0; day < 7; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      // Morning flight
+      const morningDep = new Date(flightDate);
+      morningDep.setHours(8, 0, 0, 0);
+      const morningArr = new Date(morningDep);
+      morningArr.setHours(morningArr.getHours() + 6); // 6 hour flight
+
+      flights.push({
+        flight_number: 'AA100',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'JFK',
+        arrival_airport: 'LAX',
+        departure_time: morningDep,
+        arrival_time: morningArr,
+        duration: 360,
+        base_price_economy: 299.99,
+        base_price_business: 899.99,
+        base_price_first: 1499.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+
+      // Evening flight
+      const eveningDep = new Date(flightDate);
+      eveningDep.setHours(18, 30, 0, 0);
+      const eveningArr = new Date(eveningDep);
+      eveningArr.setHours(eveningArr.getHours() + 6);
+
+      flights.push({
+        flight_number: 'DL200',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'JFK',
+        arrival_airport: 'LAX',
+        departure_time: eveningDep,
+        arrival_time: eveningArr,
+        duration: 360,
+        base_price_economy: 279.99,
+        base_price_business: 849.99,
+        base_price_first: 1399.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // LAX to JFK
+    for (let day = 0; day < 7; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(9, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 5, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA300',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'LAX',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 330,
+        base_price_economy: 289.99,
+        base_price_business: 879.99,
+        base_price_first: 1449.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // JFK to LHR (international)
+    for (let day = 0; day < 7; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(22, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 7);
+
+      flights.push({
+        flight_number: 'BA101',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'JFK',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 420,
+        base_price_economy: 599.99,
+        base_price_business: 2499.99,
+        base_price_first: 4999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // Insert all flights
+    for (const flight of flights) {
+      await client.query(
+        `INSERT INTO flights (flight_number, airline_code, aircraft_id, departure_airport, arrival_airport,
+         departure_time, arrival_time, duration, base_price_economy, base_price_business, base_price_first,
+         available_seats_economy, available_seats_business, available_seats_first, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'scheduled')`,
+        [
+          flight.flight_number,
+          flight.airline_code,
+          flight.aircraft_id,
+          flight.departure_airport,
+          flight.arrival_airport,
+          flight.departure_time,
+          flight.arrival_time,
+          flight.duration,
+          flight.base_price_economy,
+          flight.base_price_business,
+          flight.base_price_first,
+          flight.available_seats_economy,
+          flight.available_seats_business,
+          flight.available_seats_first
+        ]
+      );
+    }
+
     console.log('✅ Sample data seeded successfully!');
     console.log(`   - ${airlines.length} airlines`);
-    console.log(`   - ${airports.length} airports\n`);
+    console.log(`   - ${airports.length} airports`);
+    console.log(`   - ${aircraftResult.rows.length} aircraft`);
+    console.log(`   - ${flights.length} flights\n`);
 
   } catch (error: any) {
     console.error('⚠️  Seeding failed (non-critical):', error.message);
