@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import axios from 'axios';
 import { format } from 'date-fns';
 
 interface BookingEmailData {
@@ -20,12 +21,24 @@ interface BookingEmailData {
 
 class EmailService {
   private transporter: nodemailer.Transporter | null = null;
+  private sendgridApiKey: string | null = null;
+  private useApi: boolean = false;
 
   constructor() {
     this.initializeTransporter();
   }
 
   private initializeTransporter() {
+    // Check if SendGrid API key is provided (preferred for Render)
+    this.sendgridApiKey = process.env.SENDGRID_API_KEY || null;
+
+    if (this.sendgridApiKey) {
+      this.useApi = true;
+      console.log('✅ Email service initialized (SendGrid API)');
+      return;
+    }
+
+    // Fallback to SMTP (for local development)
     const emailConfig = {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -39,20 +52,106 @@ class EmailService {
     // Only initialize if credentials are provided
     if (emailConfig.auth.user && emailConfig.auth.pass) {
       this.transporter = nodemailer.createTransport(emailConfig);
-      console.log('✅ Email service initialized');
+      this.useApi = false;
+      console.log('✅ Email service initialized (SMTP)');
     } else {
-      console.log('⚠️  Email service not configured (missing SMTP credentials)');
+      console.log('⚠️  Email service not configured (missing credentials)');
+      console.log('   Set SENDGRID_API_KEY or SMTP_USER/SMTP_PASSWORD');
     }
   }
 
   async sendBookingConfirmation(data: BookingEmailData): Promise<boolean> {
-    if (!this.transporter) {
+    if (!this.transporter && !this.sendgridApiKey) {
       console.log('⚠️  Email not sent: Email service not configured');
       return false;
     }
 
     try {
-      const flightsHtml = data.flights.map(flight => `
+      if (this.useApi && this.sendgridApiKey) {
+        return await this.sendViaSendGridAPI(data);
+      } else {
+        return await this.sendViaSMTP(data);
+      }
+    } catch (error: any) {
+      console.error('❌ Error sending email:', error.message);
+      return false;
+    }
+  }
+
+  private async sendViaSendGridAPI(data: BookingEmailData): Promise<boolean> {
+    try {
+      const { htmlContent, textContent } = this.generateEmailContent(data);
+
+      const payload = {
+        personalizations: [
+          {
+            to: [{ email: data.contact_email }],
+            subject: `✈️ Booking Confirmation - ${data.pnr}`,
+          },
+        ],
+        from: {
+          email: process.env.EMAIL_FROM || 'noreply@airlinereservation.com',
+          name: 'Airline Reservation System',
+        },
+        content: [
+          {
+            type: 'text/plain',
+            value: textContent,
+          },
+          {
+            type: 'text/html',
+            value: htmlContent,
+          },
+        ],
+      };
+
+      await axios.post(
+        'https://api.sendgrid.com/v3/mail/send',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${this.sendgridApiKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('✅ Email sent via SendGrid API');
+      return true;
+    } catch (error: any) {
+      console.error('❌ SendGrid API error:', error.response?.data || error.message);
+      return false;
+    }
+  }
+
+  private async sendViaSMTP(data: BookingEmailData): Promise<boolean> {
+    if (!this.transporter) {
+      console.log('⚠️  SMTP not configured');
+      return false;
+    }
+
+    try {
+      const { htmlContent, textContent } = this.generateEmailContent(data);
+
+      const mailOptions = {
+        from: `"Airline Reservation System" <${process.env.SMTP_USER}>`,
+        to: data.contact_email,
+        subject: `✈️ Booking Confirmation - ${data.pnr}`,
+        html: htmlContent,
+        text: textContent,
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Email sent via SMTP:', info.messageId);
+      return true;
+    } catch (error: any) {
+      console.error('❌ SMTP error:', error.message);
+      return false;
+    }
+  }
+
+  private generateEmailContent(data: BookingEmailData): { htmlContent: string; textContent: string } {
+    const flightsHtml = data.flights.map(flight => `
         <div style="background: #f9fafb; padding: 16px; margin: 16px 0; border-radius: 8px;">
           <h3 style="margin: 0 0 12px 0; color: #1f2937;">${flight.airline_name} - ${flight.flight_number}</h3>
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -68,7 +167,7 @@ class EmailService {
         </div>
       `).join('');
 
-      const htmlContent = `
+    const htmlContent = `
         <!DOCTYPE html>
         <html>
           <head>
@@ -135,13 +234,8 @@ class EmailService {
         </html>
       `;
 
-      const mailOptions = {
-        from: `"Airline Reservation System" <${process.env.SMTP_USER}>`,
-        to: data.contact_email,
-        subject: `✈️ Booking Confirmation - ${data.pnr}`,
-        html: htmlContent,
-        text: `
-Booking Confirmed!
+    const textContent = `
+✈️ Booking Confirmed!
 
 Your booking has been confirmed. Please save your PNR for future reference.
 
@@ -165,16 +259,9 @@ Next Steps:
 
 Need help? Contact our support team
 Email: support@airline.com | Phone: 1-800-FLY-NOW
-        `,
-      };
+    `.trim();
 
-      const info = await this.transporter.sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', info.messageId);
-      return true;
-    } catch (error: any) {
-      console.error('❌ Error sending email:', error.message);
-      return false;
-    }
+    return { htmlContent, textContent };
   }
 }
 
