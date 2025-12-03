@@ -2,18 +2,23 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import apiService from '../services/api';
+import { useBookingStore } from '../store/bookingStore';
 import type { Booking } from '../types';
 
 export default function BookingConfirmation() {
   const { bookingId } = useParams();
+  const { clearBooking } = useBookingStore();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Clear the booking store when confirmation page loads
+    clearBooking();
+
     if (bookingId) {
       loadBooking();
     }
-  }, [bookingId]);
+  }, [bookingId, clearBooking]);
 
   const loadBooking = async () => {
     try {

@@ -9,7 +9,7 @@ import type { Passenger } from '../types';
 export default function BookingFlow() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { selectedFlights, setPassengers, setContactInfo, clearBooking } = useBookingStore();
+  const { selectedFlights, setPassengers, setContactInfo } = useBookingStore();
 
   const [submitting, setSubmitting] = useState(false);
   const [passengerCount, setPassengerCount] = useState(1);
@@ -58,8 +58,8 @@ export default function BookingFlow() {
 
       const booking = await apiService.createBooking(bookingData);
       toast.success('Booking created successfully!');
-      clearBooking();
-      navigate(`/booking-confirmation/${booking.pnr || booking.id}`);
+      // Navigate first, then clear booking on the confirmation page
+      navigate(`/booking-confirmation/${booking.pnr || booking.id}`, { replace: true });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to create booking');
     } finally {
