@@ -502,6 +502,342 @@ const runAutoSeed = async (client: any): Promise<void> => {
       });
     }
 
+    // JFK to ORD (Chicago)
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(14, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 2, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA700',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'JFK',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 150,
+        base_price_economy: 179.99,
+        base_price_business: 549.99,
+        base_price_first: 899.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // ORD to JFK
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(18, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 2, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA701',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'ORD',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 150,
+        base_price_economy: 189.99,
+        base_price_business: 569.99,
+        base_price_first: 929.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // LAX to ORD
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(10, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 4);
+
+      flights.push({
+        flight_number: 'AA800',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'LAX',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 240,
+        base_price_economy: 229.99,
+        base_price_business: 699.99,
+        base_price_first: 1149.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // ORD to LAX
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(15, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 4, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'AA801',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'ORD',
+        arrival_airport: 'LAX',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 270,
+        base_price_economy: 239.99,
+        base_price_business: 719.99,
+        base_price_first: 1179.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // LAX to MIA
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(8, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 5);
+
+      flights.push({
+        flight_number: 'DL900',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'LAX',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 300,
+        base_price_economy: 259.99,
+        base_price_business: 789.99,
+        base_price_first: 1299.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // MIA to LAX
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(12, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 5, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'DL901',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'MIA',
+        arrival_airport: 'LAX',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 330,
+        base_price_economy: 269.99,
+        base_price_business: 799.99,
+        base_price_first: 1319.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // SFO to ORD
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(9, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 4);
+
+      flights.push({
+        flight_number: 'UA600',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'SFO',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 240,
+        base_price_economy: 219.99,
+        base_price_business: 669.99,
+        base_price_first: 1099.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // ORD to SFO
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(16, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 4, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA601',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'ORD',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 270,
+        base_price_economy: 229.99,
+        base_price_business: 689.99,
+        base_price_first: 1129.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // SFO to MIA
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(7, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 5, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'AA900',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'SFO',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 330,
+        base_price_economy: 279.99,
+        base_price_business: 849.99,
+        base_price_first: 1399.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // MIA to SFO
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(14, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 6);
+
+      flights.push({
+        flight_number: 'AA901',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[0],
+        departure_airport: 'MIA',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 360,
+        base_price_economy: 289.99,
+        base_price_business: 879.99,
+        base_price_first: 1449.99,
+        available_seats_economy: 150,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // ORD to MIA
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(11, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 3);
+
+      flights.push({
+        flight_number: 'DL700',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'ORD',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 180,
+        base_price_economy: 199.99,
+        base_price_business: 609.99,
+        base_price_first: 999.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // MIA to ORD
+    for (let day = 0; day < 30; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(19, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 3);
+
+      flights.push({
+        flight_number: 'DL701',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'MIA',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 180,
+        base_price_economy: 209.99,
+        base_price_business: 629.99,
+        base_price_first: 1029.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
     // Insert all flights
     for (const flight of flights) {
       await client.query(

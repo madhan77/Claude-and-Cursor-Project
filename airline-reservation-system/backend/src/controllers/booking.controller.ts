@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { query } from '../config/database';
 import { CreateBookingRequest } from '../types';
-import emailService from '../services/email.service';
-import smsService from '../services/sms.service';
 
 // Helper function to generate PNR
 const generatePNR = (): string => {
@@ -173,74 +171,11 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
       );
     }
 
-    // Get flight details for notifications BEFORE committing/releasing client
-    const flightsForNotification = await client.query(
-      `SELECT f.flight_number, a.name as airline_name,
-              f.departure_airport, f.arrival_airport,
-              f.departure_time, f.arrival_time,
-              dep.city as dep_city, arr.city as arr_city
-       FROM flights f
-       JOIN airlines a ON f.airline_code = a.code
-       JOIN airports dep ON f.departure_airport = dep.code
-       JOIN airports arr ON f.arrival_airport = arr.code
-       WHERE f.id = ANY($1)`,
-      [flights]
-    );
 
     await client.query('COMMIT');
 
-    // Send email and SMS notifications (async, don't block response)
-    // Note: Flight data already fetched above before client was released
-    try {
-      const passengerName = `${passengers[0].title || ''} ${passengers[0].first_name} ${passengers[0].last_name}`.trim();
-
-      const baseNotificationData = {
-        pnr: booking.pnr,
-        total_price: Number(totalPrice),
-        passenger_name: passengerName,
-        flights: flightsForNotification.rows
-      };
-
-      console.log(`📧 Attempting to send notifications for booking ${booking.pnr}`);
-      console.log(`   - Email to: ${contact_email}`);
-      console.log(`   - SMS to: ${contact_phone || 'Not provided'}`);
-      console.log(`   - Flight count: ${flightsForNotification.rows.length}`);
-
-      // Send email (don't await - fire and forget)
-      emailService.sendBookingConfirmation({
-        ...baseNotificationData,
-        contact_email: contact_email
-      }).then(result => {
-        if (result) {
-          console.log(`✅ Email notification sent successfully for ${booking.pnr}`);
-        } else {
-          console.log(`⚠️  Email notification skipped (service not configured)`);
-        }
-      }).catch(err => {
-        console.error(`❌ Email notification failed for ${booking.pnr}:`, err.message);
-      });
-
-      // Send SMS (don't await - fire and forget)
-      if (contact_phone) {
-        smsService.sendBookingConfirmation({
-          ...baseNotificationData,
-          contact_phone: contact_phone
-        }).then(result => {
-          if (result) {
-            console.log(`✅ SMS notification sent successfully for ${booking.pnr}`);
-          } else {
-            console.log(`⚠️  SMS notification skipped (service not configured)`);
-          }
-        }).catch(err => {
-          console.error(`❌ SMS notification failed for ${booking.pnr}:`, err.message);
-        });
-      } else {
-        console.log(`ℹ️  SMS notification skipped (no phone number provided)`);
-      }
-    } catch (notificationError: any) {
-      // Log but don't fail the booking
-      console.error('❌ Notification error:', notificationError.message);
-    }
+    // Notifications disabled - using mockup data only
+    console.log(`✅ Booking created: ${booking.pnr} (notifications disabled)`);
 
     return res.status(201).json({
       success: true,
