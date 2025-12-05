@@ -23,10 +23,14 @@ export default function BookingConfirmation() {
   const loadBooking = async () => {
     try {
       if (!bookingId) return;
+      console.log('Loading booking with ID:', bookingId);
       const data = await apiService.getBooking(bookingId);
+      console.log('Booking loaded:', data);
       setBooking(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading booking:', error);
+      console.error('Error details:', error.response?.data);
+      console.error('Status code:', error.response?.status);
     } finally {
       setLoading(false);
     }

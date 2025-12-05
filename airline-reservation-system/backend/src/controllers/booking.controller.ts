@@ -286,7 +286,10 @@ export const getBookingById = async (req: Request, res: Response): Promise<Respo
     const booking = bookingResult.rows[0];
 
     // Check authorization
-    if (req.user && booking.user_id !== req.user.userId && req.user.role !== 'admin') {
+    // Allow access if:
+    // - No user is logged in (guest viewing via PNR)
+    // - User is logged in AND (booking belongs to them OR booking is guest booking OR user is admin)
+    if (req.user && booking.user_id && booking.user_id !== req.user.userId && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized to view this booking'

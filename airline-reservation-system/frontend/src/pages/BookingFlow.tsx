@@ -57,9 +57,12 @@ export default function BookingFlow() {
       };
 
       const booking = await apiService.createBooking(bookingData);
+      console.log('Booking created:', booking);
       toast.success('Booking created successfully!');
       // Navigate first, then clear booking on the confirmation page
-      navigate(`/booking-confirmation/${booking.pnr || booking.id}`, { replace: true });
+      const bookingId = booking.pnr || (booking as any).booking_id || booking.id;
+      console.log('Navigating to booking confirmation with ID:', bookingId);
+      navigate(`/booking-confirmation/${bookingId}`, { replace: true });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to create booking');
     } finally {
