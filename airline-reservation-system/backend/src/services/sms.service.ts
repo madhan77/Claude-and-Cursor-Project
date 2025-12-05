@@ -66,28 +66,28 @@ class SMSService {
       const firstFlight = data.flights[0];
       const isRoundTrip = data.flights.length > 1;
 
-      // SMS has character limits, so keep it concise
-      const message = `
-✈️ Booking Confirmed!
+      // SMS has character limits, especially for trial accounts (160 chars)
+      // Keep it very concise
+      let message = '';
 
-PNR: ${data.pnr}
-Passenger: ${data.passenger_name}
-
-${isRoundTrip ? 'Outbound' : 'Flight'}: ${firstFlight.airline_name} ${firstFlight.flight_number}
+      if (isRoundTrip) {
+        // Round trip - ultra concise
+        message = `✈️ Booking ${data.pnr} confirmed!
+${firstFlight.flight_number} ${firstFlight.dep_city}-${firstFlight.arr_city} ${format(new Date(firstFlight.departure_time), 'MMM dd')}
+${data.flights[1].flight_number} ${data.flights[1].dep_city}-${data.flights[1].arr_city} ${format(new Date(data.flights[1].departure_time), 'MMM dd')}
+Total: $${data.total_price.toFixed(2)}`;
+      } else {
+        // One way - slightly more detail
+        message = `✈️ Booking ${data.pnr} confirmed!
+${firstFlight.airline_name} ${firstFlight.flight_number}
 ${firstFlight.dep_city} → ${firstFlight.arr_city}
 ${format(new Date(firstFlight.departure_time), 'MMM dd, HH:mm')}
-
-${isRoundTrip ? `Return: ${data.flights[1].airline_name} ${data.flights[1].flight_number}
-${data.flights[1].dep_city} → ${data.flights[1].arr_city}
-${format(new Date(data.flights[1].departure_time), 'MMM dd, HH:mm')}
-
-` : ''}Total: $${data.total_price.toFixed(2)}
-
-Check-in opens 24h before departure. Have a great flight!
-      `.trim();
+Total: $${data.total_price.toFixed(2)}`;
+      }
 
       const formattedPhone = this.formatPhoneNumber(data.contact_phone);
       console.log(`📱 Sending SMS to ${formattedPhone} for booking ${data.pnr}`);
+      console.log(`   Message length: ${message.length} characters`);
 
       const result = await this.twilioClient.messages.create({
         body: message,
