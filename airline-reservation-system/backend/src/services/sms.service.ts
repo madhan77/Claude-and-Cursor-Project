@@ -30,19 +30,28 @@ class SMSService {
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
+    console.log('📱 Initializing SMS service...');
+    console.log(`   - TWILIO_ACCOUNT_SID: ${accountSid ? 'Set (' + accountSid.substring(0, 10) + '...)' : 'Not set'}`);
+    console.log(`   - TWILIO_AUTH_TOKEN: ${authToken ? 'Set (hidden)' : 'Not set'}`);
+    console.log(`   - TWILIO_PHONE_NUMBER: ${fromNumber || 'Not set'}`);
+
     if (accountSid && authToken && fromNumber) {
       try {
         // Use synchronous require instead of async import
         const twilio = require('twilio');
         this.twilioClient = twilio(accountSid, authToken);
         this.isConfigured = true;
-        console.log('✅ SMS service initialized');
+        console.log('✅ SMS service initialized (Twilio)');
       } catch (error: any) {
+        console.error('❌ Twilio SDK error:', error.message);
         console.log('⚠️  Twilio SDK not installed. Run: npm install twilio');
         this.isConfigured = false;
       }
     } else {
       console.log('⚠️  SMS service not configured (missing Twilio credentials)');
+      console.log('   To enable SMS notifications:');
+      console.log('   1. Sign up at https://www.twilio.com/try-twilio');
+      console.log('   2. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER');
       this.isConfigured = false;
     }
   }
@@ -77,16 +86,23 @@ ${format(new Date(data.flights[1].departure_time), 'MMM dd, HH:mm')}
 Check-in opens 24h before departure. Have a great flight!
       `.trim();
 
+      const formattedPhone = this.formatPhoneNumber(data.contact_phone);
+      console.log(`📱 Sending SMS to ${formattedPhone} for booking ${data.pnr}`);
+
       const result = await this.twilioClient.messages.create({
         body: message,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: this.formatPhoneNumber(data.contact_phone),
+        to: formattedPhone,
       });
 
       console.log('✅ SMS sent successfully:', result.sid);
       return true;
     } catch (error: any) {
       console.error('❌ Error sending SMS:', error.message);
+      console.error('   Error code:', error.code);
+      console.error('   More info:', error.moreInfo);
+      console.error('   To:', this.formatPhoneNumber(data.contact_phone));
+      console.error('   From:', process.env.TWILIO_PHONE_NUMBER);
       return false;
     }
   }
