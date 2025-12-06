@@ -69,10 +69,10 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const flightCheck = await client.query('SELECT COUNT(*) FROM flights');
     const flightCount = parseInt(flightCheck.rows[0].count);
 
-    // We expect at least 2000 flights (multiple routes × 90 days)
-    // If less, delete old data and re-seed with updated 90-day flights
-    if (flightCount > 0 && flightCount < 2000) {
-      console.log(`⚠️  Only ${flightCount} flights found, expected 2000+. Re-seeding...`);
+    // We expect at least 40000 flights (54 routes × 730 days ≈ 40,000 flights)
+    // If less, delete old data and re-seed with updated 2-year flights
+    if (flightCount > 0 && flightCount < 40000) {
+      console.log(`⚠️  Only ${flightCount} flights found, expected 40,000+. Re-seeding...`);
 
       // Delete in correct order to respect foreign key constraints
       await client.query('DELETE FROM ancillary_services');
@@ -83,7 +83,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
       await client.query('DELETE FROM flights');
 
       console.log('✅ Old data cleared, re-seeding...');
-    } else if (flightCount >= 2000) {
+    } else if (flightCount >= 40000) {
       console.log(`✅ Sample data already exists (${flightCount} flights), skipping seed`);
       return;
     }
@@ -138,12 +138,12 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const aircraftIds = aircraftResult.rows.map((row: any) => row.id);
 
     // Basic seed data - Sample Flights
-    // Create flights for the next 90 days (to support longer round trips)
+    // Create flights for the next 2 years (730 days) to support extended booking windows
     const today = new Date();
     const flights = [];
 
     // JFK to LAX (multiple times per day)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -195,7 +195,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to JFK
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -223,7 +223,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to LHR (international)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -251,7 +251,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to JFK (return flight)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -279,7 +279,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to SFO
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -307,7 +307,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to JFK
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -335,7 +335,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to MIA
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -363,7 +363,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to JFK
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -391,7 +391,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to SFO
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -419,7 +419,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to LAX
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -447,7 +447,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to CDG (Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -475,7 +475,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to JFK (return)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -503,7 +503,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to ORD (Chicago)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -531,7 +531,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to JFK
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -559,7 +559,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to ORD
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -587,7 +587,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to LAX
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -615,7 +615,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to MIA
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -643,7 +643,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to LAX
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -671,7 +671,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to ORD
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -699,7 +699,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to SFO
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -727,7 +727,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to MIA
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -755,7 +755,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to SFO
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -783,7 +783,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to MIA
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -811,7 +811,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to ORD
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -841,7 +841,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     // ===== DUBAI (DXB) INTERNATIONAL ROUTES =====
 
     // CDG to DXB (Paris to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -869,7 +869,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to CDG (Dubai to Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -897,7 +897,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to DXB (New York to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -925,7 +925,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to JFK (Dubai to New York)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -953,7 +953,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to DXB (Los Angeles to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -981,7 +981,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to LAX (Dubai to Los Angeles)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1009,7 +1009,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to DXB (London to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1037,7 +1037,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to LHR (Dubai to London)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1065,7 +1065,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to DXB (Chicago to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1093,7 +1093,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to ORD (Dubai to Chicago)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1121,7 +1121,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to DXB (San Francisco to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1149,7 +1149,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to SFO (Dubai to San Francisco)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1177,7 +1177,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to DXB (Miami to Dubai)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1205,7 +1205,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // DXB to MIA (Dubai to Miami)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1235,7 +1235,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     // ===== ADDITIONAL EUROPEAN ROUTES =====
 
     // LHR to CDG (London to Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1263,7 +1263,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to LHR (Paris to London)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1291,7 +1291,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to LAX (London to Los Angeles)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1319,7 +1319,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to LHR (Los Angeles to London)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1347,7 +1347,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to ORD (London to Chicago)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1375,7 +1375,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to LHR (Chicago to London)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1403,7 +1403,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to LAX (Paris to Los Angeles)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1431,7 +1431,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to CDG (Los Angeles to Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1459,7 +1459,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to ORD (Paris to Chicago)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1487,7 +1487,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to CDG (Chicago to Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1515,7 +1515,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to SFO (London to San Francisco)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1543,7 +1543,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to LHR (San Francisco to London)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1571,7 +1571,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to SFO (Paris to San Francisco)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1599,7 +1599,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to CDG (San Francisco to Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1627,7 +1627,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to MIA (London to Miami)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1655,7 +1655,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to LHR (Miami to London)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1683,7 +1683,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to MIA (Paris to Miami)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -1711,7 +1711,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to CDG (Miami to Paris)
-    for (let day = 0; day < 90; day++) {
+    for (let day = 0; day < 730; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
