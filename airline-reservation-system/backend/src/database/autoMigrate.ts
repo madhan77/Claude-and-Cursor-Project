@@ -49,6 +49,9 @@ export const runAutoMigration = async (): Promise<void> => {
       console.log(`📊 Total tables created: ${result.rows[0].table_count}\n`);
     }
 
+    // Run new features migration if needed
+    await runNewFeaturesMigration(client);
+
     // Always check if seeding is needed (whether tables were just created or already existed)
     await runAutoSeed(client);
 
@@ -57,6 +60,53 @@ export const runAutoMigration = async (): Promise<void> => {
     throw error;
   } finally {
     client.release();
+  }
+};
+
+/**
+ * Run new features migration
+ * Adds tables for seat selection, baggage, meals, insurance, loyalty, etc.
+ */
+const runNewFeaturesMigration = async (client: any): Promise<void> => {
+  try {
+    // Check if new feature tables exist (check for seat_maps as indicator)
+    const tableCheck = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name = 'seat_maps'
+      ) as exists
+    `);
+
+    if (tableCheck.rows[0].exists) {
+      console.log('✅ New feature tables already exist, skipping migration\n');
+      return;
+    }
+
+    console.log('🆕 Running new features migration...\n');
+
+    // Read migration file
+    const migrationPath = path.join(__dirname, '../../src/database/migrations/add-new-features.sql');
+    const migrationSql = fs.readFileSync(migrationPath, 'utf-8');
+
+    // Execute migration
+    await client.query(migrationSql);
+
+    console.log('✅ New features migration completed successfully!\n');
+
+    // Verify new tables were created
+    const newTableCheck = await client.query(`
+      SELECT COUNT(*) as table_count
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    `);
+
+    console.log(`📊 Total tables now: ${newTableCheck.rows[0].table_count}\n`);
+
+  } catch (error: any) {
+    console.error('❌ New features migration failed:', error.message);
+    throw error;
   }
 };
 

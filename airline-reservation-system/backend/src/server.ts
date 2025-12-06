@@ -11,6 +11,11 @@ import flightRoutes from './routes/flight.routes';
 import bookingRoutes from './routes/booking.routes';
 import userRoutes from './routes/user.routes';
 import adminRoutes from './routes/admin.routes';
+import promoRoutes from './routes/promo.routes';
+import ancillaryRoutes from './routes/ancillary.routes';
+import seatRoutes from './routes/seat.routes';
+import checkinRoutes from './routes/checkin.routes';
+import loyaltyRoutes from './routes/loyalty.routes';
 
 // Import auto-migration
 import { runAutoMigration } from './database/autoMigrate';
@@ -82,6 +87,11 @@ app.use(`/api/${API_VERSION}/flights`, flightRoutes);
 app.use(`/api/${API_VERSION}/bookings`, bookingRoutes);
 app.use(`/api/${API_VERSION}/users`, userRoutes);
 app.use(`/api/${API_VERSION}/admin`, adminRoutes);
+app.use(`/api/${API_VERSION}/promo`, promoRoutes);
+app.use(`/api/${API_VERSION}/ancillary`, ancillaryRoutes);
+app.use(`/api/${API_VERSION}/seats`, seatRoutes);
+app.use(`/api/${API_VERSION}/checkin`, checkinRoutes);
+app.use(`/api/${API_VERSION}/loyalty`, loyaltyRoutes);
 
 // 404 Handler
 app.use((_req: Request, res: Response) => {
