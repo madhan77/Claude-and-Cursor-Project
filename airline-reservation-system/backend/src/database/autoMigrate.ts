@@ -69,10 +69,10 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const flightCheck = await client.query('SELECT COUNT(*) FROM flights');
     const flightCount = parseInt(flightCheck.rows[0].count);
 
-    // We expect at least 200 flights (multiple routes × 30 days)
-    // If less, delete old data and re-seed with updated 30-day flights
-    if (flightCount > 0 && flightCount < 200) {
-      console.log(`⚠️  Only ${flightCount} flights found, expected 90+. Re-seeding...`);
+    // We expect at least 2000 flights (multiple routes × 90 days)
+    // If less, delete old data and re-seed with updated 90-day flights
+    if (flightCount > 0 && flightCount < 2000) {
+      console.log(`⚠️  Only ${flightCount} flights found, expected 2000+. Re-seeding...`);
 
       // Delete in correct order to respect foreign key constraints
       await client.query('DELETE FROM ancillary_services');
@@ -83,7 +83,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
       await client.query('DELETE FROM flights');
 
       console.log('✅ Old data cleared, re-seeding...');
-    } else if (flightCount >= 90) {
+    } else if (flightCount >= 2000) {
       console.log(`✅ Sample data already exists (${flightCount} flights), skipping seed`);
       return;
     }
@@ -138,12 +138,12 @@ const runAutoSeed = async (client: any): Promise<void> => {
     const aircraftIds = aircraftResult.rows.map((row: any) => row.id);
 
     // Basic seed data - Sample Flights
-    // Create flights for the next 30 days (to support longer round trips)
+    // Create flights for the next 90 days (to support longer round trips)
     const today = new Date();
     const flights = [];
 
     // JFK to LAX (multiple times per day)
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -195,7 +195,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to JFK
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -223,7 +223,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to LHR (international)
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -251,7 +251,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LHR to JFK (return flight)
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -279,7 +279,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to SFO
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -307,7 +307,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to JFK
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -335,7 +335,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to MIA
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -363,7 +363,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to JFK
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -391,7 +391,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to SFO
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -419,7 +419,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to LAX
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -447,7 +447,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to CDG (Paris)
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -475,7 +475,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // CDG to JFK (return)
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -503,7 +503,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // JFK to ORD (Chicago)
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -531,7 +531,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to JFK
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -559,7 +559,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to ORD
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -587,7 +587,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to LAX
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -615,7 +615,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // LAX to MIA
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -643,7 +643,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to LAX
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -671,7 +671,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to ORD
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -699,7 +699,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to SFO
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -727,7 +727,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // SFO to MIA
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -755,7 +755,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to SFO
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -783,7 +783,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // ORD to MIA
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -811,7 +811,7 @@ const runAutoSeed = async (client: any): Promise<void> => {
     }
 
     // MIA to ORD
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 90; day++) {
       const flightDate = new Date(today);
       flightDate.setDate(today.getDate() + day);
 
@@ -835,6 +835,906 @@ const runAutoSeed = async (client: any): Promise<void> => {
         available_seats_economy: 156,
         available_seats_business: 20,
         available_seats_first: 10
+      });
+    }
+
+    // ===== DUBAI (DXB) INTERNATIONAL ROUTES =====
+
+    // CDG to DXB (Paris to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(15, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 6, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK076',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'CDG',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 390,
+        base_price_economy: 699.99,
+        base_price_business: 2999.99,
+        base_price_first: 5999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to CDG (Dubai to Paris)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(8, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 7);
+
+      flights.push({
+        flight_number: 'EK077',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 420,
+        base_price_economy: 729.99,
+        base_price_business: 3099.99,
+        base_price_first: 6199.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // JFK to DXB (New York to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(23, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 12, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK202',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'JFK',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 750,
+        base_price_economy: 899.99,
+        base_price_business: 3999.99,
+        base_price_first: 7999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to JFK (Dubai to New York)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(9, 45, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 14);
+
+      flights.push({
+        flight_number: 'EK203',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'JFK',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 840,
+        base_price_economy: 949.99,
+        base_price_business: 4199.99,
+        base_price_first: 8299.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LAX to DXB (Los Angeles to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(16, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 16);
+
+      flights.push({
+        flight_number: 'EK216',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LAX',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 960,
+        base_price_economy: 999.99,
+        base_price_business: 4499.99,
+        base_price_first: 8999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to LAX (Dubai to Los Angeles)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(2, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 16, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK217',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'LAX',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 990,
+        base_price_economy: 1029.99,
+        base_price_business: 4599.99,
+        base_price_first: 9199.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LHR to DXB (London to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(21, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 7);
+
+      flights.push({
+        flight_number: 'EK004',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LHR',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 420,
+        base_price_economy: 649.99,
+        base_price_business: 2799.99,
+        base_price_first: 5599.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to LHR (Dubai to London)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(14, 45, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 7, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK005',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 450,
+        base_price_economy: 679.99,
+        base_price_business: 2899.99,
+        base_price_first: 5799.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // ORD to DXB (Chicago to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(22, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 13);
+
+      flights.push({
+        flight_number: 'EK236',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'ORD',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 780,
+        base_price_economy: 879.99,
+        base_price_business: 3899.99,
+        base_price_first: 7799.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to ORD (Dubai to Chicago)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(10, 15, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 14, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK237',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 870,
+        base_price_economy: 919.99,
+        base_price_business: 4099.99,
+        base_price_first: 8199.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // SFO to DXB (San Francisco to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(15, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 15, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK226',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'SFO',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 930,
+        base_price_economy: 979.99,
+        base_price_business: 4399.99,
+        base_price_first: 8799.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to SFO (Dubai to San Francisco)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(3, 15, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 16);
+
+      flights.push({
+        flight_number: 'EK227',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 960,
+        base_price_economy: 1009.99,
+        base_price_business: 4499.99,
+        base_price_first: 8999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // MIA to DXB (Miami to Dubai)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(21, 45, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 13, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'EK214',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'MIA',
+        arrival_airport: 'DXB',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 810,
+        base_price_economy: 899.99,
+        base_price_business: 3999.99,
+        base_price_first: 7999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // DXB to MIA (Dubai to Miami)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(8, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 15);
+
+      flights.push({
+        flight_number: 'EK215',
+        airline_code: 'EK',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'DXB',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 900,
+        base_price_economy: 939.99,
+        base_price_business: 4199.99,
+        base_price_first: 8399.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // ===== ADDITIONAL EUROPEAN ROUTES =====
+
+    // LHR to CDG (London to Paris)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(9, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 1, arr.getMinutes() + 15);
+
+      flights.push({
+        flight_number: 'BA308',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'LHR',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 75,
+        base_price_economy: 149.99,
+        base_price_business: 449.99,
+        base_price_first: 749.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // CDG to LHR (Paris to London)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(18, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 1, arr.getMinutes() + 15);
+
+      flights.push({
+        flight_number: 'BA309',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[1],
+        departure_airport: 'CDG',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 75,
+        base_price_economy: 159.99,
+        base_price_business: 469.99,
+        base_price_first: 769.99,
+        available_seats_economy: 156,
+        available_seats_business: 20,
+        available_seats_first: 10
+      });
+    }
+
+    // LHR to LAX (London to Los Angeles)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(10, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 11);
+
+      flights.push({
+        flight_number: 'BA268',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LHR',
+        arrival_airport: 'LAX',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 660,
+        base_price_economy: 649.99,
+        base_price_business: 2699.99,
+        base_price_first: 5399.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LAX to LHR (Los Angeles to London)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(19, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 10, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'BA269',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LAX',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 630,
+        base_price_economy: 679.99,
+        base_price_business: 2799.99,
+        base_price_first: 5599.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LHR to ORD (London to Chicago)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(16, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 9);
+
+      flights.push({
+        flight_number: 'BA296',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LHR',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 540,
+        base_price_economy: 599.99,
+        base_price_business: 2499.99,
+        base_price_first: 4999.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // ORD to LHR (Chicago to London)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(21, 15, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 8);
+
+      flights.push({
+        flight_number: 'BA297',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'ORD',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 480,
+        base_price_economy: 629.99,
+        base_price_business: 2599.99,
+        base_price_first: 5199.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // CDG to LAX (Paris to Los Angeles)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(11, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 11, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'DL468',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'CDG',
+        arrival_airport: 'LAX',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 690,
+        base_price_economy: 669.99,
+        base_price_business: 2799.99,
+        base_price_first: 5599.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LAX to CDG (Los Angeles to Paris)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(20, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 11);
+
+      flights.push({
+        flight_number: 'DL469',
+        airline_code: 'DL',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LAX',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 660,
+        base_price_economy: 699.99,
+        base_price_business: 2899.99,
+        base_price_first: 5799.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // CDG to ORD (Paris to Chicago)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(13, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 9, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'AA48',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'CDG',
+        arrival_airport: 'ORD',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 570,
+        base_price_economy: 619.99,
+        base_price_business: 2599.99,
+        base_price_first: 5199.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // ORD to CDG (Chicago to Paris)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(17, 45, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 8, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'AA49',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'ORD',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 510,
+        base_price_economy: 649.99,
+        base_price_business: 2699.99,
+        base_price_first: 5399.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LHR to SFO (London to San Francisco)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(12, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 11);
+
+      flights.push({
+        flight_number: 'BA286',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LHR',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 660,
+        base_price_economy: 659.99,
+        base_price_business: 2749.99,
+        base_price_first: 5499.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // SFO to LHR (San Francisco to London)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(18, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 10, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'BA287',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'SFO',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 630,
+        base_price_economy: 689.99,
+        base_price_business: 2849.99,
+        base_price_first: 5699.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // CDG to SFO (Paris to San Francisco)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(14, 15, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 11, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'UA990',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'CDG',
+        arrival_airport: 'SFO',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 690,
+        base_price_economy: 679.99,
+        base_price_business: 2849.99,
+        base_price_first: 5699.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // SFO to CDG (San Francisco to Paris)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(16, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 11);
+
+      flights.push({
+        flight_number: 'UA991',
+        airline_code: 'UA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'SFO',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 660,
+        base_price_economy: 709.99,
+        base_price_business: 2949.99,
+        base_price_first: 5899.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // LHR to MIA (London to Miami)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(15, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 9, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'BA206',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'LHR',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 570,
+        base_price_economy: 589.99,
+        base_price_business: 2449.99,
+        base_price_first: 4899.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // MIA to LHR (Miami to London)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(20, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 8, arr.getMinutes() + 30);
+
+      flights.push({
+        flight_number: 'BA207',
+        airline_code: 'BA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'MIA',
+        arrival_airport: 'LHR',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 510,
+        base_price_economy: 619.99,
+        base_price_business: 2549.99,
+        base_price_first: 5099.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // CDG to MIA (Paris to Miami)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(16, 30, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 10);
+
+      flights.push({
+        flight_number: 'AA90',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'CDG',
+        arrival_airport: 'MIA',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 600,
+        base_price_economy: 609.99,
+        base_price_business: 2549.99,
+        base_price_first: 5099.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
+      });
+    }
+
+    // MIA to CDG (Miami to Paris)
+    for (let day = 0; day < 90; day++) {
+      const flightDate = new Date(today);
+      flightDate.setDate(today.getDate() + day);
+
+      const dep = new Date(flightDate);
+      dep.setHours(22, 0, 0, 0);
+      const arr = new Date(dep);
+      arr.setHours(arr.getHours() + 9);
+
+      flights.push({
+        flight_number: 'AA91',
+        airline_code: 'AA',
+        aircraft_id: aircraftIds[2],
+        departure_airport: 'MIA',
+        arrival_airport: 'CDG',
+        departure_time: dep,
+        arrival_time: arr,
+        duration: 540,
+        base_price_economy: 639.99,
+        base_price_business: 2649.99,
+        base_price_first: 5299.99,
+        available_seats_economy: 280,
+        available_seats_business: 50,
+        available_seats_first: 20
       });
     }
 
