@@ -231,31 +231,50 @@ export const getBookingById = async (req: Request, res: Response): Promise<Respo
       });
     }
 
-    // Get flights
-    const flightsResult = await query(
-      `SELECT f.*, a.name as airline_name, a.logo_url as airline_logo,
-              dep.name as dep_airport_name, dep.city as dep_city,
-              arr.name as arr_airport_name, arr.city as arr_city
-       FROM booking_flights bf
-       JOIN flights f ON bf.flight_id = f.id
-       JOIN airlines a ON f.airline_code = a.code
-       JOIN airports dep ON f.departure_airport = dep.code
-       JOIN airports arr ON f.arrival_airport = arr.code
-       WHERE bf.booking_id = $1`,
-      [booking.id]
-    );
+    // Get flights with error handling for missing joins
+    let flightsResult;
+    try {
+      flightsResult = await query(
+        `SELECT f.*, a.name as airline_name, a.logo_url as airline_logo,
+                dep.name as dep_airport_name, dep.city as dep_city,
+                arr.name as arr_airport_name, arr.city as arr_city
+         FROM booking_flights bf
+         JOIN flights f ON bf.flight_id = f.id
+         JOIN airlines a ON f.airline_code = a.code
+         JOIN airports dep ON f.departure_airport = dep.code
+         JOIN airports arr ON f.arrival_airport = arr.code
+         WHERE bf.booking_id = $1`,
+        [booking.id]
+      );
+    } catch (flightError: any) {
+      console.error('Error fetching flights for booking:', flightError.message);
+      // Return basic booking info even if flight details fail
+      flightsResult = { rows: [] };
+    }
 
-    // Get passengers
-    const passengersResult = await query(
-      'SELECT * FROM passengers WHERE booking_id = $1',
-      [booking.id]
-    );
+    // Get passengers with error handling
+    let passengersResult;
+    try {
+      passengersResult = await query(
+        'SELECT * FROM passengers WHERE booking_id = $1',
+        [booking.id]
+      );
+    } catch (passengerError: any) {
+      console.error('Error fetching passengers for booking:', passengerError.message);
+      passengersResult = { rows: [] };
+    }
 
-    // Get ancillary services
-    const ancillariesResult = await query(
-      'SELECT * FROM ancillary_services WHERE booking_id = $1',
-      [booking.id]
-    );
+    // Get ancillary services with error handling (may not exist in older schemas)
+    let ancillariesResult;
+    try {
+      ancillariesResult = await query(
+        'SELECT * FROM ancillary_services WHERE booking_id = $1',
+        [booking.id]
+      );
+    } catch (ancillaryError: any) {
+      console.error('Error fetching ancillaries (table may not exist):', ancillaryError.message);
+      ancillariesResult = { rows: [] };
+    }
 
     return res.status(200).json({
       success: true,
@@ -268,10 +287,11 @@ export const getBookingById = async (req: Request, res: Response): Promise<Respo
     });
   } catch (error: any) {
     console.error('Get booking error:', error);
+    console.error('Error stack:', error.stack);
     return res.status(500).json({
       success: false,
       message: 'Failed to get booking',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 };
