@@ -37,10 +37,18 @@ export default function Header() {
             <Link to="/" className="text-gray-700 hover:text-primary-600 font-medium">
               Home
             </Link>
+            <Link to="/checkin" className="text-gray-700 hover:text-primary-600 font-medium">
+              Check-In
+            </Link>
             {isAuthenticated && (
-              <Link to="/my-bookings" className="text-gray-700 hover:text-primary-600 font-medium">
-                My Bookings
-              </Link>
+              <>
+                <Link to="/my-bookings" className="text-gray-700 hover:text-primary-600 font-medium">
+                  My Bookings
+                </Link>
+                <Link to="/loyalty" className="text-gray-700 hover:text-primary-600 font-medium">
+                  Loyalty
+                </Link>
+              </>
             )}
           </nav>
 

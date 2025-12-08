@@ -9,6 +9,8 @@ import MyBookings from './pages/MyBookings';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import CheckIn from './pages/CheckIn';
+import LoyaltyDashboard from './pages/LoyaltyDashboard';
 
 function App() {
   return (
@@ -24,6 +26,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/checkin" element={<CheckIn />} />
+          <Route path="/checkin/:pnr" element={<CheckIn />} />
+          <Route path="/loyalty" element={<LoyaltyDashboard />} />
         </Routes>
       </main>
       <Footer />
