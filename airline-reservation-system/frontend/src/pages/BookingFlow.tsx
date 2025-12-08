@@ -5,6 +5,7 @@ import apiService from '../services/api';
 import { useBookingStore } from '../store/bookingStore';
 import { useAuthStore } from '../store/authStore';
 import type { Passenger } from '../types';
+import PromoCodeInput from '../components/PromoCodeInput';
 
 export default function BookingFlow() {
   const navigate = useNavigate();
@@ -16,6 +17,10 @@ export default function BookingFlow() {
   const [contactEmail, setContactEmail] = useState(user?.email || '');
   const [contactPhone, setContactPhone] = useState('');
 
+  // Promo code state
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [appliedPromoCode, setAppliedPromoCode] = useState('');
+
   // Redirect if no flights selected
   useEffect(() => {
     if (selectedFlights.length === 0) {
@@ -23,6 +28,17 @@ export default function BookingFlow() {
       navigate('/');
     }
   }, [selectedFlights, navigate]);
+
+  // Calculate base flight price
+  const baseFlightPrice = selectedFlights.reduce((sum, flight) => sum + Number(flight.price.economy || 0), 0) * passengerCount;
+
+  // Calculate final total
+  const finalTotal = baseFlightPrice - promoDiscount;
+
+  const handlePromoApplied = (discount: number, _promoId: string, promoCode: string) => {
+    setPromoDiscount(discount);
+    setAppliedPromoCode(promoCode);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,11 +70,12 @@ export default function BookingFlow() {
         contact_email: contactEmail,
         contact_phone: contactPhone,
         payment_method: 'credit_card',
+        promo_code: appliedPromoCode || undefined,
       };
 
       const booking = await apiService.createBooking(bookingData);
       console.log('Booking created:', booking);
-      toast.success('Booking created successfully!');
+      toast.success('Booking created successfully! You can add seats, meals, and baggage on the next page.');
       // Navigate first, then clear booking on the confirmation page
       const bookingId = booking.pnr || (booking as any).booking_id || booking.id;
       console.log('Navigating to booking confirmation with ID:', bookingId);
@@ -100,6 +117,15 @@ export default function BookingFlow() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Promo Code */}
+          <div className="card">
+            <h2 className="text-xl font-semibold mb-4">Promo Code</h2>
+            <PromoCodeInput
+              bookingAmount={baseFlightPrice}
+              onPromoApplied={handlePromoApplied}
+            />
           </div>
 
           {/* Number of Passengers */}
@@ -189,13 +215,41 @@ export default function BookingFlow() {
             </div>
           </div>
 
-          {/* Total Price */}
+          {/* Price Summary */}
           <div className="card bg-primary-50 border-2 border-primary-200">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold">Total Price:</span>
-              <span className="text-3xl font-bold text-primary-600">
-                ${(selectedFlights.reduce((sum, flight) => sum + Number(flight.price.economy || 0), 0) * passengerCount).toFixed(2)}
-              </span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-start text-sm">
+                <div>
+                  <p className="font-medium">Base Flight Price</p>
+                  <p className="text-gray-600">{passengerCount} passenger{passengerCount > 1 ? 's' : ''}</p>
+                </div>
+                <span className="font-medium">${baseFlightPrice.toFixed(2)}</span>
+              </div>
+
+              {promoDiscount > 0 && (
+                <div className="flex justify-between text-sm text-green-700 border-t border-green-200 pt-2">
+                  <span>Promo Code ({appliedPromoCode}):</span>
+                  <span className="font-medium">-${promoDiscount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div className="border-t-2 border-primary-300 pt-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">Total Price:</span>
+                  <span className="text-3xl font-bold text-primary-600">
+                    ${finalTotal.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-primary-200 pt-3 text-sm text-gray-600">
+                <p className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>After booking, you can add seats, meals, baggage, and insurance from your booking details page.</span>
+                </p>
+              </div>
             </div>
           </div>
 
