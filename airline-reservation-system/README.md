@@ -412,3 +412,10 @@ For support, email support@skybooker.com or open an issue in the repository.
 ---
 
 **Happy Flying with SkyBooker! ✈️**
+
+
+# Automated Deployment Test
+
+This line was added to test the automated deployment workflow.
+Date: Mon Dec  8 18:40:04 CST 2025
+
