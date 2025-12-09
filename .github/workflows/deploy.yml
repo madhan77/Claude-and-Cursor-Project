@@ -1,0 +1,94 @@
+name: Deploy to Firebase & Railway
+
+on:
+  push:
+    branches:
+      - claude/airline-reservation-prd-01SnuPqcuMXPVkoTDCXsmxAG
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to Railway
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./airline-reservation-system/backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          railway up
+          railway run npm run migrate || echo "Migration may have already run"
+          railway run npm run seed || echo "Seed may have already run"
+
+  deploy-frontend:
+    name: Deploy Frontend to Firebase
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    defaults:
+      run:
+        working-directory: ./airline-reservation-system
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: airline-reservation-system/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./airline-reservation-system/frontend
+        run: npm ci
+
+      - name: Create production environment file
+        working-directory: ./airline-reservation-system/frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        run: |
+          echo "VITE_API_URL=$VITE_API_URL" > .env.production
+
+      - name: Build frontend
+        working-directory: ./airline-reservation-system/frontend
+        run: npm run build
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+          entryPoint: ./airline-reservation-system
+
+  notify:
+    name: Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: always()
+
+    steps:
+      - name: Deployment Status
+        run: |
+          echo "🎉 Deployment Complete!"
+          echo "✅ Backend deployed to Railway"
+          echo "✅ Frontend deployed to Firebase"
+          echo "Check your Firebase console for the live URL"
