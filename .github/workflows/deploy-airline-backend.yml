@@ -1,0 +1,63 @@
+name: Deploy Airline Backend to Render
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'airline-reservation-system/backend/**'
+      - '.github/workflows/deploy-airline-backend.yml'
+
+jobs:
+  deploy:
+    name: Trigger Render Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Trigger Render Deploy Hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "🚀 Triggering Render deployment..."
+
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "❌ ERROR: RENDER_DEPLOY_HOOK_URL secret not set!"
+            echo "Please add the deploy hook URL to GitHub Secrets"
+            exit 1
+          fi
+
+          # Trigger the deploy hook
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_DEPLOY_HOOK_URL")
+
+          if [ "$response" -eq 200 ] || [ "$response" -eq 201 ]; then
+            echo "✅ Deployment triggered successfully!"
+            echo "📊 Response code: $response"
+            echo "⏳ Render is now building and deploying your application..."
+            echo "🔗 Check status at: https://dashboard.render.com/"
+          else
+            echo "❌ Deployment trigger failed!"
+            echo "📊 Response code: $response"
+            exit 1
+          fi
+
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Render deployment has been triggered successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What's happening now:" >> $GITHUB_STEP_SUMMARY
+          echo "1. ⏳ Render is pulling the latest code from GitHub" >> $GITHUB_STEP_SUMMARY
+          echo "2. ⏳ Installing dependencies (npm install)" >> $GITHUB_STEP_SUMMARY
+          echo "3. ⏳ Building the application (npm run build)" >> $GITHUB_STEP_SUMMARY
+          echo "4. ⏳ Deploying to production" >> $GITHUB_STEP_SUMMARY
+          echo "5. ⏳ Running health checks" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Expected completion time:** ~5-7 minutes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [Monitor deployment on Render Dashboard](https://dashboard.render.com/)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Backend URL: https://airline-backend-nlsk.onrender.com" >> $GITHUB_STEP_SUMMARY
