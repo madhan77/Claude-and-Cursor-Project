@@ -117,7 +117,14 @@ const startServer = async () => {
   try {
     // Run auto-migration before starting server
     console.log('🚀 Starting Airline Reservation System...\n');
-    await runAutoMigration();
+
+    // Try to run migrations, but don't fail if database isn't available yet
+    try {
+      await runAutoMigration();
+    } catch (migrationError) {
+      console.warn('⚠️  Migrations skipped - database may not be configured yet');
+    }
+
     console.log(''); // Empty line for formatting
 
     // Start the server
@@ -133,6 +140,12 @@ const startServer = async () => {
 ║                                                        ║
 ╚════════════════════════════════════════════════════════╝
       `);
+
+      if (!process.env.DATABASE_URL) {
+        console.warn('\n⚠️  WARNING: DATABASE_URL not set!');
+        console.warn('API endpoints requiring database access will fail.');
+        console.warn('Please configure DATABASE_URL in Render environment variables.\n');
+      }
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);

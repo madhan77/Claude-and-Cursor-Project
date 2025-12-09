@@ -7,9 +7,11 @@ import * as path from 'path';
  * This runs migrations automatically when the server starts
  */
 export const runAutoMigration = async (): Promise<void> => {
-  const client = await pool.connect();
+  let client;
 
   try {
+    // Try to connect to database with timeout
+    client = await pool.connect();
     console.log('🔄 Checking database schema...\n');
 
     // Check if tables already exist
@@ -57,9 +59,14 @@ export const runAutoMigration = async (): Promise<void> => {
 
   } catch (error: any) {
     console.error('❌ Auto-migration failed:', error.message);
-    throw error;
+    console.error('Error details:', error);
+    console.warn('⚠️  Database not available - server will start without migrations');
+    console.warn('⚠️  Please ensure DATABASE_URL is set correctly in Render environment variables');
+    // Don't throw - let server start anyway
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 };
 
