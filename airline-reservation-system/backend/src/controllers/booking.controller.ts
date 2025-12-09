@@ -204,14 +204,28 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
 export const getBookingById = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { id } = req.params;
+    console.log('🔍 Fetching booking with ID/PNR:', id);
 
-    // Get booking details
-    const bookingResult = await query(
-      'SELECT * FROM bookings WHERE id = $1 OR pnr = $1',
-      [id]
-    );
+    // Get booking details with better error handling
+    let bookingResult;
+    try {
+      bookingResult = await query(
+        'SELECT * FROM bookings WHERE id = $1 OR pnr = $1',
+        [id]
+      );
+      console.log('📊 Booking query result:', { rowCount: bookingResult.rows.length });
+    } catch (queryError: any) {
+      console.error('❌ Database query error:', queryError.message);
+      console.error('Query error details:', queryError);
+      return res.status(500).json({
+        success: false,
+        message: 'Database query failed',
+        error: queryError.message
+      });
+    }
 
     if (bookingResult.rows.length === 0) {
+      console.log('⚠️ Booking not found for ID/PNR:', id);
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
@@ -219,6 +233,7 @@ export const getBookingById = async (req: Request, res: Response): Promise<Respo
     }
 
     const booking = bookingResult.rows[0];
+    console.log('✅ Booking found:', { id: booking.id, pnr: booking.pnr });
 
     // Check authorization
     // Allow access if:
@@ -286,12 +301,16 @@ export const getBookingById = async (req: Request, res: Response): Promise<Respo
       }
     });
   } catch (error: any) {
-    console.error('Get booking error:', error);
+    console.error('❌ Get booking error:', error);
     console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error code:', error.code);
     return res.status(500).json({
       success: false,
       message: 'Failed to get booking',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: error.message, // Return error message even in production for debugging
+      errorCode: error.code,
+      errorName: error.name
     });
   }
 };
