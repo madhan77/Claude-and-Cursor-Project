@@ -253,7 +253,7 @@ export const getCheckinStatus = async (req: Request, res: Response) => {
     const query = `
       SELECT p.id as passenger_id, p.first_name, p.last_name,
              p.checked_in, p.boarding_pass_issued,
-             f.flight_number, f.departure_time,
+             f.id as flight_id, f.flight_number, f.departure_time,
              cr.boarding_group, cr.gate, cr.terminal
       FROM passengers p
       JOIN flights f ON p.flight_id = f.id
