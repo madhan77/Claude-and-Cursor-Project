@@ -89,7 +89,7 @@ export const createBooking = async (req: Request, res: Response): Promise<Respon
     const bookingResult = await client.query(
       `INSERT INTO bookings (pnr, user_id, total_price, contact_email, contact_phone,
                              payment_method, special_requests, status, payment_status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', 'pending')
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'confirmed', 'completed')
        RETURNING *`,
       [
         pnr,
