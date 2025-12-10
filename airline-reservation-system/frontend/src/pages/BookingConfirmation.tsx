@@ -4,12 +4,17 @@ import { format } from 'date-fns';
 import apiService from '../services/api';
 import { useBookingStore } from '../store/bookingStore';
 import type { Booking } from '../types';
+import SeatSelection from '../components/SeatSelection';
+import MealSelection from '../components/MealSelection';
 
 export default function BookingConfirmation() {
   const { bookingId } = useParams();
   const { clearBooking } = useBookingStore();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showExtras, setShowExtras] = useState(false);
+  const [totalSeatCharges, setTotalSeatCharges] = useState(0);
+  const [totalMealCharges, setTotalMealCharges] = useState(0);
 
   useEffect(() => {
     // Clear the booking store when confirmation page loads
@@ -106,6 +111,110 @@ export default function BookingConfirmation() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Add Extras Section */}
+        {!showExtras && (
+          <div className="card bg-primary-50 border-2 border-primary-200">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Enhance Your Travel Experience</h3>
+                <p className="text-sm text-gray-600 mt-1">Add seats, meals, baggage, and more to your booking</p>
+              </div>
+              <button
+                onClick={() => setShowExtras(true)}
+                className="btn-primary"
+              >
+                Add Extras
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Extras Form */}
+        {showExtras && booking && booking.passengers && booking.flights && (
+          <div className="space-y-6 mb-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">Add Extras to Your Booking</h2>
+              <button
+                onClick={() => setShowExtras(false)}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Hide Extras
+              </button>
+            </div>
+
+            {booking.passengers.map((passenger: any, passengerIndex: number) => (
+              <div key={passengerIndex} className="border-2 border-gray-200 rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-primary-600">
+                  {passenger.first_name} {passenger.last_name}
+                </h3>
+
+                {booking.flights && booking.flights.map((flight: any, flightIndex: number) => (
+                  <div key={flightIndex} className="mb-6 last:mb-0">
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        Flight {flight.flight_number}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {flight.dep_city} → {flight.arr_city}
+                      </p>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Seat Selection */}
+                      <SeatSelection
+                        flightId={flight.id}
+                        passengerId={passenger.id}
+                        bookingId={booking.id}
+                        passengerName={`${passenger.first_name} ${passenger.last_name}`}
+                        onSeatSelected={(seatNumber, extraCharge) => {
+                          setTotalSeatCharges(prev => prev + extraCharge);
+                        }}
+                      />
+
+                      {/* Meal Selection */}
+                      <MealSelection
+                        bookingId={booking.id}
+                        passengerId={passenger.id}
+                        passengerName={`${passenger.first_name} ${passenger.last_name}`}
+                        flightId={flight.id}
+                        airlineCode={flight.airline_code}
+                        onMealAdded={(totalCost) => {
+                          setTotalMealCharges(prev => prev + totalCost);
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            {/* Total Extras Cost */}
+            {(totalSeatCharges > 0 || totalMealCharges > 0) && (
+              <div className="card bg-green-50 border-2 border-green-200">
+                <h3 className="font-semibold mb-3">Additional Charges</h3>
+                <div className="space-y-2 text-sm">
+                  {totalSeatCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span>Seat Selections:</span>
+                      <span className="font-medium">${totalSeatCharges.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {totalMealCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span>Meal Selections:</span>
+                      <span className="font-medium">${totalMealCharges.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="border-t-2 border-green-300 pt-2 flex justify-between font-bold text-base">
+                    <span>Total Extras:</span>
+                    <span className="text-green-700">${(totalSeatCharges + totalMealCharges).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
