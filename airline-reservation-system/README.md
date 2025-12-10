@@ -400,7 +400,7 @@ This project is licensed under the MIT License.
 
 ## Support
 
-For support, email support@skybooker.com or open an issue in the repository.
+For support, email support@jetstream.com or open an issue in the repository.
 
 ## Acknowledgments
 
@@ -411,7 +411,7 @@ For support, email support@skybooker.com or open an issue in the repository.
 
 ---
 
-**Happy Flying with SkyBooker! ✈️**
+**Happy Flying with JetStream! ✈️**
 
 
 # Automated Deployment Test

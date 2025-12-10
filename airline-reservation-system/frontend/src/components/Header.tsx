@@ -29,7 +29,7 @@ export default function Header() {
                 d="M5 12h14M12 5l7 7-7 7"
               />
             </svg>
-            <span className="text-xl font-bold text-gray-900">SkyBooker</span>
+            <span className="text-xl font-bold text-gray-900">JetStream</span>
           </Link>
 
           {/* Navigation */}
