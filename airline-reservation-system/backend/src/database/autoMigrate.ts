@@ -118,8 +118,10 @@ const runNewFeaturesMigration = async (client: any): Promise<void> => {
 
 /**
  * Auto-seed sample data on fresh database
+ * Note: This function is kept for reference but not used.
+ * Seeding is now handled by autoSeed.ts
  */
-const runAutoSeed = async (client: any): Promise<void> => {
+const _runAutoSeed = async (client: any): Promise<void> => {
   try {
     // Check if flights table has data (most comprehensive check)
     const flightCheck = await client.query('SELECT COUNT(*) FROM flights');
