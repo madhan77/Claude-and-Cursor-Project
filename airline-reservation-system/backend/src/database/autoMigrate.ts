@@ -7,7 +7,7 @@ import * as path from 'path';
  * This runs migrations automatically when the server starts
  */
 export const runAutoMigration = async (): Promise<void> => {
-  let client;
+  let client: any = undefined;
 
   try {
     // Try to connect to database with timeout
@@ -54,8 +54,7 @@ export const runAutoMigration = async (): Promise<void> => {
     // Run new features migration if needed
     await runNewFeaturesMigration(client);
 
-    // Always check if seeding is needed (whether tables were just created or already existed)
-    await runAutoSeed(client);
+    console.log('✅ Auto-migration completed successfully\n');
 
   } catch (error: any) {
     console.error('❌ Auto-migration failed:', error.message);

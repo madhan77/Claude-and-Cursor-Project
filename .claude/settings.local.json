@@ -9,7 +9,12 @@
       "Bash(npm run build:*)",
       "Bash(npm create:*)",
       "Bash(npx firebase init hosting)",
-      "Bash(npx firebase deploy:*)"
+      "Bash(npx firebase deploy:*)",
+      "Bash(git merge:*)",
+      "Bash(git stash:*)",
+      "Bash(git apply:*)",
+      "Bash(cd:*)",
+      "Bash(./test-deployment.sh)"
     ],
     "deny": [],
     "ask": []

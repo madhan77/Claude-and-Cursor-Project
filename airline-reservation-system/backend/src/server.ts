@@ -17,8 +17,9 @@ import seatRoutes from './routes/seat.routes';
 import checkinRoutes from './routes/checkin.routes';
 import loyaltyRoutes from './routes/loyalty.routes';
 
-// Import auto-migration
+// Import auto-migration and auto-seed
 import { runAutoMigration } from './database/autoMigrate';
+import { runAutoSeed } from './database/autoSeed';
 
 // Load environment variables
 dotenv.config();
@@ -121,6 +122,8 @@ const startServer = async () => {
     // Try to run migrations, but don't fail if database isn't available yet
     try {
       await runAutoMigration();
+      // After migrations, try to auto-seed if enabled
+      await runAutoSeed();
     } catch (migrationError) {
       console.warn('⚠️  Migrations skipped - database may not be configured yet');
     }
