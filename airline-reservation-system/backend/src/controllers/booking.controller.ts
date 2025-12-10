@@ -206,14 +206,27 @@ export const getBookingById = async (req: Request, res: Response): Promise<Respo
     const { id } = req.params;
     console.log('🔍 Fetching booking with ID/PNR:', id);
 
+    // Check if input looks like a UUID (has hyphens and proper format)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
     // Get booking details with better error handling
     let bookingResult;
     try {
-      bookingResult = await query(
-        'SELECT * FROM bookings WHERE id = $1 OR pnr = $1',
-        [id]
-      );
-      console.log('📊 Booking query result:', { rowCount: bookingResult.rows.length });
+      // Use appropriate query based on input format
+      if (isUUID) {
+        // Try to match by UUID or PNR
+        bookingResult = await query(
+          'SELECT * FROM bookings WHERE id::text = $1 OR pnr = $1',
+          [id]
+        );
+      } else {
+        // Input is likely a PNR, only search by PNR
+        bookingResult = await query(
+          'SELECT * FROM bookings WHERE pnr = $1',
+          [id]
+        );
+      }
+      console.log('📊 Booking query result:', { rowCount: bookingResult.rows.length, searchType: isUUID ? 'UUID/PNR' : 'PNR' });
     } catch (queryError: any) {
       console.error('❌ Database query error:', queryError.message);
       console.error('Query error details:', queryError);
