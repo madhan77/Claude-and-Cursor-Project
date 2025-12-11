@@ -169,7 +169,7 @@ export default function BookingConfirmation() {
                         passengerId={passenger.id}
                         bookingId={booking.id}
                         passengerName={`${passenger.first_name} ${passenger.last_name}`}
-                        onSeatSelected={(seatNumber, extraCharge) => {
+                        onSeatSelected={(_seatNumber, extraCharge) => {
                           setTotalSeatCharges(prev => prev + extraCharge);
                         }}
                       />
