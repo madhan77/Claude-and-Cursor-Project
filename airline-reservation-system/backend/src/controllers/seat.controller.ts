@@ -2,6 +2,97 @@ import { Request, Response } from 'express';
 import pool from '../config/database';
 
 /**
+ * Helper function to generate seat map for an aircraft
+ */
+async function generateSeatMapForAircraft(client: any, aircraftId: string, aircraft: any) {
+  // Get aircraft details if not provided
+  let aircraftData = aircraft;
+  if (!aircraft.first_class_seats && !aircraft.business_seats && !aircraft.economy_seats) {
+    const aircraftQuery = 'SELECT * FROM aircraft WHERE id = $1';
+    const aircraftResult = await client.query(aircraftQuery, [aircraftId]);
+    if (aircraftResult.rows.length > 0) {
+      aircraftData = aircraftResult.rows[0];
+    }
+  }
+
+  // Create seat map based on aircraft configuration
+  // Standard layout: A-F columns (A, B, C = left; D, E, F = right)
+  const seats = [];
+  let currentRow = 1;
+
+  // First class (rows 1-2, 4 seats per row: A, C, D, F)
+  if (aircraftData.first_class_seats > 0) {
+    const firstClassRows = Math.ceil(aircraftData.first_class_seats / 4);
+    for (let row = currentRow; row < currentRow + firstClassRows; row++) {
+      for (const col of ['A', 'C', 'D', 'F']) {
+        seats.push({
+          seat_number: `${row}${col}`,
+          row_number: row,
+          column_letter: col,
+          class: 'first',
+          type: col === 'A' || col === 'F' ? 'window' : 'aisle',
+          extra_price: 0
+        });
+      }
+    }
+    currentRow += firstClassRows;
+  }
+
+  // Business class (4 seats per row: A, C, D, F)
+  if (aircraftData.business_seats > 0) {
+    const businessClassRows = Math.ceil(aircraftData.business_seats / 4);
+    for (let row = currentRow; row < currentRow + businessClassRows; row++) {
+      for (const col of ['A', 'C', 'D', 'F']) {
+        seats.push({
+          seat_number: `${row}${col}`,
+          row_number: row,
+          column_letter: col,
+          class: 'business',
+          type: col === 'A' || col === 'F' ? 'window' : 'aisle',
+          extra_price: 0
+        });
+      }
+    }
+    currentRow += businessClassRows;
+  }
+
+  // Economy class (6 seats per row: A, B, C, D, E, F)
+  if (aircraftData.economy_seats > 0) {
+    const economyClassRows = Math.ceil(aircraftData.economy_seats / 6);
+    for (let row = currentRow; row < currentRow + economyClassRows; row++) {
+      for (const col of ['A', 'B', 'C', 'D', 'E', 'F']) {
+        const type = col === 'A' || col === 'F' ? 'window' :
+                    col === 'C' || col === 'D' ? 'aisle' : 'middle';
+
+        // Exit rows get extra legroom (every 10th row in economy)
+        const isExitRow = row % 10 === 0;
+
+        seats.push({
+          seat_number: `${row}${col}`,
+          row_number: row,
+          column_letter: col,
+          class: 'economy',
+          type: isExitRow ? 'exit_row' : type,
+          extra_price: isExitRow ? 25 : (type === 'aisle' || type === 'window') && row > currentRow + 3 ? 10 : 0
+        });
+      }
+    }
+  }
+
+  // Insert all seats
+  for (const seat of seats) {
+    await client.query(
+      `INSERT INTO seat_maps (aircraft_id, seat_number, row_number, column_letter, class, type, extra_price)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [aircraftId, seat.seat_number, seat.row_number, seat.column_letter, seat.class, seat.type, seat.extra_price]
+    );
+  }
+
+  console.log(`✅ Generated ${seats.length} seats for aircraft ${aircraftId}`);
+  return seats.length;
+}
+
+/**
  * Get seat map for a flight
  * GET /api/seats/flight/:flightId
  */
@@ -35,7 +126,14 @@ export const getFlightSeatMap = async (req: Request, res: Response) => {
       WHERE aircraft_id = $1
       ORDER BY row_number, column_letter
     `;
-    const seatMapResult = await client.query(seatMapQuery, [flight.aircraft_id]);
+    let seatMapResult = await client.query(seatMapQuery, [flight.aircraft_id]);
+
+    // If no seat map exists, auto-generate it
+    if (seatMapResult.rows.length === 0) {
+      console.log(`No seat map found for aircraft ${flight.aircraft_id}, auto-generating...`);
+      await generateSeatMapForAircraft(client, flight.aircraft_id, flight);
+      seatMapResult = await client.query(seatMapQuery, [flight.aircraft_id]);
+    }
 
     // Get already selected seats for this flight
     const selectedSeatsQuery = `
